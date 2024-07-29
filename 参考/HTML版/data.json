@@ -1,0 +1,52 @@
+dataJson={
+    "img":{
+	    "fm":{
+            "parentid": "yxmenudivid",
+            "imgsrc": ["img/logo.jpg"],
+            "imgposition": [[3840,2160,0,0]]
+        },
+		"yxoverimg":{
+            "parentid": "yxoverdiv0id",
+            "imgsrc": ["img/1.png","img/4.png","img/2.png","img/3.png","img/8.png","img/9.png","img/10.png"],
+            "imgposition": [[1526,765,373,71],[1811,1810,199,653],[711,182,759,1323],[1584,207,303,2271],[468,154,844,3355],[349,116,101,3670],[442,228,1678,3567]]
+        }
+		
+    },
+	"pst":{
+	    "fmbtn":[[1764,200,1038,1102],[1764,200,1038,1390],[1764,200,1038,1678]]
+    },
+    "btn":{
+		"yxmenubtn":{
+            "parentid": "yxmenudivid",
+            "imgsrc": ["img/btn0.png","img/btn0.png","img/btn0.png"],
+			"imgid":["fm0btnid","fm1btnid","fm2btnid"],
+            "imgposition": [[1764,200,1038,1102],[1764,200,1038,1390],[1764,200,1038,1678]]
+        },
+		"gmmenubtn":{
+            "parentid": "yxjm0divid",
+            "imgsrc": [["img/pause.png","img/pause1.png"],["img/music1.png","img/music.png"],["img/sound.png","img/sound1.png"],["img/fullscreen-on.png","img/fullscreen-off.png"],["img/quit.png","img/close.png"]],
+			"imgid":["gmmenu0btnid","gmmenu1btnid","gmmenu2btnid","gmmenu3btnid","gmmenu4btnid"],
+            "imgposition": [[269,278,1176,12],[269,278,1595,12],[269,278,2014,12],[269,278,2433,12],[269,278,2852,12]]
+        },
+		"zzcgbtn":{
+            "parentid": "ttcgdivid",
+			"parentcc":[700,93],
+            "imgsrc": ["img/btn/cg0.jpg","img/btn/cg1.jpg","img/btn/cg2.jpg","img/btn/cg3.jpg","img/btn/cg4.jpg"],
+			"imgid":["zzttcg0id","zzttcg1id","zzttcg2id","zzttcg3id","zzttcg4id"],
+            "imgposition": [[140,93,0,0],[140,93,140,0],[140,93,280,0],[140,93,420,0],[140,93,560,0]]
+        }
+    },
+	"div":{
+	    "zzwjmz":{
+            "parentid": "zenzan0divid",
+            "divid": ["zzwjmzpdivid","zzwjblpdivid","zzdfblpdivid","zzzbdivid"],
+            "divposition": [[120,60,20,138],[385,340,20,25],[185,340,415,25],[676,773,22,485]]
+        },
+	    "zzzbzdiv":{
+	        "parentid": "zzzbdivid",
+			"parentcc":[676,773],
+            "divid": ["zbxqdivid","zbhzdivid","zbscdivid"],
+            "divposition": [[676,773,0,0],[676,773,0,0],[676,773,0,0]]
+	    }
+	}
+}

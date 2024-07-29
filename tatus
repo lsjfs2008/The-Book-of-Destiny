@@ -1,0 +1,22 @@
+[33mcommit 0afd6a4e5810a9ada3ad01b5fe1b14b7674a4e73[m[33m ([m[1;36mHEAD -> [m[1;32mmain[m[33m)[m
+Author: lsjfs2008 <lsjfs2008@163.com>
+Date:   Sun Jul 28 13:14:03 2024 +0800
+
+    test
+
+[33mcommit df88b5924dd52b6585ae21dd9fd956d8264f10ff[m
+Author: lsjfs2008 <lsjfs2008@163.com>
+Date:   Sun Jul 28 11:15:28 2024 +0800
+
+    first commit
+
+[33mcommit 6c2be5d2cbc47f3a5c0192b5156ea0465969a50e[m
+Author: lsjfs2008 <lsjfs2008@163.com>
+Date:   Sun Jul 28 10:45:55 2024 +0800
+
+    new file:   data.json
+    new file:   index.html
+    new file:   js/Main.js
+    new file:   js/data.json
+    new file:   js/index.js
+    new file:   js/jmsj.js

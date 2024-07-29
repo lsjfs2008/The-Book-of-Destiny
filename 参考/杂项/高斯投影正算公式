@@ -1,0 +1,22 @@
+function gaussProjection(lat, lon) {
+    const a = 6378137; // 长半轴
+    const e2 = 0.00669438499958; // 第一偏心率的平方
+    const lat = lat * Math.PI / 180; // 转换为弧度
+    const lon = lon * Math.PI / 180; // 转换为弧度
+ 
+    const N = a / Math.sqrt(1 - e2 * Math.sin(lat) * Math.sin(lat));
+    const T = Math.tan(Math.PI / 4 - lat / 2) / Math.pow((1 - e2 * Math.sin(lat) * Math.sin(lat)), 0.5);
+    const lat2 = Math.log(Math.pow(T, 1 + e2) * Math.pow(1 - e2, 0.5)) / (e2 * Math.PI);
+ 
+    const x = N * (lon - 0.40349454620783041 * Math.log((Math.tan(Math.PI / 4 + lat2 / 2))) + 0.23344689675573317);
+    const y = N * Math.sin(lat);
+ 
+    // return { x: x, y: y };
+    return [x,y]
+}
+ 
+// 使用示例
+const lat = 40.0;
+const lon = -100.0;
+const projection = gaussProjection(lat, lon);
+console.log(projection);

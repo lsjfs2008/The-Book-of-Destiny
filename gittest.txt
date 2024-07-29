@@ -1,0 +1,99 @@
+二，添加，查看，提交文件（修改）。
+1,初始化，为在本地创建一个.git文件夹。
+    PS D:\Program Files\Apache24\htdocs> git init
+    Reinitialized existing Git repository in D:/Program Files/Apache24/htdocs/.git/
+2，查看变更（状态）
+    PS D:\Program Files\Apache24\htdocs> git status
+    On branch main
+    Untracked files:
+    (use "git add <file>..." to include in what will be committed)
+
+            "git\346\265\213\350\257\225.txt"
+
+    nothing added to commit but untracked files present (use "git add" to track)
+    ……
+    在分支干管上
+    未标记的文件：
+    （使用“git add<file>…”来包含将要提交的内容）
+
+    “git \346\265\213\350\257\225.txt”
+
+    提交时没有添加任何内容，但存在未跟踪的文件（使用“git add”进行跟踪）
+3，PS D:\Program Files\Apache24\htdocs> git add -A
+    什么提示都没有。没关系，我们再次使用 git status ：
+    PS D:\Program Files\Apache24\htdocs> git status
+    On branch main
+    Changes to be committed:
+    (use "git reset HEAD <file>..." to unstage)
+    
+    new file:   "git\346\265\213\350\257\225.txt"
+    ……
+    在分支干管上
+    要提交的更改：
+    （使用“git reset HEAD<file>…”来取消分页）
+
+    新文件：“git\346\265\213\350\257\225.txt”
+4,提交（变更信息）
+      PS D:\Program Files\Apache24\htdocs> git commit -m "test"
+      [main 0afd6a4] test
+      1 file changed, 19 insertions(+)
+      create mode 100644 "git\346\265\213\350\257\225.txt"
+5，查看提交记录git log
+      PS D:\Program Files\Apache24\htdocs> git log
+      commit 0afd6a4e5810a9ada3ad01b5fe1b14b7674a4e73 (HEAD -> main)
+      Author: lsjfs2008 <lsjfs2008@163.com>
+      Date:   Sun Jul 28 13:14:03 2024 +0800
+  
+          test
+  
+      commit df88b5924dd52b6585ae21dd9fd956d8264f10ff
+      Author: lsjfs2008 <lsjfs2008@163.com>
+      Date:   Sun Jul 28 11:15:28 2024 +0800
+  
+          first commit
+  
+      commit 6c2be5d2cbc47f3a5c0192b5156ea0465969a50e
+      Author: lsjfs2008 <lsjfs2008@163.com>
+
+三，文件的修改
+    1，查看变化：git diff
+    PS D:\Program Files\Apache24\htdocs> git add -A
+    PS D:\Program Files\Apache24\htdocs> git status
+    On branch main
+    Changes to be committed:
+    (use "git reset HEAD <file>..." to unstage)
+
+            modified:   "git\346\265\213\350\257\225.txt"
+
+    PS D:\Program Files\Apache24\htdocs> git diff    
+        ####git add -A之后，文件已经staged<stage,n.阶段，驿站，v.组织，筹划。>####
+        ####只是没有committed<commit:提交，记下。>到repository<存储库>,####
+        ####git diff：查看当前状态和最新的commit之间不同的地方####？？？####
+    PS D:\Program Files\Apache24\htdocs>  git status
+    On branch main
+    Changes to be committed:
+    (use "git reset HEAD <file>..." to unstage)
+
+            modified:   "git\346\265\213\350\257\225.txt"
+
+    Changes not staged for commit:
+    (use "git add <file>..." to update what will be committed)
+    (use "git checkout -- <file>..." to discard changes in working directory)
+
+            modified:   "git\346\265\213\350\257\225.txt"
+
+    PS D:\Program Files\Apache24\htdocs> git diff
+    diff --git "a/git\346\265\213\350\257\225.txt" "b/git\346\265\213\350\257\225.txt"
+    index b183b19..15d9c21 100644
+    --- "a/git\346\265\213\350\257\225.txt"
+    +++ "b/git\346\265\213\350\257\225.txt"
+    @@ -53,4 +53,7 @@
+            first commit
+
+        commit 6c2be5d2cbc47f3a5c0192b5156ea0465969a50e
+    -      Author: lsjfs2008 <lsjfs2008@163.com>
+    \ No newline at end of file
+    +      Author: lsjfs2008 <lsjfs2008@163.com>
+    +
+    +三，文件的修改
+    +1，查看变化：git diff
