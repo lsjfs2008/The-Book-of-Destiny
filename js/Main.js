@@ -36,96 +36,62 @@ export default class Main{
         }
         ))
         //鼠标监控：
-        canvas.addEventListener('mousedown',sbevent)
-        //鼠标拖动地图
-        canvas.addEventListener('mousedown', (e) => {
-            let x=e.clientX - canvas.getBoundingClientRect().left;
-            let y=e.clientY - canvas.getBoundingClientRect().top;
-            let cc=jsd.cc
-            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
-                jsd.mapisDragging = true;
-                jsd.offsetX = x
-                jsd.offsetY = y
-                canvas.style.cursor = 'grabbing';
-            }
-          });
-        document.addEventListener('mousemove', (e) => {
-            if (jsd.mapisDragging) {
-              let x= e.clientX - canvas.getBoundingClientRect().left;
-              let y= e.clientY - canvas.getBoundingClientRect().top;
-              let dx=x-jsd.offsetX
-              let dy=y-jsd.offsetY
-              jsd.offsetX=x
-              jsd.offsetY=y
-            //   console.log(jsd.c);
-            console.log(dx,dy);
-            if(!!jsd.c){
-                let c=jsd.c
-                let ms=jsd.map.img.siz
-                // console.log(ms);
-                c[0]=c[0]-dx
-                if(c[0]<0){c[0]=0}
-                if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
-                c[1]=c[1]-dy
-                if(c[1]<0){c[1]=0}
-                if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
-                jsd.c=c
-                // console.log(jsd.c);
-            }
-            this.render()
-            }
-          });
+        canvas.addEventListener('mousedown',this.bindsbevent)
+        canvas.addEventListener('mousemove',this.bindsbevent)
+        canvas.addEventListener('wheel',this.bindsbevent)
+        canvas.addEventListener('dblclick',this.bindsbevent)
+        //鼠标拖动地图,松开鼠标不需集成。
         document.addEventListener('mouseup', () => {
             jsd.mapisDragging = false;
             canvas.style.cursor = 'default';
           });
         //滚轮缩放地图
-        canvas.addEventListener('wheel',(e)=>{
-            console.log(e);
-            let x=e.clientX - canvas.getBoundingClientRect().left;
-            let y=e.clientY - canvas.getBoundingClientRect().top;
-            let cc=jsd.cc
-            let ms=jsd.map.img.siz
-            let c=jsd.c
-            // console.log(c);
-            //1区（默认图区）
-            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
-                let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
-                let bmin=0.1*bmax
-                let b0=c[2]/c[6]
-                // console.log('bmax:',bmax);
-                //以x,y为中心点缩放：
-                let db=0.1*b0
-                let b=b0-db
-                if (e.deltaY>0){b=b0+db}
-                // else{b=b0-db}
-                if(b>bmax){b=bmax}
-                if(b<bmin){b=bmin}
-                c[0]=c[0]+x*(b0-b)
-                c[1]=c[1]+y*(b0-b)
-                c[2]=c[6]*b
-                c[3]=c[7]*b
-                if(c[0]<0){c[0]=0}
-                if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
-                if(c[1]<0){c[1]=0}
-                if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
-                // console.log(c);
-                jsd.c=c
-            }
-            this.render()
-        })
+        // canvas.addEventListener('wheel',(e)=>{
+        //     console.log(e);
+        //     let x=e.clientX - canvas.getBoundingClientRect().left;
+        //     let y=e.clientY - canvas.getBoundingClientRect().top;
+        //     let cc=jsd.cc
+        //     let ms=jsd.map.img.siz
+        //     let c=jsd.c
+        //     // console.log(c);
+        //     //1区（默认图区）
+        //     if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+        //         let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
+        //         let bmin=0.1*bmax
+        //         let b0=c[2]/c[6]
+        //         // console.log('bmax:',bmax);
+        //         //以x,y为中心点缩放：
+        //         let db=0.1*b0
+        //         let b=b0-db
+        //         if (e.deltaY>0){b=b0+db}
+        //         // else{b=b0-db}
+        //         if(b>bmax){b=bmax}
+        //         if(b<bmin){b=bmin}
+        //         c[0]=c[0]+x*(b0-b)
+        //         c[1]=c[1]+y*(b0-b)
+        //         c[2]=c[6]*b
+        //         c[3]=c[7]*b
+        //         if(c[0]<0){c[0]=0}
+        //         if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
+        //         if(c[1]<0){c[1]=0}
+        //         if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
+        //         // console.log(c);
+        //         jsd.c=c
+        //     }
+        //     this.render()
+        // })
         //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
-        canvas.addEventListener('dblclick',(e)=>{
-            let x=e.clientX - canvas.getBoundingClientRect().left;
-            let y=e.clientY - canvas.getBoundingClientRect().top;
-            let cc=jsd.cc
-            let ms=jsd.map.img.siz
-            let c=jsd.c
-            //1区（默认图区）
-            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+        // canvas.addEventListener('dblclick',(e)=>{
+        //     let x=e.clientX - canvas.getBoundingClientRect().left;
+        //     let y=e.clientY - canvas.getBoundingClientRect().top;
+        //     let cc=jsd.cc
+        //     let ms=jsd.map.img.siz
+        //     let c=jsd.c
+        //     //1区（默认图区）
+        //     if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
 
-            }
-        })
+        //     }
+        // })
 
     }//构建函数//
     start(){
@@ -155,6 +121,7 @@ export default class Main{
         let bg1 = sctp(sj.bgimg[0]) //背景图片//文本
         let bg2 = sctp(sj.bgimg[1]) //背景图片//时间线
         jsd.bg=[bg0,bg1,bg2]
+        this.bindsbevent=this.sbevent.bind(this)    //绑定this.
         // console.log(jsd.bg);
         window.onload=()=>{console.log('window.onload');this.update();}
         window.onresize=()=>{
@@ -169,6 +136,98 @@ export default class Main{
         // jsd.bg[2].onload=()=>{console.log('jsd.bg[2].onload');}
     //  //
     }//start()//
+sbevent(e){
+    // console.log(e);
+    let x=e.clientX - canvas.getBoundingClientRect().left;
+    let y=e.clientY - canvas.getBoundingClientRect().top;
+    let cc=jsd.cc
+    let c=jsd.c
+    let ms=jsd.map.img.siz
+    //1区：
+    if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+        //鼠标拖动地图,
+        if(e.type==="mousedown"){
+            jsd.mapisDragging = true;
+            jsd.offsetX = x
+            jsd.offsetY = y
+            canvas.style.cursor = 'grabbing';
+        }
+        if(e.type==="mousemove"){
+            if (jsd.mapisDragging) {
+                let x= e.clientX - canvas.getBoundingClientRect().left;
+                let y= e.clientY - canvas.getBoundingClientRect().top;
+                let dx=x-jsd.offsetX
+                let dy=y-jsd.offsetY
+                jsd.offsetX=x
+                jsd.offsetY=y
+                //   console.log(jsd.c);
+                // console.log(dx,dy);
+                // if(!!jsd.c){
+                    // console.log(ms);
+                    c[0]=c[0]-dx
+                    c[1]=c[1]-dy
+                    if(c[0]<0){c[0]=0}
+                    if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
+                    if(c[1]<0){c[1]=0}
+                    if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
+                    jsd.c=c
+                    this.render()
+                    console.log(ms);
+                    console.log(jsd.c);
+                // }
+            }
+        }
+        //滚轮缩放地图
+        if(e.type==='wheel'){
+            let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
+            let bmin=0.1*bmax
+            let b0=c[2]/c[6]
+            // console.log('bmax:',bmax);
+            //以x,y为中心点缩放：
+            let db=0.1*b0
+            let b=b0-db
+            if (e.deltaY>0){b=b0+db}
+            // else{b=b0-db}
+            if(b>bmax){b=bmax}
+            if(b<bmin){b=bmin}
+            c[0]=c[0]+x*(b0-b)
+            c[1]=c[1]+y*(b0-b)
+            c[2]=c[6]*b
+            c[3]=c[7]*b
+            if(c[0]<0){c[0]=0}
+            if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
+            if(c[1]<0){c[1]=0}
+            if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
+            // console.log(c);
+            jsd.c=c
+            this.render()
+        }
+        //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
+        if(e.type==='dblclick'){
+            //使目标点的屏幕x,y为视界的一半：
+            let px=0.5*c[6]
+            let py=0.5*c[7]
+            //已知目标点的原屏幕x,y值为x,y,其原图x,y值为tx,ty：
+            let b0=c[2]/c[6]
+            let tx=x*b0+c[0]
+            let ty=y*b0+c[1]
+            //调整c[0],c[1],使得tx,ty对应的屏幕x,y值为px,py
+            // x=(tx-c[0])/b0=px
+            c[0]=tx-px*b0
+            c[1]=ty-py*b0          
+            if(c[0]<0){c[0]=0}
+            if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
+            if(c[1]<0){c[1]=0}
+            if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
+            // console.log(c);
+            jsd.c=c
+            this.render()
+        }
+
+    }//1区//
+    // console.log(this);
+    
+}//sbevent//
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
     //分区域更新绘图
@@ -272,7 +331,7 @@ render(){
         let tc=cc[2]   //时间线区域的[x,y,w,h]
         let t=jsd.tj.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
         let py=Math.floor(tc[2]/t[1])    //py像素每年
-        console.log('py:',py,'像素每年');
+        // console.log('py:',py,'像素每年');
         for (let i=0;i*py<tc[2];i++){
             //设定年标线长，
             let y=t[0]+i
@@ -297,17 +356,7 @@ render(){
 }//render()//
 /**/
 }
-function sbevent(e){
-    let x=e.clientX - canvas.getBoundingClientRect().left;
-            let y=e.clientY - canvas.getBoundingClientRect().top;
-            let cc=jsd.cc
-            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
-                jsd.mapisDragging = true;
-                jsd.offsetX = x
-                jsd.offsetY = y
-                canvas.style.cursor = 'grabbing';
-            }
-}
+
 //生成图片对象
 function sctp(m){
     let re=new Image()
