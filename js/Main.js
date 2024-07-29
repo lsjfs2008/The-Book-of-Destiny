@@ -24,18 +24,110 @@ export default class Main{
         this.start()
         //this.render()
         //触碰监控
-                canvas.addEventListener('touchstart', ((e) => {
-                  e.preventDefault()
-                  const x = e.touches[0].clientX
-                  const y = e.touches[0].clientY
-                  if(this.djwx===0){this.djgn(x,y)}    //点击1无效，0有效。
-                    //点击功能设计：1，根据点击update()数据；
-                    //2，根据update()的数据判断是否需要render()刷新/重新加载界面；
-                    //3，点击特定按钮，进入自动演进时间线的伪动画模式loop()
-                  //this.render()
-                }
-                ))
-    }
+        canvas.addEventListener('touchstart', ((e) => {
+            e.preventDefault()
+            const x = e.touches[0].clientX
+            const y = e.touches[0].clientY
+            if(this.djwx===0){this.djgn(x,y)}    //点击1无效，0有效。
+            //点击功能设计：1，根据点击update()数据；
+            //2，根据update()的数据判断是否需要render()刷新/重新加载界面；
+            //3，点击特定按钮，进入自动演进时间线的伪动画模式loop()
+            //this.render()
+        }
+        ))
+        //鼠标监控：
+        canvas.addEventListener('mousedown',sbevent)
+        //鼠标拖动地图
+        canvas.addEventListener('mousedown', (e) => {
+            let x=e.clientX - canvas.getBoundingClientRect().left;
+            let y=e.clientY - canvas.getBoundingClientRect().top;
+            let cc=jsd.cc
+            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+                jsd.mapisDragging = true;
+                jsd.offsetX = x
+                jsd.offsetY = y
+                canvas.style.cursor = 'grabbing';
+            }
+          });
+        document.addEventListener('mousemove', (e) => {
+            if (jsd.mapisDragging) {
+              let x= e.clientX - canvas.getBoundingClientRect().left;
+              let y= e.clientY - canvas.getBoundingClientRect().top;
+              let dx=x-jsd.offsetX
+              let dy=y-jsd.offsetY
+              jsd.offsetX=x
+              jsd.offsetY=y
+            //   console.log(jsd.c);
+            console.log(dx,dy);
+            if(!!jsd.c){
+                let c=jsd.c
+                let ms=jsd.map.img.siz
+                // console.log(ms);
+                c[0]=c[0]-dx
+                if(c[0]<0){c[0]=0}
+                if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
+                c[1]=c[1]-dy
+                if(c[1]<0){c[1]=0}
+                if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
+                jsd.c=c
+                // console.log(jsd.c);
+            }
+            this.render()
+            }
+          });
+        document.addEventListener('mouseup', () => {
+            jsd.mapisDragging = false;
+            canvas.style.cursor = 'default';
+          });
+        //滚轮缩放地图
+        canvas.addEventListener('wheel',(e)=>{
+            console.log(e);
+            let x=e.clientX - canvas.getBoundingClientRect().left;
+            let y=e.clientY - canvas.getBoundingClientRect().top;
+            let cc=jsd.cc
+            let ms=jsd.map.img.siz
+            let c=jsd.c
+            // console.log(c);
+            //1区（默认图区）
+            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+                let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
+                let bmin=0.1*bmax
+                let b0=c[2]/c[6]
+                // console.log('bmax:',bmax);
+                //以x,y为中心点缩放：
+                let db=0.1*b0
+                let b=b0-db
+                if (e.deltaY>0){b=b0+db}
+                // else{b=b0-db}
+                if(b>bmax){b=bmax}
+                if(b<bmin){b=bmin}
+                c[0]=c[0]+x*(b0-b)
+                c[1]=c[1]+y*(b0-b)
+                c[2]=c[6]*b
+                c[3]=c[7]*b
+                if(c[0]<0){c[0]=0}
+                if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
+                if(c[1]<0){c[1]=0}
+                if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
+                // console.log(c);
+                jsd.c=c
+            }
+            this.render()
+        })
+        //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
+        canvas.addEventListener('dblclick',(e)=>{
+            let x=e.clientX - canvas.getBoundingClientRect().left;
+            let y=e.clientY - canvas.getBoundingClientRect().top;
+            let cc=jsd.cc
+            let ms=jsd.map.img.siz
+            let c=jsd.c
+            //1区（默认图区）
+            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+
+            }
+        })
+
+    }//构建函数//
     start(){
         //一，加载默认数据，如果有本地存储数据，更新为本地存储数据。
         //尝试调用本地存储的配置数据：
@@ -87,13 +179,15 @@ update(){
         //加载图文线：
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,cc[0][0],cc[0][1],cc[0][2],cc[0][3]]
+        console.log(c);
         if(c[2]*c[7]>c[3]*c[6]){
             c[0]=0.5*(c[2]-c[3]*c[6]/c[7])
-            c[2]=c[2]*c[6]/c[7]
+            c[2]=c[3]*c[6]/c[7]
         }else{
             c[1]=0.5*(c[3]-c[2]*c[7]/c[6])
             c[3]=c[2]*c[7]/c[6]}
         jsd.c=c
+        console.log(c);
         jsd.mapp=cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]}      
     }
     console.log(jsd);
@@ -138,7 +232,7 @@ render(){
     //清屏
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     //分区域更新绘图
-    console.log(jsd);
+    // console.log(jsd);
     let cc=jsd.cc
     // console.log('jsd.vs:',jsd.vs);
     if(jsd.vs[0]>0){
@@ -203,7 +297,17 @@ render(){
 }//render()//
 /**/
 }
-
+function sbevent(e){
+    let x=e.clientX - canvas.getBoundingClientRect().left;
+            let y=e.clientY - canvas.getBoundingClientRect().top;
+            let cc=jsd.cc
+            if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+                jsd.mapisDragging = true;
+                jsd.offsetX = x
+                jsd.offsetY = y
+                canvas.style.cursor = 'grabbing';
+            }
+}
 //生成图片对象
 function sctp(m){
     let re=new Image()
