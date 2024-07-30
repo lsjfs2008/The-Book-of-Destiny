@@ -1,2 +1,0 @@
-一，小游戏配置：
-？1，project.config.json何解？
