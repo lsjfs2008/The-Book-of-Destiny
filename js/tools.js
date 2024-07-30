@@ -43,7 +43,7 @@ function resize(){
     // document.documentElement.style.fontSize=0.1*screenheight+"px";
     //顺便返回界面的宽度和高度
     let re=[screenwidth,screenheight];
-    console.log("re:",re);
+    // console.log("re:",re);
     return re;    
 }
 //输入界面布局{}数据（以及当前界面尺寸信息），返回图文线三界面尺寸：[[图x,y,w,h]，[文x,y,w,h]，[线x,y,w,h]]

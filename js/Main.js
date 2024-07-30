@@ -95,7 +95,7 @@ export default class Main{
 
     }//构建函数//
     start(){
-        //一，加载默认数据，如果有本地存储数据，更新为本地存储数据。
+        //1，加载默认数据，如果有本地存储数据，更新为本地存储数据。
         //尝试调用本地存储的配置数据：
         jsd.bj=dqbj
         if(typeof(Storage)!=="undefined"){
@@ -106,21 +106,27 @@ export default class Main{
         // canvas.style="overflow: hidden;position: absolute;"
         document.getElementById('zhudiv').appendChild(canvas)
         // console.log("canvas x,y:",canvas.width,canvas.height);
-        
         jsd.tj=dqtj
             // console.log(tj);
             if(typeof(Storage)!=="undefined"){
                 localStorage.setItem('sjx',JSON.stringify(jsd.tj));    //json转为str再保存
                 // jsd.tj=JSON.parse(localStorage.getItem('sjx'));   //读取再str转为json
             }
-        //1,地图
+        //一些数据集成入jsd中
+        jsd.size=lssize
+        //2,根据布局数据，生成图文线三区域背景图片对象。
         let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
         jsd.map=mapcsxl[1]    //设定当前地图
         jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
         let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
         let bg1 = sctp(sj.bgimg[0]) //背景图片//文本
         let bg2 = sctp(sj.bgimg[1]) //背景图片//时间线
-        jsd.bg=[bg0,bg1,bg2]
+        jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
+        //3,根据布局数据，生成按钮图片对象
+        //生成地图缩放工具
+        jsd.mapbtn=sctp(jsd.bj.btns.map.img)
+        // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
+        //4，绑定鼠标事件
         this.bindsbevent=this.sbevent.bind(this)    //绑定this.
         // console.log(jsd.bg);
         window.onload=()=>{console.log('window.onload');this.update();}
@@ -129,6 +135,7 @@ export default class Main{
             canvas.width = lssize[0]
             canvas.height = lssize[1]
             dqjmcc=hhsjmcc(dqbj[dqbj.ms],lssize)    //当前界面尺寸
+            jsd.siz=lssize
             this.update();
         }//临时用用，监控浏览器尺寸改变。//
         // jsd.bg[0].onload=()=>{console.log('jsd.bg[0].onload');}
@@ -143,8 +150,56 @@ sbevent(e){
     let cc=jsd.cc
     let c=jsd.c
     let ms=jsd.map.img.siz
+    
     //1区：
     if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+        //地图缩放按钮：
+    if(inarea(x,y,jsd.bj.btns.map.p.s)){
+        if(e.type==="mousedown"){
+            let s=jsd.bj.btns.map.p.s
+            // console.log(x,y,s);
+            let h=s[3]
+            let dy=y-s[1]
+            let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
+            let bmin=0.1*bmax
+            let b0=c[2]/c[6]
+            // console.log('bmax:',bmax);
+            //以当前关注时空节点的视界x,y为中心点缩放：//临时用视界中心点
+            let jx=0.5*cc[0][2]
+            let jy=0.5*cc[0][3]
+            let db=0.1*b0
+            let b=1
+            if(dy<=0.25*h){
+                //放大
+                b=b0-db
+            }
+            // if(dy>0.25*h&&dy<0.5*h){
+            //     //原图
+            //     b=1
+            // }
+            if(dy>0.5*h&&dy<0.75*h){
+                //缩小
+                b=b0+db
+            }
+            if(dy>=0.75*h){
+                //视界
+                b=bmax
+            }
+            if(b>bmax){b=bmax}
+            if(b<bmin){b=bmin}
+            c[0]=c[0]+jx*(b0-b)
+            c[1]=c[1]+jy*(b0-b)
+            c[2]=c[6]*b
+            c[3]=c[7]*b
+            if(c[0]<0){c[0]=0;}
+            if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2];}
+            if(c[1]<0){c[1]=0;}
+            if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3];}
+            console.log(b,c[0],c[1]);
+            jsd.c=c
+            this.render()
+        }
+    }else{
         //鼠标拖动地图,
         if(e.type==="mousedown"){
             jsd.mapisDragging = true;
@@ -172,8 +227,8 @@ sbevent(e){
                     if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
                     jsd.c=c
                     this.render()
-                    console.log(ms);
-                    console.log(jsd.c);
+                    // console.log(ms);
+                    // console.log(jsd.c);
                 // }
             }
         }
@@ -204,6 +259,7 @@ sbevent(e){
         }
         //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
         if(e.type==='dblclick'){
+            console.log('db');
             //使目标点的屏幕x,y为视界的一半：
             let px=0.5*c[6]
             let py=0.5*c[7]
@@ -223,6 +279,7 @@ sbevent(e){
             jsd.c=c
             this.render()
         }
+    }
 
     }//1区//
     // console.log(this);
@@ -230,15 +287,15 @@ sbevent(e){
 }//sbevent//
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
-    //分区域更新绘图
+    //根据屏幕（三视区）尺寸，生成地图图片相关数据。
     let cc=dqjmcc
     jsd.cc=cc
     // console.log('jsd.vs:',jsd.vs);
     if(jsd.vs[0]>0){
-        //加载图文线：
+        let sc=cc[0]
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,cc[0][0],cc[0][1],cc[0][2],cc[0][3]]
-        console.log(c);
+        // console.log(c);
         if(c[2]*c[7]>c[3]*c[6]){
             c[0]=0.5*(c[2]-c[3]*c[6]/c[7])
             c[2]=c[3]*c[6]/c[7]
@@ -246,43 +303,26 @@ update(){
             c[1]=0.5*(c[3]-c[2]*c[7]/c[6])
             c[3]=c[2]*c[7]/c[6]}
         jsd.c=c
-        console.log(c);
-        jsd.mapp=cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]}      
+        // console.log(c);
+        jsd.mapp=cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
+        //生成地图缩放工具的位置
+        let btn=jsd.bj.btns.map
+        let p=btn.p
+        let s=p.s
+        s[0]=sc[2]*p.l[0]/p.l[1]
+        s[2]=sc[2]*p.w[0]/p.w[1]
+        s[3]=sc[3]*p.h[0]/p.h[1]
+        if(s[3]<4*s[2]){s[3]=4*s[2]}else{s[2]=0.25*s[3]}
+        if(s[3]<p.hm[0]){s[3]=p.hm[0]}
+        if(s[3]>p.hm[1]){s[3]=p.hm[1]}
+        s[2]=0.25*s[3]
+        s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
+        console.log(s);
+        p.s=s
     }
-    console.log(jsd);
-    // if(jsd.vs[1]>0){
-    //     //2，文本
-    //     ctx.drawImage(jsd.bg[1],cc[1][0],cc[1][1],cc[1][2],cc[1][3])
-    // }
-    // if(jsd.vs[2]>0){
-    //     //3,时间线
-    //     ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
-    //     //显示公元纪年
-    //     let tc=cc[2]   //时间线区域的[x,y,w,h]
-    //     let t=jsd.tj.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
-    //     let py=Math.floor(tc[2]/t[1])    //py像素每年
-    //     console.log('py:',py,'像素每年');
-    //     for (let i=0;i*py<tc[2];i++){
-    //         //设定年标线长，
-    //         let y=t[0]+i
-    //         let l=Math.floor(0.12*tc[3])
-    //         if (y%5===0){l=l*2}
-    //         if (y%10===0){
-    //             l=l*2
-    //             ctx.font="12px Arial";
-    //             ctx.fillText(y,i*py,tc[1]+l);
-    //         }
-    //         if(y===t[2]){
-    //             l=tc[3]
-    //             ctx.font="12px Arial";
-    //             ctx.fillText(y,i*py,tc[1]+tc[3]);
-    //         }
-    //         ctx.moveTo(i*py,tc[1]);
-    //         ctx.lineTo(i*py,tc[1]+l);
-    //         ctx.stroke();
-    //     //显示干支纪年//待补
-    //     }
-    // }
+    // console.log(jsd);
+    //生成按钮图片xywh数据
+
     this.render()
 }//update()//
 /**/
@@ -294,8 +334,9 @@ render(){
     // console.log(jsd);
     let cc=jsd.cc
     // console.log('jsd.vs:',jsd.vs);
+    //一，加载图文线：
+    //1，图：
     if(jsd.vs[0]>0){
-        //加载图文线：
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=jsd.c
         ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
@@ -318,14 +359,17 @@ render(){
         ctx.font="12px Arial";
         ctx.fillText(p[0],xmp[0],xmp[1]);
         }
+        //1.3,加载悬浮按钮……地图缩放工具
+        let mbp=jsd.bj.btns.map.p.s
+        ctx.drawImage(jsd.mapbtn,mbp[0],mbp[1],mbp[2],mbp[3])
         //  //
     }
+    //2，文本
     if(jsd.vs[1]>0){
-        //2，文本
         ctx.drawImage(jsd.bg[1],cc[1][0],cc[1][1],cc[1][2],cc[1][3])
     }
+    //3,时间线
     if(jsd.vs[2]>0){
-        //3,时间线
         ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
         //显示公元纪年
         let tc=cc[2]   //时间线区域的[x,y,w,h]
@@ -353,8 +397,16 @@ render(){
         //显示干支纪年//待补
         }
     }
+    //二，按钮：
+    //1,图
 }//render()//
 /**/
+}//main//
+//
+function inarea(x,y,s){
+    let re=0
+    if(x>=s[0]&&y>=s[1]&&x<s[0]+s[2]&&y<s[1]+s[3]){re=1}
+    return re
 }
 
 //生成图片对象
