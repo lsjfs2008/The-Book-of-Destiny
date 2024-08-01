@@ -324,5 +324,80 @@ function hhjwjd(tgb,dqmap){
     // console.log(zjw);
     return zjw
 }
-
-export {hhimgmapb,hhdtd,hhjwjd}
+//地图图片类化
+class Mapimg{
+    constructor(m){
+    this.img = new Image()
+    this.img.src = m.src
+    this.width = m.siz[0]
+    this.height = m.siz[0]
+    this.visible = true
+    }
+    //显示
+    drawToCanvas(ctx,c) {
+        if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
+        ctx.drawImage(this.img,c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
+    }
+    //范围校正（以免图片“超出”视界）
+    fwjd(c){
+        if(c[0]<0){c[0]=0}
+        if(c[0]+c[2]>this.width){c[0]=this.width-c[2]}
+        if(c[1]<0){c[1]=0}
+        if(c[1]+c[3]>this.height){c[1]=this.height-c[3]}
+        return c
+    }
+    //拖动效果
+    move(c,dx,dy) {
+        // console.log("地图图片拖动中");
+        if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
+        c[0]=c[0]-dx
+        c[1]=c[1]-dy
+        c=this.fwjd(c)
+        return c
+    }
+    //缩放效果
+    zoom(c,x,y,k) {
+        let ms=[this.width,this.height]
+        if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
+        console.log("地图图片缩放中");
+        let bmax=Math.min(ms[0]/c[6],ms[1]/c[7])
+        let bmin=0.1*bmax
+        let b0=c[2]/c[6]
+        // console.log('bmax:',bmax);
+        //以x,y为中心点缩放：
+        let db=0.1*b0
+        let b=1
+        if(k===0){b=b0-db}
+        if(k===2){b=b0+db}
+        if(k===3){bmax}
+        if(b>bmax){b=bmax}
+        if(b<bmin){b=bmin}
+        c[0]=c[0]+x*(b0-b)
+        c[1]=c[1]+y*(b0-b)
+        c[2]=c[6]*b
+        c[3]=c[7]*b
+        //范围校正（以免图片“超出”视界），返回数据
+        c=this.fwjd(c)
+        return c
+    }
+    //聚焦效果
+    focus(c,x,y) {
+        // let ms=[this.width,this.height]
+        if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
+        // console.log("地图图片对焦中");
+        let px=0.5*c[6]
+        let py=0.5*c[7]
+        //已知目标点的原屏幕x,y值为x,y,其原图x,y值为tx,ty：
+        let b0=c[2]/c[6]
+        let tx=x*b0+c[0]
+        let ty=y*b0+c[1]
+        //调整c[0],c[1],使得tx,ty对应的屏幕x,y值为px,py
+        // x=(tx-c[0])/b0=px
+        c[0]=tx-px*b0
+        c[1]=ty-py*b0          
+        //范围校正（以免图片“超出”视界），返回数据
+        c=this.fwjd(c)
+        return c
+    }
+}
+export {hhimgmapb,hhdtd,hhjwjd,Mapimg}

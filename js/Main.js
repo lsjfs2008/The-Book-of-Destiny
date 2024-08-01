@@ -1,7 +1,7 @@
 import Sprite from './base/sprite.js'
 import {sj,pst,buju,cydd,map,sjx} from './jmsj.js'    //导入常量
 import { deepCopy,resize,hhsjmcc } from './tools.js'    //导入工具
-import { hhimgmapb,hhdtd,hhjwjd } from './map.js'
+import { hhimgmapb,hhdtd,hhjwjd,Mapimg } from './map.js'
 //主进程，设置处画面，获取屏幕尺寸，导入json数据
 const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
@@ -118,7 +118,8 @@ export default class Main{
         let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
         jsd.map=mapcsxl[1]    //设定当前地图
         jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
-        let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
+        // let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
+        let bg0=new Mapimg(jsd.map.img)
         let bg1 = sctp(sj.bgimg[0]) //背景图片//文本
         let bg2 = sctp(sj.bgimg[1]) //背景图片//时间线
         jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
@@ -160,43 +161,10 @@ sbevent(e){
             // console.log(x,y,s);
             let h=s[3]
             let dy=y-s[1]
-            let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
-            let bmin=0.1*bmax
-            let b0=c[2]/c[6]
-            // console.log('bmax:',bmax);
-            //以当前关注时空节点的视界x,y为中心点缩放：//临时用视界中心点
-            let jx=0.5*cc[0][2]
-            let jy=0.5*cc[0][3]
-            let db=0.1*b0
-            let b=1
-            if(dy<=0.25*h){
-                //放大
-                b=b0-db
-            }
-            // if(dy>0.25*h&&dy<0.5*h){
-            //     //原图
-            //     b=1
-            // }
-            if(dy>0.5*h&&dy<0.75*h){
-                //缩小
-                b=b0+db
-            }
-            if(dy>=0.75*h){
-                //视界
-                b=bmax
-            }
-            if(b>bmax){b=bmax}
-            if(b<bmin){b=bmin}
-            c[0]=c[0]+jx*(b0-b)
-            c[1]=c[1]+jy*(b0-b)
-            c[2]=c[6]*b
-            c[3]=c[7]*b
-            if(c[0]<0){c[0]=0;}
-            if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2];}
-            if(c[1]<0){c[1]=0;}
-            if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3];}
-            console.log(b,c[0],c[1]);
-            jsd.c=c
+            let k=1
+            let dh=4/h
+            k=Math.floor(dy*dh)
+            jsd.c=jsd.bg[0].zoom(c,x,y,k)
             this.render()
         }
     }else{
@@ -215,72 +183,24 @@ sbevent(e){
                 let dy=y-jsd.offsetY
                 jsd.offsetX=x
                 jsd.offsetY=y
-                //   console.log(jsd.c);
-                // console.log(dx,dy);
-                // if(!!jsd.c){
-                    // console.log(ms);
-                    c[0]=c[0]-dx
-                    c[1]=c[1]-dy
-                    if(c[0]<0){c[0]=0}
-                    if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
-                    if(c[1]<0){c[1]=0}
-                    if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
-                    jsd.c=c
-                    this.render()
-                    // console.log(ms);
-                    // console.log(jsd.c);
-                // }
+                jsd.c=jsd.bg[0].move(c,dx,dy)
+                this.render()
             }
         }
         //滚轮缩放地图
         if(e.type==='wheel'){
-            let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
-            let bmin=0.1*bmax
-            let b0=c[2]/c[6]
-            // console.log('bmax:',bmax);
-            //以x,y为中心点缩放：
-            let db=0.1*b0
-            let b=b0-db
-            if (e.deltaY>0){b=b0+db}
-            // else{b=b0-db}
-            if(b>bmax){b=bmax}
-            if(b<bmin){b=bmin}
-            c[0]=c[0]+x*(b0-b)
-            c[1]=c[1]+y*(b0-b)
-            c[2]=c[6]*b
-            c[3]=c[7]*b
-            if(c[0]<0){c[0]=0}
-            if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
-            if(c[1]<0){c[1]=0}
-            if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
-            // console.log(c);
-            jsd.c=c
+            let k=0
+            if (e.deltaY<0){sfb=2}
+            jsd.c=jsd.bg[0].zoom(c,x,y,k)
             this.render()
         }
         //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
         if(e.type==='dblclick'){
-            console.log('db');
-            //使目标点的屏幕x,y为视界的一半：
-            let px=0.5*c[6]
-            let py=0.5*c[7]
-            //已知目标点的原屏幕x,y值为x,y,其原图x,y值为tx,ty：
-            let b0=c[2]/c[6]
-            let tx=x*b0+c[0]
-            let ty=y*b0+c[1]
-            //调整c[0],c[1],使得tx,ty对应的屏幕x,y值为px,py
-            // x=(tx-c[0])/b0=px
-            c[0]=tx-px*b0
-            c[1]=ty-py*b0          
-            if(c[0]<0){c[0]=0}
-            if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
-            if(c[1]<0){c[1]=0}
-            if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
-            // console.log(c);
-            jsd.c=c
+            // console.log('db');
+            jsd.c=jsd.bg[0].focus(c,x,y)
             this.render()
         }
     }
-
     }//1区//
     // console.log(this);
     
@@ -339,7 +259,8 @@ render(){
     if(jsd.vs[0]>0){
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=jsd.c
-        ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
+        // ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
+        jsd.bg[0].drawToCanvas(ctx,c)
         let lsmapp=jsd.mapp
         //1.2，描绘预设地点
         for (let i in lsmapp){
