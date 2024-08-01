@@ -126,6 +126,7 @@ export default class Main{
         //生成地图缩放工具
         jsd.mapbtn=sctp(jsd.bj.btns.map.img)
         // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
+        //4,根据
         //4，绑定鼠标事件
         this.bindsbevent=this.sbevent.bind(this)    //绑定this.
         // console.log(jsd.bg);
@@ -150,7 +151,6 @@ sbevent(e){
     let cc=jsd.cc
     let c=jsd.c
     let ms=jsd.map.img.siz
-    
     //1区：
     if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
         //地图缩放按钮：

@@ -61,3 +61,10 @@ for (let i in obj){
 </html>
 /**/
 ////
+/**///5,setTimeout
+setTimeout(()=>{somefunc()},5000)
+setTimeout(somefunc(),5000)
+//两者会有微妙的差异。
+//为免除种种意料之外的麻烦，写成前一种比较省事。
+/**/
+////
