@@ -127,9 +127,39 @@ export default class Main{
         //生成地图缩放工具
         jsd.mapbtn=sctp(jsd.bj.btns.map.img)
         // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
-        //4,根据
         //4，绑定鼠标事件
         this.bindsbevent=this.sbevent.bind(this)    //绑定this.
+        //5,选取（默认）语言与文本群
+        jsd.language='chs'
+        jsd.wbs=sj.wb[jsd.language].slwb
+        //5.2,根据所选语言与文本群，生成时空节点群数据。
+        let jds=sj.jd[jsd.language]
+        jsd.jds={}
+        for (let ms in jsd.wbs){
+            if(ms==="gzlb"){
+                let mvs=jsd.wbs[ms]
+                for (let i=0;i<mvs.length;i++){
+                    if(mvs[i][0]==='han'){
+                        let tag=mvs[i][1]
+                        // console.log(tag);
+                        for (let jd in jds){
+                        let rs=jds[jd].r
+                        for (let r=0;r<rs.length;r++){
+                            if (tag===rs[r]){
+                                // console.log(jd);
+                                let obj={}
+                                obj[jd]=jds[jd]
+                                // console.log(obj);
+                                jsd.jds=Object.assign(jsd.jds,obj)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+    }
+    console.log(jsd.jds);
         // console.log(jsd.bg);
         window.onload=()=>{console.log('window.onload');this.update();}
         window.onresize=()=>{
@@ -190,7 +220,7 @@ sbevent(e){
         //滚轮缩放地图
         if(e.type==='wheel'){
             let k=0
-            if (e.deltaY<0){sfb=2}
+            if (e.deltaY<0){k=2}
             jsd.c=jsd.bg[0].zoom(c,x,y,k)
             this.render()
         }
@@ -207,7 +237,7 @@ sbevent(e){
 }//sbevent//
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
-    //根据屏幕（三视区）尺寸，生成地图图片相关数据。
+    //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
     let cc=dqjmcc
     jsd.cc=cc
     // console.log('jsd.vs:',jsd.vs);
@@ -240,9 +270,12 @@ update(){
         console.log(s);
         p.s=s
     }
-    // console.log(jsd);
-    //生成按钮图片xywh数据
-
+    //默认，自动保存当前数据状态
+    if(typeof(Storage)!=="undefined"){
+        // console.log('默认，自动保存当前数据状态');
+        localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
+        // dqbj=JSON.parse(localStorage.getItem('buju'));   //读取再str转为json
+    }
     this.render()
 }//update()//
 /**/
@@ -251,7 +284,6 @@ render(){
     //清屏
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     //分区域更新绘图
-    // console.log(jsd);
     let cc=jsd.cc
     // console.log('jsd.vs:',jsd.vs);
     //一，加载图文线：
