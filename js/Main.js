@@ -1,5 +1,5 @@
 import Sprite from './base/sprite.js'
-import {sj,pst,buju,cydd,map,sjx} from './jmsj.js'    //导入常量
+import {dings,bians,map} from './jmsj.js'    //导入常量
 import { deepCopy,resize,hhsjmcc } from './tools.js'    //导入工具
 import { hhimgmapb,hhdtd,hhjwjd,Mapimg } from './map.js'
 //主进程，设置处画面，获取屏幕尺寸，导入json数据
@@ -122,8 +122,8 @@ export default class Main{
             jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
             // let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
             let bg0=new Mapimg(jsd.map.img)
-            let bg1 = sctp(ds.bgimg[0]) //背景图片//文本
-            let bg2 = sctp(ds.bgimg[1]) //背景图片//时间线
+            let bg1 = sctp(dingsbgimg[0]) //背景图片//文本
+            let bg2 = sctp(dingsbgimg[1]) //背景图片//时间线
             jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
             //3,根据布局数据，生成按钮图片对象
             //生成地图缩放工具
@@ -133,9 +133,9 @@ export default class Main{
             this.bindsbevent=this.sbevent.bind(this)    //绑定this.
             //5,选取（默认）语言与文本群
             jsd.language='chs'
-            jsd.wbs=ds.wb[jsd.language].slwb
+            jsd.wbs=dingswb[jsd.language].slwb
             //5.2,根据所选语言与文本群，生成时空节点群数据。
-            let jds=ds.jd[jsd.language]
+            let jds=dingsjd[jsd.language]
             jsd.jds={}
             for (let ms in jsd.wbs){
                 if(ms==="gzlb"){
@@ -377,4 +377,30 @@ function mhtp(m,p){
     ctx.drawImage(m,p[0],p[1],p[2],p[3])
     console.log(p)
     //debugger
+}
+//调整界面大小//横屏或竖屏
+function resize(){
+	var screenheight=window.innerHeight;
+    var screenwidth=window.innerWidth;
+    var zhudiv=document.getElementById("zhudiv");
+    zhudiv.style.position="relative";
+    if (bians.hporsp===0){
+        if (screenwidth<1.2*screenheight){
+            screenheight=Math.floor(0.5625*screenwidth);
+        }
+        zhudiv.style.top=0.5*(window.innerHeight-screenheight)+"px";
+    }else{
+        if (screenwidth>0.7*screenheight){
+            screenwidth=Math.floor(0.5625*screenheight);
+        }
+        zhudiv.style.left=0.5*(window.innerWidth-screenwidth)+"px";
+    }
+	zhudiv.style.width=screenwidth+"px";
+	zhudiv.style.height=screenheight+"px";
+    //顺便设定一下根元素的fontsize
+    // document.documentElement.style.fontSize=0.1*screenheight+"px";
+    //顺便返回界面的宽度和高度
+    let re=[screenwidth,screenheight];
+    // console.log("re:",re);
+    return re;    
 }

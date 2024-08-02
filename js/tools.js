@@ -1,4 +1,3 @@
-import {pst} from './jmsj.js' 
 //深度复制
 function deepCopy(original) {
     let copy;
@@ -20,32 +19,7 @@ function deepCopy(original) {
       return original;
     }
   }
-//调整界面大小//横屏或竖屏
-function resize(){
-	var screenheight=window.innerHeight;
-    var screenwidth=window.innerWidth;
-    var zhudiv=document.getElementById("zhudiv");
-    zhudiv.style.position="relative";
-    if (pst.hporsp===0){
-        if (screenwidth<1.2*screenheight){
-            screenheight=Math.floor(0.5625*screenwidth);
-        }
-        zhudiv.style.top=0.5*(window.innerHeight-screenheight)+"px";
-    }else{
-        if (screenwidth>0.7*screenheight){
-            screenwidth=Math.floor(0.5625*screenheight);
-        }
-        zhudiv.style.left=0.5*(window.innerWidth-screenwidth)+"px";
-    }
-	zhudiv.style.width=screenwidth+"px";
-	zhudiv.style.height=screenheight+"px";
-    //顺便设定一下根元素的fontsize
-    // document.documentElement.style.fontSize=0.1*screenheight+"px";
-    //顺便返回界面的宽度和高度
-    let re=[screenwidth,screenheight];
-    // console.log("re:",re);
-    return re;    
-}
+
 //输入界面布局{}数据（以及当前界面尺寸信息），返回图文线三界面尺寸：[[图x,y,w,h]，[文x,y,w,h]，[线x,y,w,h]]
 function hhsjmcc(bj,sz){
     let bl=[[0,0,0,0],[0,0,0,0],[0,0,0,0]]
@@ -111,4 +85,4 @@ function compareArrays(arr1, arr2) {
   return JSON.stringify(arr1) === JSON.stringify(arr2);
 }
 //导出
-export {deepCopy,resize,hhsjmcc}
+export {deepCopy,hhsjmcc}
