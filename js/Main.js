@@ -95,72 +95,73 @@ export default class Main{
 
     }//构建函数//
     start(){
+        document.getElementById('zhudiv').appendChild(canvas)
         //1，加载默认数据，如果有本地存储数据，更新为本地存储数据。
         //尝试调用本地存储的配置数据：
-        jsd.bj=dqbj
+        let localStoragegot=0
         if(typeof(Storage)!=="undefined"){
-            localStorage.setItem('buju',JSON.stringify(dqbj));    //json转为str再保存
-            // dqbj=JSON.parse(localStorage.getItem('buju'));   //读取再str转为json
-        }
-        jsd.vs=jsd.bj[jsd.bj.ms].vs;
-        // canvas.style="overflow: hidden;position: absolute;"
-        document.getElementById('zhudiv').appendChild(canvas)
-        // console.log("canvas x,y:",canvas.width,canvas.height);
-        jsd.tj=dqtj
-            // console.log(tj);
-            if(typeof(Storage)!=="undefined"){
-                localStorage.setItem('sjx',JSON.stringify(jsd.tj));    //json转为str再保存
-                // jsd.tj=JSON.parse(localStorage.getItem('sjx'));   //读取再str转为json
+            // localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
+            let ls=JSON.parse(localStorage.getItem('jsd'));   //读取再str转为json
+            if(!!ls){
+                localStoragegot=1
+                jsd=ls
             }
-        //一些数据集成入jsd中
-        jsd.size=lssize
-        //2,根据布局数据，生成图文线三区域背景图片对象。
-        let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
-        jsd.map=mapcsxl[1]    //设定当前地图
-        jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
-        // let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
-        let bg0=new Mapimg(jsd.map.img)
-        let bg1 = sctp(sj.bgimg[0]) //背景图片//文本
-        let bg2 = sctp(sj.bgimg[1]) //背景图片//时间线
-        jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
-        //3,根据布局数据，生成按钮图片对象
-        //生成地图缩放工具
-        jsd.mapbtn=sctp(jsd.bj.btns.map.img)
-        // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
-        //4，绑定鼠标事件
-        this.bindsbevent=this.sbevent.bind(this)    //绑定this.
-        //5,选取（默认）语言与文本群
-        jsd.language='chs'
-        jsd.wbs=sj.wb[jsd.language].slwb
-        //5.2,根据所选语言与文本群，生成时空节点群数据。
-        let jds=sj.jd[jsd.language]
-        jsd.jds={}
-        for (let ms in jsd.wbs){
-            if(ms==="gzlb"){
-                let mvs=jsd.wbs[ms]
-                for (let i=0;i<mvs.length;i++){
-                    if(mvs[i][0]==='han'){
-                        let tag=mvs[i][1]
-                        // console.log(tag);
-                        for (let jd in jds){
-                        let rs=jds[jd].r
-                        for (let r=0;r<rs.length;r++){
-                            if (tag===rs[r]){
-                                // console.log(jd);
-                                let obj={}
-                                obj[jd]=jds[jd]
-                                // console.log(obj);
-                                jsd.jds=Object.assign(jsd.jds,obj)
+        }
+        //未取得本地存储的配置数据，则获取默认数据：
+        if(localStoragegot===0){
+            jsd.bj=dqbj
+            jsd.vs=jsd.bj[jsd.bj.ms].vs;
+            jsd.tj=dqtj
+            // canvas.style="overflow: hidden;position: absolute;"
+            // console.log("canvas x,y:",canvas.width,canvas.height);
+            //一些数据集成入jsd中
+            jsd.size=lssize
+            //2,根据布局数据，生成图文线三区域背景图片对象。
+            let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
+            jsd.map=mapcsxl[1]    //设定当前地图
+            jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
+            // let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
+            let bg0=new Mapimg(jsd.map.img)
+            let bg1 = sctp(ds.bgimg[0]) //背景图片//文本
+            let bg2 = sctp(ds.bgimg[1]) //背景图片//时间线
+            jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
+            //3,根据布局数据，生成按钮图片对象
+            //生成地图缩放工具
+            jsd.mapbtn=sctp(jsd.bj.btns.map.img)
+            // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
+            //4，绑定鼠标事件
+            this.bindsbevent=this.sbevent.bind(this)    //绑定this.
+            //5,选取（默认）语言与文本群
+            jsd.language='chs'
+            jsd.wbs=ds.wb[jsd.language].slwb
+            //5.2,根据所选语言与文本群，生成时空节点群数据。
+            let jds=ds.jd[jsd.language]
+            jsd.jds={}
+            for (let ms in jsd.wbs){
+                if(ms==="gzlb"){
+                    let mvs=jsd.wbs[ms]
+                    for (let i=0;i<mvs.length;i++){
+                        if(mvs[i][0]==='han'){
+                            let tag=mvs[i][1]
+                            // console.log(tag);
+                            for (let jd in jds){
+                            let rs=jds[jd].r
+                            for (let r=0;r<rs.length;r++){
+                                if (tag===rs[r]){
+                                    // console.log(jd);
+                                    let obj={}
+                                    obj[jd]=jds[jd]
+                                    // console.log(obj);
+                                    jsd.jds=Object.assign(jsd.jds,obj)
+                                }
                             }
                         }
                     }
                 }
             }
+            
         }
-        
-    }
-    console.log(jsd.jds);
-        // console.log(jsd.bg);
+        }
         window.onload=()=>{console.log('window.onload');this.update();}
         window.onresize=()=>{
             lssize=resize()
