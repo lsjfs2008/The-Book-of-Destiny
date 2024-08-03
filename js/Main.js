@@ -12,9 +12,6 @@ canvas.height = lssize[1]
 const ctx = canvas.getContext('2d')
 const xsw=screenWidth/720
 const xsh=screenHeight/1280
-let dqbj=deepCopy(bians.buju)    //默认/初始布局数据
-let dqjmcc=hhsjmcc(dqbj[dqbj.ms],lssize)    //当前界面尺寸
-let dqtj=deepCopy(bians.sjx)    //初始/默认时间数据
 let jsd={}
 export default class Main{
     constructor() {
@@ -109,8 +106,12 @@ export default class Main{
         }
         //未取得本地存储的配置数据，则获取默认数据：
         if(localStoragegot===0){
-            jsd.bj=dqbj
-            jsd.vs=jsd.bj[jsd.bj.ms].vs;
+            let dqbj=deepCopy(bians.buju)    //默认/初始布局数据
+            let dqjmcc=hhsjmcc(dqbj[dqbj.ms],lssize)    //当前界面尺寸
+            let dqtj=deepCopy(bians.sjx)    //初始/默认时间数据
+            jsd.dqbj=dqbj
+            jsd.dqjmcc=dqjmcc
+            jsd.vs=jsd.dqbj[jsd.dqbj.ms].vs;
             jsd.tj=dqtj
             // canvas.style="overflow: hidden;position: absolute;"
             // console.log("canvas x,y:",canvas.width,canvas.height);
@@ -171,7 +172,7 @@ export default class Main{
             lssize=resize()
             canvas.width = lssize[0]
             canvas.height = lssize[1]
-            dqjmcc=hhsjmcc(dqbj[dqbj.ms],lssize)    //当前界面尺寸
+            jsd.dqjmcc=hhsjmcc(jsd.dqbj[jsd.dqbj.ms],lssize)    //当前界面尺寸
             jsd.siz=lssize
             this.update();
         }//临时用用，监控浏览器尺寸改变。//
@@ -243,7 +244,7 @@ sbevent(e){
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
     //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
-    let cc=dqjmcc
+    let cc=jsd.dqjmcc
     jsd.cc=cc
     // console.log('jsd.vs:',jsd.vs);
     if(jsd.vs[0]>0){
@@ -272,12 +273,11 @@ update(){
         if(s[3]>p.hm[1]){s[3]=p.hm[1]}
         s[2]=0.25*s[3]
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
-        console.log(s);
         p.s=s
     }
     //默认，自动保存当前数据状态
     if(typeof(Storage)!=="undefined"){
-        // console.log('默认，自动保存当前数据状态');
+        console.log('默认，自动保存当前数据状态',jsd);
         localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
     }
     this.render()
