@@ -100,27 +100,26 @@ export default class Main{
             // localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
             let ls=JSON.parse(localStorage.getItem('jsd'));   //读取再str转为json
             if(!!ls){
-                localStoragegot=1
+                // localStoragegot=1
+                localStoragegot=0    //临时，方便获取更新后的默认数据。
                 jsd=ls
             }
         }
         //未取得本地存储的配置数据，则获取默认数据：
         if(localStoragegot===0){
-            let dqbj=deepCopy(bians.buju)    //默认/初始布局数据
-            let dqjmcc=hhsjmcc(dqbj[dqbj.ms],lssize)    //当前界面尺寸
-            let dqtj=deepCopy(bians.sjx)    //初始/默认时间数据
-            jsd.dqbj=dqbj
-            jsd.dqjmcc=dqjmcc
-            jsd.vs=jsd.dqbj[jsd.dqbj.ms].vs;
-            jsd.tj=dqtj
-            // canvas.style="overflow: hidden;position: absolute;"
-            // console.log("canvas x,y:",canvas.width,canvas.height);
-            //一些数据集成入jsd中
+            jsd=bians
+            // let buju=deepCopy(bians.buju)    //默认/初始布局数据
+            let cc=hhsjmcc(jsd.buju[jsd.buju.ms],lssize)    //当前界面尺寸
+            // let dqtj=deepCopy(bians.sjx)    //初始/默认时间数据
+            // jsd.buju=buju
+            jsd.cc=cc
+            jsd.vs=jsd.buju[jsd.buju.ms].vs;
+            // jsd.tj=dqtj
             jsd.size=lssize
-            //5,选取（默认）语言与文本群
+            //5,选取（默认）语言与文本群(一次可加载多个文本。这里只加载了一个示例文本。)
             jsd.language='chs'
             jsd.wbs=bians.wb[jsd.language].slwb
-            //5.2,根据所选语言与文本群，生成时空节点群数据。
+            //5.2,根据所选语言与文本群，生成时空节点群数据:jsd.jds
             let jds=bians.jd[jsd.language]
             jsd.jds={}
             for (let ms in jsd.wbs){
@@ -147,7 +146,34 @@ export default class Main{
             }
             
         }
-        }
+            //5.3,从节点群jsd.jds生成时间线节点群jsd.sxjdq[]（时序节点群：以时间为顺序而排列的节点群），以便render按当前时间显示时空节点。
+            jsd.sxjdq=[]
+            let lsjdq=[]
+            let lsxlh=[]
+            for (let key in jsd.jds){
+                let jd=jsd.jds[key]
+                lsjdq.push(jd)
+            }
+            for (let i=0;i<lsjdq.length;i++){
+            lsxlh[i]=i
+            }
+            for (let i=0;i<lsjdq.length;i++){
+                for (let j=i+1;j<lsjdq.length;j++){
+                let ti=lsjdq[lsxlh[i]].t
+                let tj=lsjdq[lsxlh[j]].t
+                // console.log(ti,tj);
+                if(tidayutj(ti,tj)){
+                    lsxlh[i]=j
+                    lsxlh[j]=i
+                }
+                }
+            }
+            // console.log(lsxlh);
+            for (let i=0;i<lsxlh.length;i++){
+                jsd.sxjdq[i]=lsjdq[lsxlh[i]]
+            }
+            // console.log(jsd.sxjdq);
+        }//未取得本地存储的配置数据，则获取默认数据：
             //2,根据布局数据，生成图文线三区域背景图片对象。
             let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
             jsd.map=mapcsxl[1]    //设定当前地图
@@ -157,9 +183,9 @@ export default class Main{
             let bg1 = sctp(dings.bgimg[0]) //背景图片//文本
             let bg2 = sctp(dings.bgimg[1]) //背景图片//时间线
             jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
-            console.log('bg');
-            console.log(jsd.bg);
-            console.log(bg1,bg2);
+            // console.log('bg');
+            // console.log(jsd.bg);
+            // console.log(bg1,bg2);
             //3,根据布局数据，生成按钮图片对象
             //生成地图缩放工具
             jsd.mapbtn=sctp(bians.btns.map.img)
@@ -167,12 +193,12 @@ export default class Main{
             //4，绑定鼠标事件
             this.bindsbevent=this.sbevent.bind(this)    //绑定this.
             //N,就绪即加载
-            window.onload=()=>{console.log('window.onload');this.update();}
+            window.onload=()=>{this.update();}
             window.onresize=()=>{
             lssize=resize()
             canvas.width = lssize[0]
             canvas.height = lssize[1]
-            jsd.dqjmcc=hhsjmcc(jsd.dqbj[jsd.dqbj.ms],lssize)    //当前界面尺寸
+            jsd.cc=hhsjmcc(jsd.buju[jsd.buju.ms],lssize)    //当前界面尺寸
             jsd.siz=lssize
             this.update();
         }//临时用用，监控浏览器尺寸改变。//
@@ -244,21 +270,13 @@ sbevent(e){
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
     //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
-    let cc=jsd.dqjmcc
-    jsd.cc=cc
+    let cc=jsd.cc
     // console.log('jsd.vs:',jsd.vs);
     if(jsd.vs[0]>0){
         let sc=cc[0]
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,cc[0][0],cc[0][1],cc[0][2],cc[0][3]]
-        // console.log(c);
-        if(c[2]*c[7]>c[3]*c[6]){
-            c[0]=0.5*(c[2]-c[3]*c[6]/c[7])
-            c[2]=c[3]*c[6]/c[7]
-        }else{
-            c[1]=0.5*(c[3]-c[2]*c[7]/c[6])
-            c[3]=c[2]*c[7]/c[6]}
-        jsd.c=c
+        jsd.c=jsd.bg[0].zoom(c,0.5*c[6],0.5*c[7],3)
         // console.log(c);
         jsd.mapp=dings.cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
         //生成地图缩放工具的位置
@@ -275,9 +293,10 @@ update(){
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
     }
+    // console.log(jsd.jds);
     //默认，自动保存当前数据状态
     if(typeof(Storage)!=="undefined"){
-        console.log('默认，自动保存当前数据状态',jsd);
+        // console.log('默认，自动保存当前数据状态',jsd);
         localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
     }
     this.render()
@@ -324,13 +343,17 @@ render(){
     //2，文本
     if(jsd.vs[1]>0){
         ctx.drawImage(jsd.bg[1],cc[1][0],cc[1][1],cc[1][2],cc[1][3])
+        //文本框元素：背景，左上缩放小三角
+        //根据时序节点群jsd.sxjdq生成文本正文（与小标题/节点名tt,如果没有节点名，则以“人名，人名+时间”为自动标题）
+        console.log(jsd.sxjdq);
+        // let gs=
     }
     //3,时间线
     if(jsd.vs[2]>0){
         ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
         //显示公元纪年
         let tc=cc[2]   //时间线区域的[x,y,w,h]
-        let t=jsd.tj.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
+        let t=jsd.sjx.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
         let py=Math.floor(tc[2]/t[1])    //py像素每年
         // console.log('py:',py,'像素每年');
         for (let i=0;i*py<tc[2];i++){
@@ -359,13 +382,12 @@ render(){
 }//render()//
 /**/
 }//main//
-//
+//判断点xy是否位于s[sx,sy,sw,sh]区域。
 function inarea(x,y,s){
     let re=0
     if(x>=s[0]&&y>=s[1]&&x<s[0]+s[2]&&y<s[1]+s[3]){re=1}
     return re
 }
-
 //生成图片对象
 function sctp(m){
     let re=new Image()
@@ -374,12 +396,6 @@ function sctp(m){
     re.height=m.siz[1]
     // re = new Sprite(src,p[0]*xsw,p[1]*xsh,p[2]*xsw,p[3]*xsh)
     return re
-}
-//描绘图片：m对象，p方位
-function mhtp(m,p){
-    ctx.drawImage(m,p[0],p[1],p[2],p[3])
-    console.log(p)
-    //debugger
 }
 //调整界面大小//横屏或竖屏
 function resize(){
@@ -406,4 +422,30 @@ function resize(){
     let re=[screenwidth,screenheight];
     // console.log("re:",re);
     return re;    
+}
+//比较两个时间ti,tj的先后,如果ti>tj,返回1
+function tidayutj(ti,tj){
+    // let re=0
+    //比较开始时间
+    let li=ti[0].length
+    let lj=tj[0].length
+    let l=li
+    if(lj<li){l=lj}
+    for (let i=0;i<l;i++){
+        if(ti[0][i]>tj[0][i]){return 1}
+        if(ti[0][i]<tj[0][i]){return 0}
+    }
+    //如果开始时间完全相同，比较人物行动顺序
+    let ri=ti[2]
+    let rj=tj[2]
+    for (let i in ri){
+        for(let j in rj){
+            if(i===j){
+                // console.log(i);
+                if(ri[i]>rj[j]){return 1}
+                if(ri[i]<rj[j]){return 0}
+            }
+        }
+    }
+    return 0
 }
