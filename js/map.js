@@ -1,6 +1,6 @@
-import { cydd } from "./jmsj.js"
+import { dings } from "./jmsj.js"
 //取得常用定位点的常用gxy值
-let cydw=cydd.xd
+let cydw=dings.cydd.xd
 let cydwg={}
 // console.log(cydwg);
 
@@ -369,7 +369,7 @@ class Mapimg{
         let b=1
         if(k===0){b=b0-db}
         if(k===2){b=b0+db}
-        if(k===3){bmax}
+        if(k===3){b=bmax}
         if(b>bmax){b=bmax}
         if(b<bmin){b=bmin}
         c[0]=c[0]+x*(b0-b)

@@ -1,6 +1,6 @@
 import Sprite from './base/sprite.js'
 import {dings,bians,map} from './jmsj.js'    //导入常量
-import { deepCopy,resize,hhsjmcc } from './tools.js'    //导入工具
+import { deepCopy,hhsjmcc } from './tools.js'    //导入工具
 import { hhimgmapb,hhdtd,hhjwjd,Mapimg } from './map.js'
 //主进程，设置处画面，获取屏幕尺寸，导入json数据
 const screenWidth = window.innerWidth
@@ -116,21 +116,6 @@ export default class Main{
             // console.log("canvas x,y:",canvas.width,canvas.height);
             //一些数据集成入jsd中
             jsd.size=lssize
-            //2,根据布局数据，生成图文线三区域背景图片对象。
-            let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
-            jsd.map=mapcsxl[1]    //设定当前地图
-            jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
-            // let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
-            let bg0=new Mapimg(jsd.map.img)
-            let bg1 = sctp(dingsbgimg[0]) //背景图片//文本
-            let bg2 = sctp(dingsbgimg[1]) //背景图片//时间线
-            jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
-            //3,根据布局数据，生成按钮图片对象
-            //生成地图缩放工具
-            jsd.mapbtn=sctp(bians.btns.map.img)
-            // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
-            //4，绑定鼠标事件
-            this.bindsbevent=this.sbevent.bind(this)    //绑定this.
             //5,选取（默认）语言与文本群
             jsd.language='chs'
             jsd.wbs=bians.wb[jsd.language].slwb
@@ -162,8 +147,27 @@ export default class Main{
             
         }
         }
-        window.onload=()=>{console.log('window.onload');this.update();}
-        window.onresize=()=>{
+            //2,根据布局数据，生成图文线三区域背景图片对象。
+            let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
+            jsd.map=mapcsxl[1]    //设定当前地图
+            jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
+            // let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
+            let bg0=new Mapimg(jsd.map.img)
+            let bg1 = sctp(dings.bgimg[0]) //背景图片//文本
+            let bg2 = sctp(dings.bgimg[1]) //背景图片//时间线
+            jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
+            console.log('bg');
+            console.log(jsd.bg);
+            console.log(bg1,bg2);
+            //3,根据布局数据，生成按钮图片对象
+            //生成地图缩放工具
+            jsd.mapbtn=sctp(bians.btns.map.img)
+            // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
+            //4，绑定鼠标事件
+            this.bindsbevent=this.sbevent.bind(this)    //绑定this.
+            //N,就绪即加载
+            window.onload=()=>{console.log('window.onload');this.update();}
+            window.onresize=()=>{
             lssize=resize()
             canvas.width = lssize[0]
             canvas.height = lssize[1]
