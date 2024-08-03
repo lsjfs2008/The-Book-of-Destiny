@@ -12,9 +12,9 @@ canvas.height = lssize[1]
 const ctx = canvas.getContext('2d')
 const xsw=screenWidth/720
 const xsh=screenHeight/1280
-let dqbj=deepCopy(buju)    //默认/初始布局数据
+let dqbj=deepCopy(bians.buju)    //默认/初始布局数据
 let dqjmcc=hhsjmcc(dqbj[dqbj.ms],lssize)    //当前界面尺寸
-let dqtj=deepCopy(sjx)    //初始/默认时间数据
+let dqtj=deepCopy(bians.sjx)    //初始/默认时间数据
 let jsd={}
 export default class Main{
     constructor() {
@@ -127,15 +127,15 @@ export default class Main{
             jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
             //3,根据布局数据，生成按钮图片对象
             //生成地图缩放工具
-            jsd.mapbtn=sctp(jsd.bj.btns.map.img)
+            jsd.mapbtn=sctp(bians.btns.map.img)
             // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
             //4，绑定鼠标事件
             this.bindsbevent=this.sbevent.bind(this)    //绑定this.
             //5,选取（默认）语言与文本群
             jsd.language='chs'
-            jsd.wbs=dingswb[jsd.language].slwb
+            jsd.wbs=bians.wb[jsd.language].slwb
             //5.2,根据所选语言与文本群，生成时空节点群数据。
-            let jds=dingsjd[jsd.language]
+            let jds=bians.jd[jsd.language]
             jsd.jds={}
             for (let ms in jsd.wbs){
                 if(ms==="gzlb"){
@@ -186,9 +186,9 @@ sbevent(e){
     //1区：
     if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
         //地图缩放按钮：
-    if(inarea(x,y,jsd.bj.btns.map.p.s)){
+    if(inarea(x,y,bians.btns.map.p.s)){
         if(e.type==="mousedown"){
-            let s=jsd.bj.btns.map.p.s
+            let s=bians.btns.map.p.s
             // console.log(x,y,s);
             let h=s[3]
             let dy=y-s[1]
@@ -255,9 +255,9 @@ update(){
             c[3]=c[2]*c[7]/c[6]}
         jsd.c=c
         // console.log(c);
-        jsd.mapp=cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
+        jsd.mapp=dings.cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
         //生成地图缩放工具的位置
-        let btn=jsd.bj.btns.map
+        let btn=bians.btns.map
         let p=btn.p
         let s=p.s
         s[0]=sc[2]*p.l[0]/p.l[1]
@@ -275,7 +275,6 @@ update(){
     if(typeof(Storage)!=="undefined"){
         // console.log('默认，自动保存当前数据状态');
         localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
-        // dqbj=JSON.parse(localStorage.getItem('buju'));   //读取再str转为json
     }
     this.render()
 }//update()//
@@ -314,7 +313,7 @@ render(){
         ctx.fillText(p[0],xmp[0],xmp[1]);
         }
         //1.3,加载悬浮按钮……地图缩放工具
-        let mbp=jsd.bj.btns.map.p.s
+        let mbp=bians.btns.map.p.s
         ctx.drawImage(jsd.mapbtn,mbp[0],mbp[1],mbp[2],mbp[3])
         //  //
     }
