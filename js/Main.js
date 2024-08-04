@@ -42,54 +42,6 @@ export default class Main{
             jsd.mapisDragging = false;
             canvas.style.cursor = 'default';
           });
-        //滚轮缩放地图
-        // canvas.addEventListener('wheel',(e)=>{
-        //     console.log(e);
-        //     let x=e.clientX - canvas.getBoundingClientRect().left;
-        //     let y=e.clientY - canvas.getBoundingClientRect().top;
-        //     let cc=jsd.cc
-        //     let ms=jsd.map.img.siz
-        //     let c=jsd.c
-        //     // console.log(c);
-        //     //1区（默认图区）
-        //     if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
-        //         let bmax=Math.min(ms[0]/cc[0][2],ms[1]/cc[0][3])
-        //         let bmin=0.1*bmax
-        //         let b0=c[2]/c[6]
-        //         // console.log('bmax:',bmax);
-        //         //以x,y为中心点缩放：
-        //         let db=0.1*b0
-        //         let b=b0-db
-        //         if (e.deltaY>0){b=b0+db}
-        //         // else{b=b0-db}
-        //         if(b>bmax){b=bmax}
-        //         if(b<bmin){b=bmin}
-        //         c[0]=c[0]+x*(b0-b)
-        //         c[1]=c[1]+y*(b0-b)
-        //         c[2]=c[6]*b
-        //         c[3]=c[7]*b
-        //         if(c[0]<0){c[0]=0}
-        //         if(c[0]+c[2]>ms[0]){c[0]=ms[0]-c[2]}
-        //         if(c[1]<0){c[1]=0}
-        //         if(c[1]+c[3]>ms[1]){c[1]=ms[1]-c[3]}
-        //         // console.log(c);
-        //         jsd.c=c
-        //     }
-        //     this.render()
-        // })
-        //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
-        // canvas.addEventListener('dblclick',(e)=>{
-        //     let x=e.clientX - canvas.getBoundingClientRect().left;
-        //     let y=e.clientY - canvas.getBoundingClientRect().top;
-        //     let cc=jsd.cc
-        //     let ms=jsd.map.img.siz
-        //     let c=jsd.c
-        //     //1区（默认图区）
-        //     if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
-
-        //     }
-        // })
-
     }//构建函数//
     start(){
         document.getElementById('zhudiv').appendChild(canvas)
@@ -108,13 +60,9 @@ export default class Main{
         //未取得本地存储的配置数据，则获取默认数据：
         if(localStoragegot===0){
             jsd=bians
-            // let buju=deepCopy(bians.buju)    //默认/初始布局数据
             let cc=hhsjmcc(jsd.buju[jsd.buju.ms],lssize)    //当前界面尺寸
-            // let dqtj=deepCopy(bians.sjx)    //初始/默认时间数据
-            // jsd.buju=buju
             jsd.cc=cc
             jsd.vs=jsd.buju[jsd.buju.ms].vs;
-            // jsd.tj=dqtj
             jsd.size=lssize
             //5,选取（默认）语言与文本群(一次可加载多个文本。这里只加载了一个示例文本。)
             jsd.language='chs'
@@ -183,6 +131,12 @@ export default class Main{
             let bg1 = sctp(dings.bgimg[0]) //背景图片//文本
             let bg2 = sctp(dings.bgimg[1]) //背景图片//时间线
             jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
+            //文本（收放）小三角：
+            let xsj0=sctp(dings.wbxsj[0])
+            let xsj1=sctp(dings.wbxsj[1])
+            let xsj2=sctp(dings.wbxsj[2])
+            let xsj3=sctp(dings.wbxsj[3])
+            jsd.xsj=[xsj0,xsj1,xsj2,xsj3]
             // console.log('bg');
             // console.log(jsd.bg);
             // console.log(bg1,bg2);
@@ -213,9 +167,11 @@ sbevent(e){
     let y=e.clientY - canvas.getBoundingClientRect().top;
     let cc=jsd.cc
     let c=jsd.c
+    let vs=jsd.vs
     let ms=jsd.map.img.siz
-    //1区：
-    if(x>=cc[0][0]&&y>=cc[0][1]&&x<cc[0][0]+cc[0][2]&&y<cc[0][1]+cc[0][3]){
+    //1区，地图区：
+    // if(vs[0]>0){
+    if(inarea(x,y,cc[0])){
         //地图缩放按钮：
     if(inarea(x,y,bians.btns.map.p.s)){
         if(e.type==="mousedown"){
@@ -263,7 +219,21 @@ sbevent(e){
             this.render()
         }
     }
-    }//1区//
+    // }
+    }//1区，地图区//
+    //2区，文本区
+    if(inarea(x,y,cc[1])){
+        if(inarea(x,y,jsd.ttsxj[0])){
+            if(e.type==="mousedown"){
+                // let lsvs=jsd.buju.wbvs.wbq
+                jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%4
+                // console.log(jsd.buju.wbvs.wbqtt[0]);
+                this.render()
+            }
+        }
+    }
+    //2区，文本区//
+
     // console.log(this);
     
 }//sbevent//
@@ -345,8 +315,32 @@ render(){
         ctx.drawImage(jsd.bg[1],cc[1][0],cc[1][1],cc[1][2],cc[1][3])
         //文本框元素：背景，左上缩放小三角
         //根据时序节点群jsd.sxjdq生成文本正文（与小标题/节点名tt,如果没有节点名，则以“人名，人名+时间”为自动标题）
-        console.log(jsd.sxjdq);
-        // let gs=
+        // console.log(jsd.sxjdq);
+        let sq=cc[1]    //视区[x,y,w,h]//文本显示区
+        let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
+        let ttvs=jsd.buju.wbvs.wbqtt    //文本显示：文本区wbq,地图区dtq,时间线区sxq是[1,1,1]否显示大标题，小标题/节点名,节点内容。
+        let tt=jsd.wb[jsd.language].slwb.tt     //大标题//多时线下大标题如何处理？
+        ctx.font=gs.H1.font
+        // console.log(ctx.font);
+        let lst='测'
+        let lsw=ctx.measureText('测').width
+        //jsd.ttsxj:[0：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
+        let tbt=[[sq[0],sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-2*lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1]+lsw,lsw,lsw]]
+        jsd.ttsxj=tbt
+        let tsq=[sq[0],sq[1],sq[2],lsw]    //标题视区（标题文本显示区）
+        //ttvs[1]：0，隐藏大标题与附近按钮图标。默认1，显示所有。2，隐藏大标题，显示按钮。3,显示大标题文本，隐藏按钮。
+        if(ttvs[1]===1||ttvs[1]===2){
+            ctx.drawImage(jsd.xsj[ttvs[0]],tbt[0][0],tbt[0][1],tbt[0][2],tbt[0][3])
+            ctx.drawImage(jsd.xsj[ttvs[0]],tbt[1][0],tbt[1][1],tbt[1][2],tbt[1][3])
+            ctx.drawImage(jsd.xsj[ttvs[0]],tbt[2][0],tbt[2][1],tbt[2][2],tbt[2][3])
+            ctx.drawImage(jsd.xsj[ttvs[0]],tbt[3][0],tbt[3][1],tbt[3][2],tbt[3][3])
+        }
+        if(ttvs[1]===1||ttvs[1]===3){
+        }
+        
+        // console.log(lsw);
+        let sxjdq=jsd.sxjdq    //时序节点群,其vs模式默认为1：显示节点名及其内容。//0：隐藏节点名，显示内容。2：显示节点名，隐藏内容。
+
     }
     //3,时间线
     if(jsd.vs[2]>0){
