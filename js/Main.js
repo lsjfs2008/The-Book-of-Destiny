@@ -273,10 +273,57 @@ update(){
         s[2]=0.25*s[3]
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
-    }
+    }//地图区
+    //文本区
     if(jsd.vs[1]>0){
+        let sq=cc[1]    //视区[x,y,w,h]//文本显示区
+        let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
+        let ttvs=jsd.buju.wbvs.wbqtt    
+        let jdq=jsd.sxjdq    //时序节点群
+        // let jdm=''     //节点名
+        // let mxh=[]
+        let mjj=gs.H3.jj    //文本间距[x,y,首行缩进]
+        ctx.font=gs.H3.font
+        // console.log(ctx.font);
+        let mw=ctx.measureText('测').width
+        //所有节点名的['字'，x,h]值，数据结构相当于jds中的节点内容（文本）的每个单字用['字'，x,h]取代。其中x是相对于文本视界左侧的dx，h是行数。
+        //其内容添加进jds中相应条目中。
+        for (let i=0;i<jdq.length;i++){
+            let jd=jdq[i]
+            let jdm=''
+            let mxh=[]
+            let ms=[]
+            if(!!jd.m){jdm=jd.m}else{
+                for (let j=0;j<jd.r.length;j++){
+                jdm=jdm+`${jd.r[j]},`
+                }
+                let gy=(jd.t[0][0]>0)?'':'公元前'
+                let n=(!!jd.t[1])?`${jd.t[0][0]}—${jd.t[1][0]}年`:`${jd.t[0][0]}年`
+                jdm=jdm+gy+n
+                // console.log(jdm);
+                jsd.sxjdq[i].m=jdm    
+            }//保存节点名纯文本。//以此生成每个字符的mxh
+            let x=mjj[2]
+            let h=0
+            for (let i=0;i<jdm.length;i++){
+                let z=jdm.substring(i,i+1)
+                let zw=ctx.measureText(z).width
+                if(x+zw+2*mjj[0]<sq[2]){
+                    mxh=[z,x,h]
+                    ms.push(mxh)
+                    x=x+zw+mjj[0]
+                }else{
+                    x=0
+                    h=h+1
+                    i=i-1
+                }
+            }
+            // console.log(ms);
+            jsd.sxjdq[i].ms=ms
 
-    }
+        }
+
+    }//文本区
     // console.log(jsd.jds);
     //默认，自动保存当前数据状态
     if(typeof(Storage)!=="undefined"){
@@ -363,6 +410,43 @@ render(){
                     let zw=ctx.measureText(zf).width
                     ctx.fillText(zf,tsq[0]+x,tsq[1]+0.9*lsw)
                     x=x+zw+jj[0]
+                }
+            }
+        }
+        //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
+        // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
+        let msq=[sq[0],sq[1],sq[0]+sq[2],sq[1]+sq[3]]    //视界左0上1点与右2下3点的xy值。
+        if(ttvs[1]===1||ttvs[1]===3){
+            msq[1]=msq[1]+lsw+jj[1]
+        }
+        let mjj=gs.H3.jj    //文本间距[x,y,首行缩进]
+        let mxy=[msq[0]+mjj[0],msq[1]]
+        console.log('视界左0上1点与右2下3点的xy值msq:',msq);
+        console.log(ttvs[0]);
+        let jdq=jsd.sxjdq
+        if (ttvs[0]===0) {
+            let bjs=0
+            for (let i=0;i<jdq.length;i++){
+                //加文本（背景）框
+                if(bjs===0){
+                    bjs=1
+                    ctx.fillStyle=gs.H3.bjs[0]
+                }else{
+                    bjs=0
+                    ctx.fillStyle=gs.H3.bjs[1]
+                }
+                let ms=jdq[i].ms
+                ctx.font=gs.H3.font
+                let mw=ctx.measureText('测').width
+                if(mxy[1]+mw<msq[3]){
+                    // console.log(msq[0],mxy[1],sq[2],(ms[ms.length-1][2]+1)*(mw+mjj[1]));
+                    ctx.fillRect(msq[0],mxy[1],sq[2],(ms[ms.length-1][2]+1)*(mw+mjj[1]));
+                    for (let j=0;j<ms.length;j++){
+                        let m=ms[j]
+                        ctx.fillStyle=gs.H3.s
+                        ctx.fillText(m[0],mxy[0]+m[1],mxy[1]+m[2]*(mw+mjj[1])+0.9*mw)
+                    }
+                    mxy[1]=mxy[1]+(ms[ms.length-1][2]+1)*(mw+mjj[1])
                 }
             }
         }
