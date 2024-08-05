@@ -49,7 +49,7 @@ const bians={
     },
     hporsp:0,  
     wbgs:{
-        H1:{font:"bolder 36px Arial",jj:[6,2,7]},H2:{font:"bolder 30px Arial",jj:[3,2,12]},H3:{font:"bold 24px Arial",jj:[3,2,12]},H4:{font:"bold 18px Arial",jj:[3,2,12]},
+        H1:{font:"bolder 36px Arial",jj:[2,2,4]},H2:{font:"bolder 30px Arial",jj:[3,2,12]},H3:{font:"bold 24px Arial",jj:[3,2,12]},H4:{font:"bold 18px Arial",jj:[3,2,12]},
         p1:{font:"12px Arial",jj:[3,2,12]},px:{font:"italic 12px Arial",jj:[3,2,12]},pb:{font:"bold 12px Arial",jj:[3,2,12]},
     },
     wbzd:{

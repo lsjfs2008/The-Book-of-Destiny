@@ -274,6 +274,9 @@ update(){
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
     }
+    if(jsd.vs[1]>0){
+
+    }
     // console.log(jsd.jds);
     //默认，自动保存当前数据状态
     if(typeof(Storage)!=="undefined"){
