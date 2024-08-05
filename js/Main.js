@@ -335,7 +335,7 @@ render(){
         ctx.font=gs.H1.font
         // console.log(ctx.font);
         let lsw=ctx.measureText('测').width
-        //jsd.ttsxj:[0：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
+        //jsd.ttsxj:[0]：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
         let tbt=[[sq[0],sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-2*lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1]+lsw,lsw,lsw]]
         jsd.ttsxj=tbt
         let tsq=[sq[0],sq[1],sq[2],lsw]    //标题视区（标题文本显示区）
