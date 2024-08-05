@@ -12,7 +12,7 @@ const 说明={
 const dings={
     descr:{descr:'对本{}中所有一级key的描述，程序中应当用不到，方便人工查看。有必要时，下级{}中也可添加属于其各自的descr条目。',bgimg:'所有可能用到的背景图片。文本区与时间线区的。',cydd:'常用地点，临时使用，可用于校准/拟合地图定位。',},
     bgimg:[{src:'img/wbbj0.jpg',siz:[720,720]},{src:'img/sjx0.jpg',siz:[1280,80]},],
-    wbxsj:[{src:'img/xsj0.png',siz:[99,99]},{src:'img/xsj1.png',siz:[99,99]},{src:'img/xsj2.png',siz:[99,99]},{src:'img/xsj3.png',siz:[99,99]},],
+    wbxsj:[{src:'img/xsj0.png',siz:[99,99]},{src:'img/xsj1.png',siz:[99,99]},{src:'img/xsj2.png',siz:[99,99]},{src:'img/xsj3.png',siz:[99,99]},{src:'img/xsj4.png',siz:[99,99]}],
     cydd:{
         index:{xd:{描述:"现代",time:"now"},},
         xd:{
@@ -74,7 +74,7 @@ const bians={
             s001   :[[[0,1],[0,1],[1,1],[0,1]],[[0,1],[0,1],[1,1],[0,1]],[[0,1],[0,1],[1,1],[1,1]],],   //竖屏
             s010   :[[[0,1],[0,1],[1,1],[0,1]],[[0,1],[0,1],[1,1],[1,1]],[[0,1],[1,1],[1,1],[0,1]],],   //竖屏
         },
-        wbvs:{wbqtt:[3,1],dtq:[0,1,0],sxq:[0,1,0],}
+        wbvs:{wbqtt:[4,1],dtq:[0,1,0],sxq:[0,1,0],}
     },
     btns:{
         map:{vs:1,img:{src:"img/btnmap.jpg",siz:[100,400]},p:{l:[1,50],b:[1,50],w:[1,24],h:[1,8],hm:[80,160],s:[0,0,0,0]}},},

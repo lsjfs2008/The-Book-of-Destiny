@@ -137,7 +137,8 @@ export default class Main{
             let xsj1=sctp(dings.wbxsj[1])
             let xsj2=sctp(dings.wbxsj[2])
             let xsj3=sctp(dings.wbxsj[3])
-            jsd.xsj=[xsj0,xsj1,xsj2,xsj3]
+            let xsj4=sctp(dings.wbxsj[4])
+            jsd.xsj=[xsj0,xsj1,xsj2,xsj3,xsj4]
             // console.log('bg');
             // console.log(jsd.bg);
             // console.log(bg1,bg2);
@@ -230,7 +231,7 @@ sbevent(e){
         if(inarea(x,y,jsd.ttsxj[0])){
             if(e.type==="mousedown"){
                 // let lsvs=jsd.buju.wbvs.wbq
-                jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%4
+                jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%5
                 // console.log(jsd.buju.wbvs.wbqtt[0]);
                 this.render()
             }
@@ -333,7 +334,6 @@ render(){
         let jj=gs.H1.jj    //文本间距[x,y,首行缩进]
         ctx.font=gs.H1.font
         // console.log(ctx.font);
-        let lst='测'
         let lsw=ctx.measureText('测').width
         //jsd.ttsxj:[0：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
         let tbt=[[sq[0],sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-2*lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1]+lsw,lsw,lsw]]
@@ -355,7 +355,7 @@ render(){
             if(ttvs[1]===1){x=x+lsw;tsq[2]=tsq[2]-2*lsw}
             for (let i=0;i<tt.length;i++){
                 if (x+lsw<tsq[2]){
-                    console.log(x+lsw+jj[0]);
+                    // console.log(x+lsw+jj[0]);
                     let zf=tt.substring(i,i+1)
                     let zw=ctx.measureText(zf).width
                     ctx.fillText(zf,tsq[0]+x,tsq[1]+0.9*lsw)
