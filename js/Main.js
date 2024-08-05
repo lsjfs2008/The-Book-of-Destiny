@@ -34,13 +34,14 @@ export default class Main{
         ))
         //鼠标监控：
         canvas.addEventListener('mousedown',this.bindsbevent)
-        canvas.addEventListener('mousemove',this.bindsbevent)
+        // canvas.addEventListener('mousemove',this.bindsbevent)
         canvas.addEventListener('wheel',this.bindsbevent)
         canvas.addEventListener('dblclick',this.bindsbevent)
         //鼠标拖动地图,松开鼠标不需集成。
         document.addEventListener('mouseup', () => {
             jsd.mapisDragging = false;
             canvas.style.cursor = 'default';
+            canvas.removeEventListener('mousemove',this.bindsbevent)
           });
     }//构建函数//
     start(){
@@ -169,6 +170,20 @@ sbevent(e){
     let c=jsd.c
     let vs=jsd.vs
     let ms=jsd.map.img.siz
+    //鼠标拖动地图。
+    if(e.type==="mousemove"){
+        if (jsd.mapisDragging) {
+            let x= e.clientX - canvas.getBoundingClientRect().left;
+            let y= e.clientY - canvas.getBoundingClientRect().top;
+            let dx=x-jsd.offsetX
+            let dy=y-jsd.offsetY
+            jsd.offsetX=x
+            jsd.offsetY=y
+            jsd.c=jsd.bg[0].move(c,dx,dy)
+            // console.log(x,y,dx,dy);
+            this.render()
+        }
+    }
     //1区，地图区：
     // if(vs[0]>0){
     if(inarea(x,y,cc[0])){
@@ -192,18 +207,7 @@ sbevent(e){
             jsd.offsetX = x
             jsd.offsetY = y
             canvas.style.cursor = 'grabbing';
-        }
-        if(e.type==="mousemove"){
-            if (jsd.mapisDragging) {
-                let x= e.clientX - canvas.getBoundingClientRect().left;
-                let y= e.clientY - canvas.getBoundingClientRect().top;
-                let dx=x-jsd.offsetX
-                let dy=y-jsd.offsetY
-                jsd.offsetX=x
-                jsd.offsetY=y
-                jsd.c=jsd.bg[0].move(c,dx,dy)
-                this.render()
-            }
+        canvas.addEventListener('mousemove',this.bindsbevent)
         }
         //滚轮缩放地图
         if(e.type==='wheel'){
@@ -228,6 +232,12 @@ sbevent(e){
                 // let lsvs=jsd.buju.wbvs.wbq
                 jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%4
                 // console.log(jsd.buju.wbvs.wbqtt[0]);
+                this.render()
+            }
+        }
+        if(inarea(x,y,jsd.ttsxj[1])){
+            if(e.type==="mousedown"){
+                jsd.buju.wbvs.wbqtt[1]=(jsd.buju.wbvs.wbqtt[1]+1)%4
                 this.render()
             }
         }
@@ -320,6 +330,7 @@ render(){
         let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
         let ttvs=jsd.buju.wbvs.wbqtt    //文本显示：文本区wbq,地图区dtq,时间线区sxq是[1,1,1]否显示大标题，小标题/节点名,节点内容。
         let tt=jsd.wb[jsd.language].slwb.tt     //大标题//多时线下大标题如何处理？
+        let jj=gs.H1.jj    //文本间距[x,y,首行缩进]
         ctx.font=gs.H1.font
         // console.log(ctx.font);
         let lst='测'
@@ -328,16 +339,30 @@ render(){
         let tbt=[[sq[0],sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-2*lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1]+lsw,lsw,lsw]]
         jsd.ttsxj=tbt
         let tsq=[sq[0],sq[1],sq[2],lsw]    //标题视区（标题文本显示区）
+        console.log('tsq0:',tsq);
         //ttvs[1]：0，隐藏大标题与附近按钮图标。默认1，显示所有。2，隐藏大标题，显示按钮。3,显示大标题文本，隐藏按钮。
+        console.log(ttvs[1]);
         if(ttvs[1]===1||ttvs[1]===2){
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[0][0],tbt[0][1],tbt[0][2],tbt[0][3])
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[1][0],tbt[1][1],tbt[1][2],tbt[1][3])
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[2][0],tbt[2][1],tbt[2][2],tbt[2][3])
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[3][0],tbt[3][1],tbt[3][2],tbt[3][3])
+            // tsq=[sq[0]+lsw,sq[1],sq[2]-2*lsw,lsw]
         }
         if(ttvs[1]===1||ttvs[1]===3){
+            console.log(tsq);
+            let x=jj[2]
+            if(ttvs[1]===1){x=x+lsw;tsq[2]=tsq[2]-2*lsw}
+            for (let i=0;i<tt.length;i++){
+                if (x+lsw<tsq[2]){
+                    console.log(x+lsw+jj[0]);
+                    let zf=tt.substring(i,i+1)
+                    let zw=ctx.measureText(zf).width
+                    ctx.fillText(zf,tsq[0]+x,tsq[1]+0.9*lsw)
+                    x=x+zw+jj[0]
+                }
+            }
         }
-        
         // console.log(lsw);
         let sxjdq=jsd.sxjdq    //时序节点群,其vs模式默认为1：显示节点名及其内容。//0：隐藏节点名，显示内容。2：显示节点名，隐藏内容。
 

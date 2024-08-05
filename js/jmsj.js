@@ -48,8 +48,8 @@ const bians={
     },
     hporsp:0,  
     wbgs:{
-        H1:{font:"bolder 36px Arial"},H2:{font:"bolder 30px Arial"},H3:{font:"bold 24px Arial"},H4:{font:"bold 18px Arial"},
-        p1:{font:"12px Arial"},px:{font:"italic 12px Arial"},pb:{font:"bold 12px Arial"},
+        H1:{font:"bolder 36px Arial",jj:[6,2,7]},H2:{font:"bolder 30px Arial",jj:[3,2,12]},H3:{font:"bold 24px Arial",jj:[3,2,12]},H4:{font:"bold 18px Arial",jj:[3,2,12]},
+        p1:{font:"12px Arial",jj:[3,2,12]},px:{font:"italic 12px Arial",jj:[3,2,12]},pb:{font:"bold 12px Arial",jj:[3,2,12]},
     },
     buju:{
         descr:{descr:'对本{}中所有一级key的描述，程序中应当用不到，方便人工查看。有必要时，下级{}中也可添加属于其各自的descr条目。',
@@ -105,7 +105,7 @@ const bians={
             },
             slwb:{
                 descr:{tt:'（一级）标题',gzlb:'关注列表//以“关注列表”的方式摘取时空节点汇集成文。还可以枚举所有相关时空节点。或两者并用。[“han”表示使用“人类(对应节点中的r)”为索引，具体索引关键字为“赵云”]'},
-                tt:["赵云传"],    //一级标题
+                tt:"赵云传1测2试3极4限5文6本7宽8度9",    //一级标题
                 gzlb:[['han','赵云']],    
                 }
             }
