@@ -49,8 +49,8 @@ const bians={
     },
     hporsp:0,  
     wbgs:{
-        H1:{font:"bolder 36px Arial",jj:[2,3,4],s:"#000000"},H2:{font:"bolder 30px Arial",jj:[3,2,12]},H3:{font:"bold 24px Arial",jj:[3,2,24],bjs:["#ccc","#dddddd"],s:"#000000"},H4:{font:"bold 18px Arial",jj:[3,2,12]},
-        p1:{font:"12px Arial",jj:[3,3,12],bjs:["#ccc","#dddddd"],s:"#000000"},px:{font:"italic 12px Arial",jj:[3,2,12]},pb:{font:"bold 12px Arial",jj:[3,2,12]},
+        H1:{font:"bolder 36px Arial",jj:[2,3,4],s:"#000000"},H2:{font:"bolder 30px Arial",jj:[3,2,12]},H3:{font:"bold 24px Arial",jj:[3,2,24],bjs:["#ccc","#d5d5d5"],s:"#000000"},H4:{font:"bold 18px Arial",jj:[3,2,12]},
+        p1:{font:"12px Arial",jj:[2,3,24],bjs:["#dde8dd","#ddeedd"],s:"#000000"},px:{font:"italic 12px Arial",jj:[3,2,12]},pb:{font:"bold 12px Arial",jj:[3,2,12]},
     },
     wbzd:{
         descr:'本条目为实时生成，预计包含：大标题，节点名，节点内容。其内容数据结构预计为：tt:大标题字段。zw:正文字段组。',

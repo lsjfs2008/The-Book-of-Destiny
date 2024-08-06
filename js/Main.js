@@ -277,7 +277,7 @@ sbevent(e){
 wbsbevent(e){
    //滚轮移动文本
    if(e.type==='wheel'){
-        let k=25
+        let k=15
         if (e.deltaY>0){jsd.wbdqh=jsd.wbdqh+k}else{jsd.wbdqh=jsd.wbdqh-k}
         if(jsd.wbdqh<0){jsd.wbdqh=0}
         if(jsd.wbdqh>jsd.wbdqhmax){jsd.wbdqh=jsd.wbdqhmax}
@@ -564,7 +564,7 @@ wbrender(){
         sq[1]=sq[1]+jsd.tt.th
         sq[3]=sq[3]-jsd.tt.th
     }
-    console.log(sq);
+    // console.log(sq);
     //清屏,只清理文本视界区
     wbcanvas.width=sq[2]
     wbcanvas.height=sq[3]
@@ -595,19 +595,23 @@ wbrender(){
             }
             let zs=jdq[i].zxym
             let mh=jdq[i].zxymh
+            let dqh=jsd.wbdqh   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
             wbctx.font=gs.H3.font
             let mw=wbctx.measureText('测').width
             // console.log(msq[0],xy0[1],sq[2],mh+1);    //小数点的缘故，直接用mh有时会出现缝隙。
-            wbctx.fillRect(xy0[0],xy0[1],sq[2],mh+1);
-            if(xy0[1]+mw<wbcanvas.height){
+            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
+            // if(xy0[1]+mw<wbcanvas.height){
                 for (let j=0;j<zs.length;j++){
                     let m=zs[j]
-                    wbctx.fillStyle=gs.H3.s
-                    wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2])
+                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                        wbctx.fillStyle=gs.H3.s
+                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                    }
                 }
-            }
+            // }
             xy0[1]=xy0[1]+mh
         }
+        jsd.wbdqhmax=xy0[1]-wbcanvas.height
     }
     if (ttvs[0]===1){
         let bjs=0
@@ -651,7 +655,7 @@ wbrender(){
 function hhzxya(zfc,sjk,fnt,jj){
     ctx.font=fnt
     let mw=ctx.measureText('测').width
-    let x=jj[2]
+    let x=jj[2]+3*jj[0]
     let h=0
     let dy=mw
     let y=h*(mw+jj[1])+dy
@@ -664,7 +668,7 @@ function hhzxya(zfc,sjk,fnt,jj){
             ms.push(mxy)
             x=x+zw+jj[0]
         }else{
-            x=0
+            x=jj[0]
             h=h+1
             y=h*(mw+jj[1])+dy
             i=i-1
