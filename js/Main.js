@@ -251,12 +251,29 @@ sbevent(e){
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
     //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
-    let cc=jsd.cc
+    // let cc=jsd.cc
     // console.log('jsd.vs:',jsd.vs);
     if(jsd.vs[0]>0){
-        let sc=cc[0]
+        this.dtupdate()
+        
+    }//地图区
+    //文本区
+    if(jsd.vs[1]>0){
+        this.wbupdate()
+    }//文本区
+    // console.log(jsd.jds);
+    //默认，自动保存当前数据状态
+    if(typeof(Storage)!=="undefined"){
+        // console.log('默认，自动保存当前数据状态',jsd);
+        localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
+    }
+    this.render()
+}//update()//
+//update模块化，分为地图dtupdate，文本wbupdate，时线sxupdate，三份。（加节点四份？）
+dtupdate(){
+    let sc=jsd.cc[0]
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
-        let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,cc[0][0],cc[0][1],cc[0][2],cc[0][3]]
+        let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,sc[0],sc[1],sc[2],sc[3]]
         jsd.c=jsd.bg[0].zoom(c,0.5*c[6],0.5*c[7],3)
         // console.log(c);
         jsd.mapp=dings.cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
@@ -273,16 +290,23 @@ update(){
         s[2]=0.25*s[3]
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
-    }//地图区
+}
+wbupdate(){
     //文本区
     if(jsd.vs[1]>0){
-        let sq=cc[1]    //视区[x,y,w,h]//文本显示区
+        this.wbbtupdate()
+        this.wbjmupdate()
+        this.wbjnupdate()
+        
+    }//文本区
+}//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。
+wbbtupdate()
+wbjmupdate(){
+    let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
         let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
         let ttvs=jsd.buju.wbvs.wbqtt    
         let jdq=jsd.sxjdq    //时序节点群
-        // let jdm=''     //节点名
-        // let mxh=[]
-        let mjj=gs.H3.jj    //文本间距[x,y,首行缩进]
+        let jj=gs.H3.jj    //文本间距[x,y,首行缩进]
         ctx.font=gs.H3.font
         // console.log(ctx.font);
         let mw=ctx.measureText('测').width
@@ -303,15 +327,15 @@ update(){
                 // console.log(jdm);
                 jsd.sxjdq[i].m=jdm    
             }//保存节点名纯文本。//以此生成每个字符的mxh
-            let x=mjj[2]
+            let x=jj[2]
             let h=0
             for (let i=0;i<jdm.length;i++){
                 let z=jdm.substring(i,i+1)
                 let zw=ctx.measureText(z).width
-                if(x+zw+2*mjj[0]<sq[2]){
+                if(x+zw+2*jj[0]<sq[2]){
                     mxh=[z,x,h]
                     ms.push(mxh)
-                    x=x+zw+mjj[0]
+                    x=x+zw+jj[0]
                 }else{
                     x=0
                     h=h+1
@@ -322,16 +346,9 @@ update(){
             jsd.sxjdq[i].ms=ms
 
         }
-
-    }//文本区
-    // console.log(jsd.jds);
-    //默认，自动保存当前数据状态
-    if(typeof(Storage)!=="undefined"){
-        // console.log('默认，自动保存当前数据状态',jsd);
-        localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
-    }
-    this.render()
-}//update()//
+}
+wbjnupdate()
+sxupdate(){}
 /**/
 /**////二，根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 render(){
