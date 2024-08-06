@@ -40,6 +40,7 @@ export default class Main{
         canvas.addEventListener('wheel',this.bindsbevent)
         canvas.addEventListener('dblclick',this.bindsbevent)
         //鼠标拖动地图,松开鼠标不需集成。
+        wbcanvas.addEventListener('wheel',this.wbbindsbevent)
         document.addEventListener('mouseup', () => {
             jsd.mapisDragging = false;
             canvas.style.cursor = 'default';
@@ -152,6 +153,7 @@ start(){
             // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
             //4，绑定鼠标事件
             this.bindsbevent=this.sbevent.bind(this)    //绑定this.
+            this.wbbindsbevent=this.wbsbevent.bind(this)
             //N,就绪即加载
             window.onload=()=>{this.update();}
             window.onresize=()=>{
@@ -272,6 +274,16 @@ sbevent(e){
     // console.log(this);
     
 }//sbevent//
+wbsbevent(e){
+   //滚轮移动文本
+   if(e.type==='wheel'){
+        let k=25
+        if (e.deltaY>0){jsd.wbdqh=jsd.wbdqh+k}else{jsd.wbdqh=jsd.wbdqh-k}
+        if(jsd.wbdqh<0){jsd.wbdqh=0}
+        if(jsd.wbdqh>jsd.wbdqhmax){jsd.wbdqh=jsd.wbdqhmax}
+        this.wbrender()
+    } 
+}
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
     //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
@@ -587,7 +599,7 @@ wbrender(){
             let mw=wbctx.measureText('测').width
             // console.log(msq[0],xy0[1],sq[2],mh+1);    //小数点的缘故，直接用mh有时会出现缝隙。
             wbctx.fillRect(xy0[0],xy0[1],sq[2],mh+1);
-            if(xy0[1]+mw<msq[3]){
+            if(xy0[1]+mw<wbcanvas.height){
                 for (let j=0;j<zs.length;j++){
                     let m=zs[j]
                     wbctx.fillStyle=gs.H3.s
@@ -603,35 +615,35 @@ wbrender(){
             //加文本（背景）框
             if(bjs===0){
                 bjs=1
-                ctx.fillStyle=gs.p1.bjs[0]
+                wbctx.fillStyle=gs.p1.bjs[0]
             }else{
                 bjs=0
-                ctx.fillStyle=gs.p1.bjs[1]
+                wbctx.fillStyle=gs.p1.bjs[1]
             }
             let zsz=jdq[i].zxyjz
             let mh=jdq[i].zxyjh
             let dqh=jsd.wbdqh   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            ctx.font=gs.p1.font
-            let mw=ctx.measureText('测').width
+            wbctx.font=gs.p1.font
+            let mw=wbctx.measureText('测').width
             // console.log(msq[0],xy0[1],sq[2],mh+1);    //小数点的缘故，直接用mh有时会出现缝隙。
             // console.log(xy0[1],dqh,);
             // if (xy0[1]-dqh+mh>sq[1]+sq[3]){
             //     dqh=(xy0[1]+mh)-(sq[1]+sq[3])
             // }
-            ctx.fillRect(msq[0],xy0[1]-dqh,sq[2],mh+1);
+            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
             for (let k=0;k<zsz.length;k++){
                 let zs=zsz[k]
                 for (let j=0;j<zs.length;j++){
                     let m=zs[j]
-                    if(xy0[1]+m[2]-dqh<msq[3]&&xy0[1]+m[2]-dqh>msq[1]+mw){
-                        ctx.fillStyle=gs.p1.s
-                        ctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                        wbctx.fillStyle=gs.p1.s
+                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
                     }
                 }
             }
             xy0[1]=xy0[1]+mh
         }
-        jsd.wbdqhmax=xy0[1]-(sq[1]+sq[3])
+        jsd.wbdqhmax=xy0[1]-wbcanvas.height
     }
 }
 }//main//
