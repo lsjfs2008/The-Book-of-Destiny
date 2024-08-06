@@ -10,8 +10,6 @@ let lssize=resize()
 canvas.width = lssize[0]
 canvas.height = lssize[1]
 const ctx = canvas.getContext('2d')
-let wbcanvas=document.createElement('canvas')
-let wbctx=wbcanvas.getContext('2d')
 const xsw=screenWidth/720
 const xsh=screenHeight/1280
 let jsd={}
@@ -46,8 +44,7 @@ export default class Main{
             canvas.removeEventListener('mousemove',this.bindsbevent)
           });
     }//构建函数//
-start(){
-    document.getElementById('zhudiv').appendChild(wbcanvas)
+    start(){
         document.getElementById('zhudiv').appendChild(canvas)
         //1，加载默认数据，如果有本地存储数据，更新为本地存储数据。
         //尝试调用本地存储的配置数据：
@@ -73,7 +70,6 @@ start(){
             jsd.wbs=bians.wb[jsd.language].slwb
             //5.2,根据所选语言与文本群，生成时空节点群数据:jsd.jds
             let jds=bians.jd[jsd.language]
-            jsd.tt={}
             jsd.jds={}
             for (let ms in jsd.wbs){
                 if(ms==="gzlb"){
@@ -232,40 +228,20 @@ sbevent(e){
     }//1区，地图区//
     //2区，文本区
     if(inarea(x,y,cc[1])){
-        //滚轮移动文本
-        if(e.type==='wheel'){
-            let k=15
-            if (e.deltaY>0){jsd.wbdqh=jsd.wbdqh+k}else{jsd.wbdqh=jsd.wbdqh-k}
-            if(jsd.wbdqh<0){jsd.wbdqh=0}
-            if(jsd.wbdqh>jsd.wbdqhmax){jsd.wbdqh=jsd.wbdqhmax}
-            this.wbrender()
-        }
-        if(inarea(x,y,jsd.tt.xsj[0])){
+        if(inarea(x,y,jsd.ttsxj[0])){
             if(e.type==="mousedown"){
                 // let lsvs=jsd.buju.wbvs.wbq
                 jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%5
                 // console.log(jsd.buju.wbvs.wbqtt[0]);
-                this.wbbtupdate()
                 this.render()
             }
-        }//标题左
-        if(inarea(x,y,jsd.tt.xsj[1])){
+        }
+        if(inarea(x,y,jsd.ttsxj[1])){
             if(e.type==="mousedown"){
                 jsd.buju.wbvs.wbqtt[1]=(jsd.buju.wbvs.wbqtt[1]+1)%4
-                this.wbbtupdate()
                 this.render()
             }
-        }//标题右
-        if(inarea(x,y,jsd.tt.xsj[4])){
-            if(e.type==="mousedown"){
-                let t=jsd.tt.tzxy
-                let h=jsd.tt.th
-                let y=t[t.length-1][2]
-                let k=Math.floor(y/h)+1
-                jsd.buju.wbvs.wbqtt[4]=(jsd.buju.wbvs.wbqtt[4]+1)%k
-                this.render()
-            }
-        }//标题文本区//标题文本滚动效果。
+        }
     }
     //2区，文本区//
 
@@ -319,107 +295,59 @@ wbupdate(){
     //文本区
     if(jsd.vs[1]>0){
         this.wbbtupdate()
-        this.wbjdmupdate()
-        this.wbjdupdate()
+        this.wbjmupdate()
+        this.wbjnupdate()
         
     }//文本区
-}//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。按钮，第四部分，集成在标题中。
-//标题模块
-wbbtupdate(){
-        //文本框元素：背景，左上缩放小三角
-        let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
+}//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。
+wbbtupdate()
+wbjmupdate(){
+    let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
         let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
-        let ttvs=jsd.buju.wbvs.wbqtt    //文本显示：文本区wbq,地图区dtq,时间线区sxq是[1,1,1]否显示大标题，小标题/节点名,节点内容。
-        let tt=jsd.wb[jsd.language].slwb.tt     //大标题//多时线下大标题如何处理？
-        let jj=gs.H1.jj    //文本间距[x,y,首行缩进]
-        ctx.font=gs.H1.font
+        let ttvs=jsd.buju.wbvs.wbqtt    
+        let jdq=jsd.sxjdq    //时序节点群
+        let jj=gs.H3.jj    //文本间距[x,y,首行缩进]
+        ctx.font=gs.H3.font
         // console.log(ctx.font);
-        let lsw=ctx.measureText('测').width
-        //jsd.ttsxj:[0]：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
-        let tbt=[[sq[0],sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-2*lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1]+lsw,lsw,lsw],[sq[0]+lsw,sq[1],sq[2]-3*lsw,lsw]]
-        jsd.tt.xsj=tbt
-        let tsq=[sq[0],sq[1],sq[2],lsw]    //标题视区（标题文本显示区）
-        // console.log('tsq0:',tsq);
-        let zfc=jsd.wb[jsd.language].slwb.tt 
-        let sjk=sq[2]
-        if(ttvs[1]===1){sjk=sjk-3*lsw}
-        let fnt=gs.H1.font
-        //输入：字符串zfc，视界宽度sjk，字体格式font.返回：[['字',x,y]……]
-        let tzxy=hhzxya(zfc,sjk,fnt,jj)
-        jsd.tt.tzxy=tzxy
-        jsd.tt.th=jj[1]+lsw
-}//标题模块
-//节点名模块
-wbjdmupdate(){
-    let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
-    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
-    let jdq=jsd.sxjdq    //时序节点群
-    let jj=gs.H3.jj    //文本间距[x,y,首行缩进]
-    ctx.font=gs.H3.font
-    // console.log(ctx.font);
-    let mw=ctx.measureText('测').width
-    //所有节点名的['字'，x,h]值，数据结构相当于jds中的节点内容（文本）的每个单字用['字'，x,h]取代。其中x是相对于文本视界左侧的dx，h是行数。
-    //其内容添加进jds中相应条目中。
-    for (let i=0;i<jdq.length;i++){
-        let jd=jdq[i]
-        let jdm=''
-        if(!!jd.m){jdm=jd.m}else{
-            for (let j=0;j<jd.r.length;j++){
-            jdm=jdm+`${jd.r[j]},`
+        let mw=ctx.measureText('测').width
+        //所有节点名的['字'，x,h]值，数据结构相当于jds中的节点内容（文本）的每个单字用['字'，x,h]取代。其中x是相对于文本视界左侧的dx，h是行数。
+        //其内容添加进jds中相应条目中。
+        for (let i=0;i<jdq.length;i++){
+            let jd=jdq[i]
+            let jdm=''
+            let mxh=[]
+            let ms=[]
+            if(!!jd.m){jdm=jd.m}else{
+                for (let j=0;j<jd.r.length;j++){
+                jdm=jdm+`${jd.r[j]},`
+                }
+                let gy=(jd.t[0][0]>0)?'':'公元前'
+                let n=(!!jd.t[1])?`${jd.t[0][0]}—${jd.t[1][0]}年`:`${jd.t[0][0]}年`
+                jdm=jdm+gy+n
+                // console.log(jdm);
+                jsd.sxjdq[i].m=jdm    
+            }//保存节点名纯文本。//以此生成每个字符的mxh
+            let x=jj[2]
+            let h=0
+            for (let i=0;i<jdm.length;i++){
+                let z=jdm.substring(i,i+1)
+                let zw=ctx.measureText(z).width
+                if(x+zw+2*jj[0]<sq[2]){
+                    mxh=[z,x,h]
+                    ms.push(mxh)
+                    x=x+zw+jj[0]
+                }else{
+                    x=0
+                    h=h+1
+                    i=i-1
+                }
             }
-            let gy=(jd.t[0][0]>0)?'':'公元前'
-            let n=(!!jd.t[1])?`${jd.t[0][0]}—${jd.t[1][0]}年`:`${jd.t[0][0]}年`
-            jdm=jdm+gy+n
-            // console.log(jdm);
-            jsd.sxjdq[i].m=jdm    
-        }//保存节点名纯文本。//以此生成每个字符的mxh
-        let zfc=jdm
-        let sjk=sq[2]
-        let fnt=gs.H3.font
-        //输入：字符串zfc，视界宽度sjk，字体格式font.返回：[['字',x,y]……]
-        let mzxy=hhzxya(zfc,sjk,fnt,jj)
-        // console.log(ms);
-        jsd.sxjdq[i].zxym=mzxy
-        jsd.sxjdq[i].zxymh=mzxy[mzxy.length-1][2]+jj[1]+0.2*mw
-        // jsd.sxjdq[i].mh=mzxy[mzxy.length-1][2]+mw+jj[1]
-    }
-}//节点名模块
-//节点内容模块
-wbjdupdate(){
-    let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
-    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
-    let jdq=jsd.sxjdq    //时序节点群
-    let jj=gs.p1.jj    //文本间距[x,y,首行缩进]
-    ctx.font=gs.p1.font
-    let mw=ctx.measureText('测').width
-    for (let i=0;i<jdq.length;i++){
-        let jd=jdq[i]
-        let zz=jd.s
-        let zfc=''
-        for (let j=0;j<zz.length;j++){
-            zfc=zfc+zz[j]
+            // console.log(ms);
+            jsd.sxjdq[i].ms=ms
+
         }
-        let sjk=sq[2]
-        let fnt=gs.p1.font
-        // console.log(zfc);
-        //输入：字符串zfc，视界宽度sjk，字体格式font.返回：[['字',x,y]……]
-        let zxy=hhzxya(zfc,sjk,fnt,jj)    
-        //分出子节点。
-        let zj=0
-        let zxys=[]
-        for (let j=0;j<zz.length;j++){
-            let zl=zz[j].length
-            let zs=zxy.slice(zj,zj+zl)
-            zj=zj+zl
-            zxys.push(zs)
-        }
-        // console.log(zxys);
-        jsd.sxjdq[i].zxyjz=zxys
-        let jdh=zxy[zxy.length-1][2]+jj[1]+0.2*mw
-        jsd.sxjdq[i].zxyjh=jdh
-        jsd.wbdqh=0
-    }
-}//节点内容模块
+}
+wbjnupdate()
 sxupdate(){}
 /**/
 /**////二，根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
@@ -462,49 +390,82 @@ render(){
     }
     //2，文本
     if(jsd.vs[1]>0){
+        ctx.drawImage(jsd.bg[1],cc[1][0],cc[1][1],cc[1][2],cc[1][3])
+        //文本框元素：背景，左上缩放小三角
+        //根据时序节点群jsd.sxjdq生成文本正文（与小标题/节点名tt,如果没有节点名，则以“人名，人名+时间”为自动标题）
+        // console.log(jsd.sxjdq);
         let sq=cc[1]    //视区[x,y,w,h]//文本显示区
-        //2.1,文本视界背景图
-        ctx.drawImage(jsd.bg[1],sq[0],sq[1],sq[2],sq[3])
-        //2.2,标题区
         let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
-        let ttvs=jsd.buju.wbvs.wbqtt
-        //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
+        let ttvs=jsd.buju.wbvs.wbqtt    //文本显示：文本区wbq,地图区dtq,时间线区sxq是[1,1,1]否显示大标题，小标题/节点名,节点内容。
+        let tt=jsd.wb[jsd.language].slwb.tt     //大标题//多时线下大标题如何处理？
+        let jj=gs.H1.jj    //文本间距[x,y,首行缩进]
+        ctx.font=gs.H1.font
+        // console.log(ctx.font);
+        let lsw=ctx.measureText('测').width
+        //jsd.ttsxj:[0]：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
+        let tbt=[[sq[0],sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-2*lsw,sq[1],lsw,lsw],[sq[0]+sq[2]-lsw,sq[1]+lsw,lsw,lsw]]
+        jsd.ttsxj=tbt
+        let tsq=[sq[0],sq[1],sq[2],lsw]    //标题视区（标题文本显示区）
+        console.log('tsq0:',tsq);
         //ttvs[1]：0，隐藏大标题与附近按钮图标。默认1，显示所有。2，隐藏大标题，显示按钮。3,显示大标题文本，隐藏按钮。
-        
-        //2.2.2,标题区文本
-        if(ttvs[1]===1||ttvs[1]===3){
-            let zs=jsd.tt.tzxy
-            let th=jsd.tt.th
-            let jj=gs.H1.jj    //文本间距[x,y,首行缩进]
-            let xy0=[sq[0]+jj[0],sq[1]]
-            let dy0=0
-            ctx.font=gs.H1.font
-            let lsw=ctx.measureText('测').width
-            if(ttvs[1]===1){xy0[0]=xy0[0]+lsw}
-            for (let j=0;j<zs.length;j++){
-                let m=zs[j]
-                ctx.fillStyle=gs.H1.s
-                let hs=jsd.buju.wbvs.wbqtt[4]
-                let dh=lsw+jj[1]
-                dy0=-hs*dh
-                let dy=dy0+m[2]-0.1*lsw
-                // console.log(dy);
-                // console.log(jsd.buju.wbvs.wbqtt[4]);
-                if(xy0[1]<dy&&dy<xy0[1]+th){
-                    ctx.fillText(m[0],xy0[0]+m[1],dy)
-                }//只显示一行。
-            }
-        }
-        //2.3,内容区
-        this.wbrender()
-        //2.2.1,标题区附近的按钮
+        console.log(ttvs[1]);
         if(ttvs[1]===1||ttvs[1]===2){
-            //jsd.tt.xsj:[0]：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
-            let tbt=jsd.tt.xsj
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[0][0],tbt[0][1],tbt[0][2],tbt[0][3])
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[1][0],tbt[1][1],tbt[1][2],tbt[1][3])
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[2][0],tbt[2][1],tbt[2][2],tbt[2][3])
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[3][0],tbt[3][1],tbt[3][2],tbt[3][3])
+            // tsq=[sq[0]+lsw,sq[1],sq[2]-2*lsw,lsw]
+        }
+        if(ttvs[1]===1||ttvs[1]===3){
+            console.log(tsq);
+            let x=jj[2]
+            if(ttvs[1]===1){x=x+lsw;tsq[2]=tsq[2]-2*lsw}
+            for (let i=0;i<tt.length;i++){
+                if (x+lsw<tsq[2]){
+                    // console.log(x+lsw+jj[0]);
+                    let zf=tt.substring(i,i+1)
+                    let zw=ctx.measureText(zf).width
+                    ctx.fillText(zf,tsq[0]+x,tsq[1]+0.9*lsw)
+                    x=x+zw+jj[0]
+                }
+            }
+        }
+        //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
+        // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
+        let msq=[sq[0],sq[1],sq[0]+sq[2],sq[1]+sq[3]]    //视界左0上1点与右2下3点的xy值。
+        if(ttvs[1]===1||ttvs[1]===3){
+            msq[1]=msq[1]+lsw+jj[1]
+        }
+        let mjj=gs.H3.jj    //文本间距[x,y,首行缩进]
+        let mxy=[msq[0]+mjj[0],msq[1]]
+        console.log('视界左0上1点与右2下3点的xy值msq:',msq);
+        console.log(ttvs[0]);
+        let jdq=jsd.sxjdq
+        if (ttvs[0]===0) {
+            let bjs=0
+            for (let i=0;i<jdq.length;i++){
+                //加文本（背景）框
+                if(bjs===0){
+                    bjs=1
+                    ctx.fillStyle=gs.H3.bjs[0]
+                }else{
+                    bjs=0
+                    ctx.fillStyle=gs.H3.bjs[1]
+                }
+                let ms=jdq[i].ms
+                ctx.font=gs.H3.font
+                let mw=ctx.measureText('测').width
+                if(mxy[1]+mw<msq[3]){
+                    // console.log(msq[0],mxy[1],sq[2],(ms[ms.length-1][2]+1)*(mw+mjj[1]));
+                    ctx.fillRect(msq[0],mxy[1],sq[2],(ms[ms.length-1][2]+1)*(mw+mjj[1]));
+                    for (let j=0;j<ms.length;j++){
+                        let m=ms[j]
+                        ctx.fillStyle=gs.H3.s
+                        ctx.fillText(m[0],mxy[0]+m[1],mxy[1]+m[2]*(mw+mjj[1])+0.9*mw)
+                    }
+                    mxy[1]=mxy[1]+(ms[ms.length-1][2]+1)*(mw+mjj[1])
+                }
+            }
         }
         // console.log(lsw);
         let sxjdq=jsd.sxjdq    //时序节点群,其vs模式默认为1：显示节点名及其内容。//0：隐藏节点名，显示内容。2：显示节点名，隐藏内容。
@@ -543,123 +504,7 @@ render(){
     //1,图
 }//render()//
 /**/
-//render模块化，文本内容区独立出来
-wbrender(){
-    let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
-    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
-    let ttvs=jsd.buju.wbvs.wbqtt
-    if(ttvs[1]===1||ttvs[1]===3){
-        sq[1]=sq[1]+jsd.tt.th
-        sq[3]=sq[3]-jsd.tt.th
-    }
-    console.log(sq);
-    //清屏,只清理文本视界区
-    wbcanvas.width=sq[2]
-    wbcanvas.height=sq[3]
-    wbcanvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
-    wbctx.clearRect(0,0,wbcanvas.width,wbcanvas.height)
-    // ctx.clearRect(sq[0],sq[1],sq[2],sq[3])
-    // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
-    let msq=[sq[0],sq[1],sq[0]+sq[2],sq[1]+sq[3]]    //视界左0上1点与右2下3点的xy值。
-    // if(ttvs[1]===1||ttvs[1]===3){
-    //     msq[1]=msq[1]+jsd.tt.th
-    // }
-    let mjj=gs.H3.jj    //文本间距[x,y,首行缩进]
-    // let xy0=[msq[0]+mjj[0],msq[1]]
-    let xy0=[0,0]
-    // console.log('视界左0上1点与右2下3点的xy值msq:',msq);
-    // console.log(ttvs[0]);
-    let jdq=jsd.sxjdq
-    if (ttvs[0]===0) {
-        let bjs=0
-        for (let i=0;i<jdq.length;i++){
-            //加文本（背景）框
-            if(bjs===0){
-                bjs=1
-                wbctx.fillStyle=gs.H3.bjs[0]
-            }else{
-                bjs=0
-                wbctx.fillStyle=gs.H3.bjs[1]
-            }
-            let zs=jdq[i].zxym
-            let mh=jdq[i].zxymh
-            wbctx.font=gs.H3.font
-            let mw=wbctx.measureText('测').width
-            // console.log(msq[0],xy0[1],sq[2],mh+1);    //小数点的缘故，直接用mh有时会出现缝隙。
-            wbctx.fillRect(xy0[0],xy0[1],sq[2],mh+1);
-            if(xy0[1]+mw<msq[3]){
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    wbctx.fillStyle=gs.H3.s
-                    wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2])
-                }
-            }
-            xy0[1]=xy0[1]+mh
-        }
-    }
-    if (ttvs[0]===1){
-        let bjs=0
-        for (let i=0;i<jdq.length;i++){
-            //加文本（背景）框
-            if(bjs===0){
-                bjs=1
-                ctx.fillStyle=gs.p1.bjs[0]
-            }else{
-                bjs=0
-                ctx.fillStyle=gs.p1.bjs[1]
-            }
-            let zsz=jdq[i].zxyjz
-            let mh=jdq[i].zxyjh
-            let dqh=jsd.wbdqh   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            ctx.font=gs.p1.font
-            let mw=ctx.measureText('测').width
-            // console.log(msq[0],xy0[1],sq[2],mh+1);    //小数点的缘故，直接用mh有时会出现缝隙。
-            // console.log(xy0[1],dqh,);
-            // if (xy0[1]-dqh+mh>sq[1]+sq[3]){
-            //     dqh=(xy0[1]+mh)-(sq[1]+sq[3])
-            // }
-            ctx.fillRect(msq[0],xy0[1]-dqh,sq[2],mh+1);
-            for (let k=0;k<zsz.length;k++){
-                let zs=zsz[k]
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]+m[2]-dqh<msq[3]&&xy0[1]+m[2]-dqh>msq[1]+mw){
-                        ctx.fillStyle=gs.p1.s
-                        ctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            }
-            xy0[1]=xy0[1]+mh
-        }
-        jsd.wbdqhmax=xy0[1]-(sq[1]+sq[3])
-    }
-}
 }//main//
-//输入：字符串zfc，视界宽度sjk，字体格式font,间距jj.返回：[['字',x,y]……]
-function hhzxya(zfc,sjk,fnt,jj){
-    ctx.font=fnt
-    let mw=ctx.measureText('测').width
-    let x=jj[2]
-    let h=0
-    let dy=mw
-    let y=h*(mw+jj[1])+dy
-    let ms=[]
-    for (let i=0;i<zfc.length;i++){
-        let z=zfc.substring(i,i+1)
-        let zw=ctx.measureText(z).width
-        if(x+zw+2*jj[0]<sjk){
-            let mxy=[z,x,y]
-            ms.push(mxy)
-            x=x+zw+jj[0]
-        }else{
-            x=0
-            h=h+1
-            y=h*(mw+jj[1])+dy
-            i=i-1
-        }
-    }
-    return ms
-}
 //判断点xy是否位于s[sx,sy,sw,sh]区域。
 function inarea(x,y,s){
     let re=0
