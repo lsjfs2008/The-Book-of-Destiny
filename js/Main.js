@@ -190,9 +190,10 @@ sbevent(e){
         //滚轮移动文本
         if(e.type==='wheel'){
             let k=15
-            if (e.deltaY>0){jsd.wbcanvas.dh=jsd.wbcanvas.dh+k}else{jsd.wbcanvas.dh=jsd.wbcanvas.dh-k}
-            if(jsd.wbcanvas.dh<0){jsd.wbcanvas.dh=0}
-            if(jsd.wbcanvas.dh>jsd.wbcanvas.dhmax){jsd.wbcanvas.dh=jsd.wbcanvas.dhmax}
+            let i=jsd.buju.wbvs.wbqtt[0]
+            if (e.deltaY>0){this.sxjdq.h[i]=this.sxjdq.h[i]+k}else{this.sxjdq.h[i]=this.sxjdq.h[i]-k}
+            if(this.sxjdq.h[i]<0){this.sxjdq.h[i]=0}
+            if(this.sxjdq.h[i]>this.sxjdq.hmax[i]){this.sxjdq.h[i]=this.sxjdq.hmax[i]}
             this.wbrender()
         }
         if(inarea(x,y,jsd.tt.xsj[0])){
@@ -232,13 +233,15 @@ wbsbevent(e){
    if(e.type==='wheel'){
     if(jsd.buju.wbvs.wbqtt[0]===3){
         if (e.deltaY>0){this.sxjdq.ichange(1)}else{this.sxjdq.ichange(0)}
+        this.wbrender(1)
     }else{
         let k=20
-        if (e.deltaY>0){jsd.wbcanvas.dh=jsd.wbcanvas.dh+k}else{jsd.wbcanvas.dh=jsd.wbcanvas.dh-k}
-        if(jsd.wbcanvas.dh<0){jsd.wbcanvas.dh=0}
-        if(jsd.wbcanvas.dh>jsd.wbcanvas.dhmax){jsd.wbcanvas.dh=jsd.wbcanvas.dhmax}
-    }
+        let i=jsd.buju.wbvs.wbqtt[0]
+        if (e.deltaY>0){this.sxjdq.h[i]=this.sxjdq.h[i]+k}else{this.sxjdq.h[i]=this.sxjdq.h[i]-k}
+        if(this.sxjdq.h[i]<0){this.sxjdq.h[i]=0}
+        if(this.sxjdq.h[i]>this.sxjdq.hmax[i]){this.sxjdq.h[i]=this.sxjdq.hmax[i]}
         this.wbrender()
+    }
     } 
     //折页/书签功能：
     if(e.type==='mousedown'){
@@ -246,12 +249,12 @@ wbsbevent(e){
         let x=e.clientX - canvas.getBoundingClientRect().left;
         let y=e.clientY - canvas.getBoundingClientRect().top;
         // console.log(x,y);
-        let xywh=jsd.wbcanvas.xywh
+        let xywh=this.sxjdq.xywh
         let txy=xywh[0]+xywh[2]+xywh[1]+xywh[3]
         let dxy0=0.05*txy
-        console.log(dxy0);
+        // console.log(dxy0);
         let dxy=txy-x-y
-        console.log(dxy);
+        console.log(this.sxjdq);
         if(dxy<dxy0){
             if(typeof(Storage)!=="undefined"){
                 // console.log('暂且如此。后期不再存储为默认数据，而是保存为自命名书签。');
@@ -268,7 +271,6 @@ update(){
     // console.log('jsd.vs:',jsd.vs);
     if(jsd.vs[0]>0){
         this.dtupdate()
-        
     }//地图区
     //文本区
     if(jsd.vs[1]>0){
@@ -309,7 +311,6 @@ wbupdate(){
     if(jsd.vs[1]>0){
         this.wbbtupdate()
         this.wbjdmupdate()
-        
         this.wbjdupdate()
     }//文本区
 }//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。按钮，第四部分，集成在标题中。
@@ -434,7 +435,7 @@ render(){
             }
         }
         //2.3,内容区
-        this.wbrender()
+        this.wbrender(1)
         //2.2.1,标题区附近的按钮
         if(ttvs[1]===1||ttvs[1]===2){
             //jsd.tt.xsj:[0]：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
@@ -482,7 +483,7 @@ render(){
 }//render()//
 /**/
 //render模块化，文本内容区独立出来
-wbrender(){
+wbrender(k){
     let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     let ttvs=jsd.buju.wbvs.wbqtt
@@ -492,168 +493,14 @@ wbrender(){
     }
     wbcanvas.width=sq[2]
     wbcanvas.height=sq[3]
-    jsd.wbcanvas.xywh=[sq[0],sq[1],sq[2],sq[3]]
+    this.sxjdq.xywh=[sq[0],sq[1],sq[2],sq[3]]
     wbcanvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
     wbctx.clearRect(0,0,wbcanvas.width,wbcanvas.height)
-    //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
-    // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
-    let xy0=[0,0]
-    let jdq=this.sxjdq.q    //节点群
-    if (ttvs[0]===0) {
-        let bjs=0
-        for (let i=0;i<jdq.length;i++){
-            if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
-            let zs=jdq[i].zxym
-            let mh=jdq[i].zxymh
-            let dqh=jsd.wbcanvas.dh   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.H3.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.H3.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            xy0[1]=xy0[1]+mh
-        }
-        jsd.wbcanvas.dhmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
-    }
-    if (ttvs[0]===1){
-        let pbjs=0
-        for (let i=0;i<jdq.length;i++){
-            //加文本（背景）框
-            if(pbjs===0){
-                pbjs=1
-                wbctx.fillStyle=gs.p1.bjs[0]
-            }else{
-                pbjs=0
-                wbctx.fillStyle=gs.p1.bjs[1]
-            }
-            let zsz=jdq[i].zxyjz
-            let mh=jdq[i].zxyjh
-            let dqh=jsd.wbcanvas.dh   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.p1.font
-            let mw=wbctx.measureText('测').width
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-            for (let k=0;k<zsz.length;k++){
-                let zs=zsz[k]
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.p1.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            }
-            xy0[1]=xy0[1]+mh
-        }
-        jsd.wbcanvas.dhmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
-    }
-    if (ttvs[0]===2){
-        let pbjs=0
-        let bjs=0
-        for (let i=0;i<jdq.length;i++){
-            //节点名模块
-            if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
-            let zs=jdq[i].zxym
-            let mh=jdq[i].zxymh
-            let dqh=jsd.wbcanvas.dh   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.H3.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.H3.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            xy0[1]=xy0[1]+mh
-            //节点内容模块
-            if(pbjs===0){pbjs=1;wbctx.fillStyle=gs.p1.bjs[0];}else{pbjs=0;wbctx.fillStyle=gs.p1.bjs[1];}
-            let zsz=jdq[i].zxyjz
-            let jh=jdq[i].zxyjh
-            wbctx.font=gs.p1.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
-            for (let k=0;k<zsz.length;k++){
-                let zs=zsz[k]
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.p1.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            }
-            xy0[1]=xy0[1]+jh
-        }
-        jsd.wbcanvas.dhmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
-    }
-    if (ttvs[0]===3){
-        let sji=jsd.sxjdqi
-        // console.log(sji);
-        let pbjs=0
-        let bjs=0
-        //(当前高)dqh自适应模块：
-        let ysh=[0]
-        for (let i=0;i<jdq.length;i++){
-            let mh=jdq[i].zxymh
-            let h=ysh[ysh.length-1]+mh
-            ysh.push(h)
-            if(i===sji){
-                let jh=jdq[i].zxyjh
-                let h=ysh[ysh.length-1]+jh
-                ysh.push(h)
-            }
-        }
-        let zsyi=(sji-2>0)?(sji-2):0
-        let dqh=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-        dqh=(dqh<ysh[ysh.length-1]-wbcanvas.height)?dqh:(ysh[ysh.length-1]-wbcanvas.height)
-        console.log(ysh);
-        //绘制文字：
-        for (let i=0;i<jdq.length;i++){
-            //节点名模块
-            if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
-            let zs=jdq[i].zxym
-            let mh=jdq[i].zxymh
-            // let dqh=jsd.wbcanvas.dh   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.H3.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.H3.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            xy0[1]=xy0[1]+mh
-            console.log(xy0[1]);
-            if(i===sji){
-                //节点内容模块
-                if(pbjs===0){pbjs=1;wbctx.fillStyle=gs.p1.bjs[0];}else{pbjs=0;wbctx.fillStyle=gs.p1.bjs[1];}
-                let zsz=jdq[i].zxyjz
-                let jh=jdq[i].zxyjh
-                wbctx.font=gs.p1.font
-                wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
-                for (let k=0;k<zsz.length;k++){
-                    let zs=zsz[k]
-                    for (let j=0;j<zs.length;j++){
-                        let m=zs[j]
-                        if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                            wbctx.fillStyle=gs.p1.s
-                            wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                        }
-                    }
-                }
-                xy0[1]=xy0[1]+jh
-                console.log(xy0[1]);
-            }
-        }
-        jsd.wbcanvas.dhmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
-    }
+    if(!!k){this.sxjdq.bfwbrender(wbcanvas)}
+    this.sxjdq.wbrender(wbcanvas,sq,gs,ttvs)
     if(ttvs[1]===1||ttvs[1]===2){
         wbctx.fillStyle="#000000"
-        let xywh=jsd.wbcanvas.xywh
+        let xywh=this.sxjdq.xywh
         let dxy0=0.05*(xywh[0]+xywh[2]+xywh[1]+xywh[3])
         wbctx.moveTo(xywh[2],xywh[3]-dxy0);
         wbctx.lineTo(xywh[2]-dxy0,xywh[3]);

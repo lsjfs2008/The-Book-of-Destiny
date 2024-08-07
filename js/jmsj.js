@@ -51,8 +51,8 @@ const bians={
     wbcanvas:{xywh:[0,0,0,0],dh:0,dhmax:0},
     hporsp:0,  
     wbgs:{
-        H1:{font:"bolder 36px Arial",jj:[2,3,4],bjs:"#b8b8be",s:"#000000"},H2:{font:"bolder 30px Arial",jj:[3,2,12]},H3:{font:"bold 20px Arial",jj:[2,2,24],bjs:["#ccc","#d5d5d5"],s:"#000000"},H4:{font:"bold 18px Arial",jj:[3,2,12]},
-        p1:{font:"16px Arial",jj:[2,3,24],bjs:["#dde8dd","#ddeedd"],s:"#000000"},px:{font:"italic 12px Arial",jj:[3,2,12]},pb:{font:"bold 12px Arial",jj:[3,2,12]},
+        H1:{font:"bolder 36px Arial",jj:[2,3,4],bjs:"#b8b8be",s:"#000000"},H2:{font:"bolder 30px Arial",jj:[3,2,12]},H3:{font:"bold 20px Arial",jj:[2,2,24],bjs:["#ccc","#d5d5d5","#e0e0e0"],s:"#000000"},H4:{font:"bold 18px Arial",jj:[3,2,12]},
+        p1:{font:"16px Arial",jj:[2,3,24],bjs:["#dde8dd","#ddeedd","#e5dfe5"],s:"#000000"},px:{font:"italic 12px Arial",jj:[3,2,12]},pb:{font:"bold 12px Arial",jj:[3,2,12]},
     },
     wbzd:{
         descr:'本条目为实时生成，预计包含：大标题，节点名，节点内容。其内容数据结构预计为：tt:大标题字段。zw:正文字段组。',
@@ -81,7 +81,7 @@ const bians={
             s001   :[[[0,1],[0,1],[1,1],[0,1]],[[0,1],[0,1],[1,1],[0,1]],[[0,1],[0,1],[1,1],[1,1]],],   //竖屏
             s010   :[[[0,1],[0,1],[1,1],[0,1]],[[0,1],[0,1],[1,1],[1,1]],[[0,1],[1,1],[1,1],[0,1]],],   //竖屏
         },
-        wbvs:{wbqtt:[3,1,,,0],dtq:[0,1,0],sxq:[0,1,0],}
+        wbvs:{wbqtt:[0,1,,,0],dtq:[0,1,0],sxq:[0,1,0],}
     },
     btns:{
         map:{vs:1,img:{src:"img/btnmap.jpg",siz:[100,400]},p:{l:[1,50],b:[1,50],w:[1,24],h:[1,8],hm:[80,160],s:[0,0,0,0]}},},

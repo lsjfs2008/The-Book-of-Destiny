@@ -60,84 +60,46 @@ export default class Sxjdq{
         this.qi=0
     }//构建函数
 //文本绘制的数据预处理
-bfwbrender(wbcanvas){
+bfwbrnd(wbcanvas){
     let jdq=this.q    //节点群
     //(当前高)dqh自适应模块：根据qi调整h
     let sji=this.qi
     let ysh=[0]
-    let dqh=[0,0,0,0,0]  //设为数组
-    let dqhmax=[0,0,0,0,0]
+    let dqh=[]  //设为数组
+    let dqhmax=[]
+    let mh=0
+    let jh=0
+    for (let i=0;i<jdq.length;i++){
+        mh=mh+jdq[i].zxymh
+    }
     for (let j=0;j<5;j++){
-        if(j===0){
-            for (let i=0;i<jdq.length;i++){
-                let mh=jdq[i].zxymh
-                let h=ysh[ysh.length-1]+mh
-                ysh.push(h)
-            }
-        }
-        if(j===1){
-            for (let i=0;i<jdq.length;i++){
-                    let jh=jdq[i].zxyjh
-                    let h=ysh[ysh.length-1]+jh
-                    ysh.push(h)
-            }
-        }
-        if(j===2){
-            for (let i=0;i<jdq.length;i++){
-                let mh=jdq[i].zxymh
-                // let h=ysh[ysh.length-1]+mh
-                // ysh.push(h)
-                let jh=jdq[i].zxyjh
-                let h=ysh[ysh.length-1]+jh+mh
-                ysh.push(h)
-            }
-        }
-        if(j===3){
-            for (let i=0;i<jdq.length;i++){
-                let mh=jdq[i].zxymh
-                let h=ysh[ysh.length-1]+mh
-                ysh.push(h)
-                if(i===sji){
-                    let jh=jdq[i].zxyjh
-                    let h=ysh[ysh.length-1]+jh
-                    ysh.push(h)
-                }
-            }
-        }
-        let yl=(j===1||j===2)?1:2
-        let zsyi=(sji-yl>0)?(sji-yl):0
+        
+        let zsyi=(sji-2>0)?(sji-2):0
         dqh[j]=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-        // console.log(dqh[j]);
         dqhmax[j]=(ysh[ysh.length-1]-wbcanvas.height>0)?(ysh[ysh.length-1]-wbcanvas.height):0
-        dqh[j]=(dqh[j]<dqhmax[j])?dqh[j]:(dqhmax[j])
-        // console.log(dqh[j]);
-        ysh=[0]
-        // console.log(dqh,dqh[j],dqhmax);
+        dqh[j]=(dqh<dqhmax[j])?dqh:(dqhmax[j])
     }
     this.h=dqh
     this.hmax=dqhmax
 }
 //文本绘制
 wbrender(wbcanvas,sq,gs,ttvs){
-    // console.log(this.qi);
-    // console.log(this.h);
+    console.log(this.hmax);
     let wbctx=wbcanvas.getContext('2d')
-    //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
+//ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
     // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
     let xy0=[0,0]
     let jdq=this.q    //节点群
-    // this.bfwbrnd(wbcanvas)
-    // console.log(this.hmax);
+    this.bfwbrnd(wbcanvas)
     if (ttvs[0]===0){
         let bjs=0
         for (let i=0;i<jdq.length;i++){
             if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
             let zs=jdq[i].zxym
             let mh=jdq[i].zxymh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+            let dqh=this.h   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
             wbctx.font=gs.H3.font
             wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.H3.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
                 for (let j=0;j<zs.length;j++){
                     let m=zs[j]
                     if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
@@ -147,7 +109,7 @@ wbrender(wbcanvas,sq,gs,ttvs){
                 }
             xy0[1]=xy0[1]+mh
         }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
+        this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
     }
     if (ttvs[0]===1){
         let pbjs=0
@@ -162,11 +124,10 @@ wbrender(wbcanvas,sq,gs,ttvs){
             }
             let zsz=jdq[i].zxyjz
             let mh=jdq[i].zxyjh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+            let dqh=this.h   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
             wbctx.font=gs.p1.font
             let mw=wbctx.measureText('测').width
             wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
             for (let k=0;k<zsz.length;k++){
                 let zs=zsz[k]
                 for (let j=0;j<zs.length;j++){
@@ -179,7 +140,7 @@ wbrender(wbcanvas,sq,gs,ttvs){
             }
             xy0[1]=xy0[1]+mh
         }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
+        this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
     }
     if (ttvs[0]===2){
         let pbjs=0
@@ -189,10 +150,9 @@ wbrender(wbcanvas,sq,gs,ttvs){
             if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
             let zs=jdq[i].zxym
             let mh=jdq[i].zxymh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+            let dqh=this.h   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
             wbctx.font=gs.H3.font
             wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.H3.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
                 for (let j=0;j<zs.length;j++){
                     let m=zs[j]
                     if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
@@ -207,7 +167,6 @@ wbrender(wbcanvas,sq,gs,ttvs){
             let jh=jdq[i].zxyjh
             wbctx.font=gs.p1.font
             wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
             for (let k=0;k<zsz.length;k++){
                 let zs=zsz[k]
                 for (let j=0;j<zs.length;j++){
@@ -220,20 +179,36 @@ wbrender(wbcanvas,sq,gs,ttvs){
             }
             xy0[1]=xy0[1]+jh
         }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
+        this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
     }
     if (ttvs[0]===3){
         let sji=this.qi
         // console.log(sji);
         let pbjs=0
         let bjs=0
+        //(当前高)dqh自适应模块：
+        let ysh=[0]
+        for (let i=0;i<jdq.length;i++){
+            let mh=jdq[i].zxymh
+            let h=ysh[ysh.length-1]+mh
+            ysh.push(h)
+            if(i===sji){
+                let jh=jdq[i].zxyjh
+                let h=ysh[ysh.length-1]+jh
+                ysh.push(h)
+            }
+        }
+        let zsyi=(sji-2>0)?(sji-2):0
+        let dqh=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+        dqh=(dqh<ysh[ysh.length-1]-wbcanvas.height)?dqh:(ysh[ysh.length-1]-wbcanvas.height)
+        // console.log(ysh);
         //绘制文字：
         for (let i=0;i<jdq.length;i++){
             //节点名模块
             if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
             let zs=jdq[i].zxym
             let mh=jdq[i].zxymh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+            // let dqh=this.h   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
             wbctx.font=gs.H3.font
             wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
                 for (let j=0;j<zs.length;j++){
@@ -266,9 +241,9 @@ wbrender(wbcanvas,sq,gs,ttvs){
                 // console.log(xy0[1]);
             }
         }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
+        this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
     }
-    // console.log(this.hmax);
+    console.log(this.hmax);
 }//文本绘制
 //节点名模块
 wbjdmupdate(sq,gs){
