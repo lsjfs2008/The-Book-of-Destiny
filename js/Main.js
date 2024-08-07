@@ -1,13 +1,13 @@
-import Sprite from './base/sprite.js'
-import Sxjdq from './sxjd.js'
-import {dings,bians,map} from './jmsj.js'    //导入常量
-import { deepCopy,hhsjmcc } from './tools.js'    //导入工具
-import { hhimgmapb,hhdtd,hhjwjd,Mapimg } from './map.js'
+// import Sprite from './base/sprite.js'
+// import Sxjdq from './sxjd.js'
+// import {dings,bians,map} from './jmsj.js'    //导入常量
+// import { deepCopy,hhsjmcc } from './tools.js'    //导入工具
+// import { hhimgmapb,hhdtd,hhjwjd,Mapimg } from './map.js'
 //主进程，设置处画面，获取屏幕尺寸，导入json数据
 const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
 let canvas = document.createElement('canvas')
-let lssize=resize()
+let lssize=[]
 canvas.width = lssize[0]
 canvas.height = lssize[1]
 const ctx = canvas.getContext('2d')
@@ -16,8 +16,9 @@ let wbctx=wbcanvas.getContext('2d')
 const xsw=screenWidth/720
 const xsh=screenHeight/1280
 let jsd={}
-export default class Main{
-    constructor() {
+class cMain{
+    constructor(){
+        lssize=resize()
         // 维护当前requestAnimationFrame的id
         this.aniId = 0
         // let jsd={}
@@ -48,8 +49,8 @@ export default class Main{
             canvas.style.cursor = 'default';
             canvas.removeEventListener('mousemove',this.bindsbevent)
           });
-    }//构建函数//
-start(){
+        }//构建函数//
+this.start()=function(){
     document.getElementById('zhudiv').appendChild(wbcanvas)
         document.getElementById('zhudiv').appendChild(canvas)
         //1，加载默认数据，如果有本地存储数据，更新为本地存储数据。
@@ -122,7 +123,7 @@ start(){
         // jsd.bg[2].onload=()=>{console.log('jsd.bg[2].onload');}
     //  //
     }//start()//
-sbevent(e){
+this.sbevent=function(e){
     // console.log(e);
     let x=e.clientX - canvas.getBoundingClientRect().left;
     let y=e.clientY - canvas.getBoundingClientRect().top;
@@ -229,7 +230,7 @@ sbevent(e){
     // console.log(this);
     
 }//sbevent//
-wbsbevent(e){
+this.wbsbevent=function(e){
    //滚轮移动文本
    if(e.type==='wheel'){
     if(jsd.buju.wbvs.wbqtt[0]===3){
@@ -276,7 +277,7 @@ wbsbevent(e){
     }
 }
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
-update(){
+this.update=function(){
     //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
     // let cc=jsd.cc
     // console.log('jsd.vs:',jsd.vs);
@@ -296,7 +297,7 @@ update(){
     this.render()
 }//update()//
 //update模块化，分为地图dtupdate，文本wbupdate，时线sxupdate，三份。（加节点四份？）
-dtupdate(){
+this.dtupdate=function(){
     let sc=jsd.cc[0]
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,sc[0],sc[1],sc[2],sc[3]]
@@ -317,7 +318,7 @@ dtupdate(){
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
 }
-wbupdate(){
+this.wbupdate=function(){
     //文本区
     if(jsd.vs[1]>0){
         this.wbbtupdate()
@@ -326,7 +327,7 @@ wbupdate(){
     }//文本区
 }//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。按钮，第四部分，集成在标题中。
 //标题模块
-wbbtupdate(){
+this.wbbtupdate=function(){
         //文本框元素：背景，左上缩放小三角
         let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
         let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
@@ -351,28 +352,28 @@ wbbtupdate(){
         jsd.tt.th=jj[1]+lsw
 }//标题模块
 //节点名模块
-wbjdmupdate(){
+this.wbjdmupdate=function(){
     let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     this.sxjdq.wbjdmupdate(sq,gs)
 }//节点名模块
 //节点内容模块
-wbjdupdate(){
+this.wbjdupdate=function(){
     let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     this.sxjdq.wbjdupdate(sq,gs)
 }//节点内容模块
 //时线模块
-sxupdate(){
+this.sxupdate=function(){
 
 }//时线模块
 //同步模块：地图点（或线），时间（点或线），文本块，三者同步于jsd.sxjdq[i]:jsd.sxjdqi
-tbupdate(){
+this.tbupdate=function(){
     console.log(jsd.szjdqi);
 }//同步模块
 /**/
 /**////二，根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
-render(){
+this.render=function(){
     //清屏
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     //分区域更新绘图
@@ -494,7 +495,7 @@ render(){
 }//render()//
 /**/
 //render模块化，文本内容区独立出来
-wbrender(k){
+this.wbrender=function(k){
     let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     let ttvs=jsd.buju.wbvs.wbqtt

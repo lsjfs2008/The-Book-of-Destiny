@@ -188,4 +188,4 @@ const yw={
 
 
 
-export {dings,bians,map}
+// export {dings,bians,map}

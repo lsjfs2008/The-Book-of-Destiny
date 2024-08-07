@@ -1,8 +1,7 @@
-import {bians} from './jmsj.js'    //jds应有独立来源。（比如数据库）
-let canvas = document.createElement('canvas')
-const ctx = canvas.getContext('2d')
-export default class Sxjdq{
-    constructor(sr,language){
+// import {bians} from './jmsj.js'    //jds应有独立来源。（比如数据库）
+// let canvas = document.createElement('canvas')
+// const ctx = canvas.getContext('2d')
+function Sxjdq(sr,language){
         //从无序节点群生成时序节点群……可有别的方案，比如从关注列表生成
         this.q=[]
         // console.log(language,!language,!!language);
@@ -58,9 +57,9 @@ export default class Sxjdq{
             }
         }//从头（关注列表）开始构建。
         this.qi=0
-    }//构建函数
+    //构建函数
 //文本绘制的数据预处理
-bfwbrender(wbcanvas){
+this.bfwbrender=function(wbcanvas){
     let jdq=this.q    //节点群
     //(当前高)dqh自适应模块：根据qi调整h
     let sji=this.qi
@@ -120,7 +119,7 @@ bfwbrender(wbcanvas){
     this.hmax=dqhmax
 }
 //文本绘制
-wbrender(wbcanvas,sq,gs,ttvs){
+this.wbrender=function(wbcanvas,sq,gs,ttvs){
     // console.log(this.qi);
     // console.log(this.h);
     let wbctx=wbcanvas.getContext('2d')
@@ -273,7 +272,7 @@ wbrender(wbcanvas,sq,gs,ttvs){
     // console.log(this.hmax);
 }//文本绘制
 //节点名模块
-wbjdmupdate(sq,gs){
+this.wbjdmupdate=function(sq,gs){
     let jdq=this.q    //时序节点群
     let jj=gs.H3.jj    //文本间距[x,y,首行缩进]
     ctx.font=gs.H3.font
@@ -306,7 +305,7 @@ wbjdmupdate(sq,gs){
     }
 }//节点名模块
 //节点内容模块
-wbjdupdate(sq,gs){
+this.wbjdupdate=function(sq,gs){
     let jdq=this.q    //时序节点群
     let jj=gs.p1.jj    //文本间距[x,y,首行缩进]
     ctx.font=gs.p1.font
@@ -339,13 +338,13 @@ wbjdupdate(sq,gs){
         // this.h=0
     }
 }//节点内容模块
-ichange(k){
+this.ichange=function(k){
     if(k===1){this.qi+=1};
     if(k===0){this.qi-=1};
     if(this.qi<0){this.qi=0}
     if(this.qi>=this.q.length){this.qi=this.q.length-1}
 }
-ijump(k){this.qi=k;}
+this.ijump=function(k){this.qi=k;}
 }//本体
 //比较两个时间ti,tj的先后,如果ti>tj,返回1
 function tidayutj(ti,tj){

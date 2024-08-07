@@ -1,4 +1,4 @@
-import { dings } from "./jmsj.js"
+// import { dings } from "./jmsj.js"
 //取得常用定位点的常用gxy值
 let cydw=dings.cydd.xd
 let cydwg={}
@@ -324,22 +324,20 @@ function hhjwjd(tgb,dqmap){
     // console.log(zjw);
     return zjw
 }
-//地图图片类化
-class Mapimg{
-    constructor(m){
+//地图图片构造函数
+function Mapimg(m){
     this.img = new Image()
     this.img.src = m.src
     this.width = m.siz[0]
     this.height = m.siz[0]
     this.visible = true
-    }
     //显示
-    drawToCanvas(ctx,c) {
+    this.drawToCanvas=function(ctx,c) {
         if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
         ctx.drawImage(this.img,c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
     }
     //范围校正（以免图片“超出”视界）
-    fwjd(c){
+    this.fwjd=function(c){
         if(c[0]<0){c[0]=0}
         if(c[0]+c[2]>this.width){c[0]=this.width-c[2]}
         if(c[1]<0){c[1]=0}
@@ -347,7 +345,7 @@ class Mapimg{
         return c
     }
     //拖动效果
-    move(c,dx,dy) {
+    this.move=function(c,dx,dy) {
         // console.log("地图图片拖动中");
         if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
         c[0]=c[0]-dx
@@ -356,7 +354,7 @@ class Mapimg{
         return c
     }
     //缩放效果
-    zoom(c,x,y,k) {
+    this.zoom=function(c,x,y,k) {
         let ms=[this.width,this.height]
         if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
         console.log("地图图片缩放中");
@@ -381,7 +379,7 @@ class Mapimg{
         return c
     }
     //聚焦效果
-    focus(c,x,y) {
+    this.focus=function(c,x,y) {
         // let ms=[this.width,this.height]
         if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
         // console.log("地图图片对焦中");
@@ -400,4 +398,4 @@ class Mapimg{
         return c
     }
 }
-export {hhimgmapb,hhdtd,hhjwjd,Mapimg}
+// export {hhimgmapb,hhdtd,hhjwjd,Mapimg}
