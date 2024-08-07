@@ -200,6 +200,7 @@ sbevent(e){
             if(e.type==="mousedown"){
                 // let lsvs=jsd.buju.wbvs.wbq
                 jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%5
+                if(jsd.buju.wbvs.wbqtt[0]===4&&!this.sxjdq.q4i){jsd.buju.wbvs.wbqtt[0]=0}
                 // console.log(jsd.buju.wbvs.wbqtt[0]);
                 this.wbbtupdate()
                 this.render()
@@ -246,20 +247,30 @@ wbsbevent(e){
     //折页/书签功能：
     if(e.type==='mousedown'){
         // console.log(e);
-        let x=e.clientX - canvas.getBoundingClientRect().left;
-        let y=e.clientY - canvas.getBoundingClientRect().top;
+        let x=e.clientX - wbcanvas.getBoundingClientRect().left;
+        let y=e.clientY - wbcanvas.getBoundingClientRect().top;
         // console.log(x,y);
         let xywh=this.sxjdq.xywh
-        let txy=xywh[0]+xywh[2]+xywh[1]+xywh[3]
-        let dxy0=0.05*txy
+        // console.log(xywh);
+        let txy=xywh[2]+xywh[3]
+        // let txy=xywh[0]+xywh[2]+xywh[1]+xywh[3]
+        let dxy0=0.07*txy
         // console.log(dxy0);
         let dxy=txy-x-y
-        console.log(this.sxjdq);
         if(dxy<dxy0){
             if(typeof(Storage)!=="undefined"){
-                // console.log('暂且如此。后期不再存储为默认数据，而是保存为自命名书签。');
+                console.log('暂且如此。后期不再存储为默认数据，而是保存为自命名书签。');
                 let zmm=jsd.wb[jsd.language].slwb.tt
                 localStorage.setItem(zmm,JSON.stringify(jsd));    //json转为str再保存
+            }
+        }else{
+            let vi=jsd.buju.wbvs.wbqtt[0]
+            let ysh=this.sxjdq.ysh[vi]
+            let dqh=this.sxjdq.h[vi]
+            let dj=hhdjjd(ysh,dqh,y)
+            console.log(`第${dj}节点被点击`);
+            if(vi===0){
+                if(!this.sxjdq.q4i){this.sxjdq.q4i=hhq4i(vi,ysh.length)}
             }
         }
     }
@@ -501,7 +512,7 @@ wbrender(k){
     if(ttvs[1]===1||ttvs[1]===2){
         wbctx.fillStyle="#000000"
         let xywh=this.sxjdq.xywh
-        let dxy0=0.05*(xywh[0]+xywh[2]+xywh[1]+xywh[3])
+        let dxy0=0.07*(xywh[2]+xywh[3])
         wbctx.moveTo(xywh[2],xywh[3]-dxy0);
         wbctx.lineTo(xywh[2]-dxy0,xywh[3]);
         wbctx.stroke();
@@ -575,3 +586,11 @@ function hhzxya(zfc,sjk,fnt,jj){
     }
     return ms
 }
+//返回被点击的节点序号
+function hhdjjd(ysh,dqh,y){
+    for (let i=0;i<ysh.length;i++){
+        let h=ysh[i]-dqh
+        if(y<h){return(i-1)}
+    }
+}
+//返回临时jd自定义显示模式：0，只显示节点名;1,只显示内容；2，显示两者

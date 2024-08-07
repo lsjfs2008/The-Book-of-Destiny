@@ -64,7 +64,9 @@ bfwbrender(wbcanvas){
     let jdq=this.q    //节点群
     //(当前高)dqh自适应模块：根据qi调整h
     let sji=this.qi
+    let lsi=[]
     let ysh=[0]
+    let dqysh=[]
     let dqh=[0,0,0,0,0]  //设为数组
     let dqhmax=[0,0,0,0,0]
     for (let j=0;j<5;j++){
@@ -85,8 +87,6 @@ bfwbrender(wbcanvas){
         if(j===2){
             for (let i=0;i<jdq.length;i++){
                 let mh=jdq[i].zxymh
-                // let h=ysh[ysh.length-1]+mh
-                // ysh.push(h)
                 let jh=jdq[i].zxyjh
                 let h=ysh[ysh.length-1]+jh+mh
                 ysh.push(h)
@@ -96,24 +96,26 @@ bfwbrender(wbcanvas){
             for (let i=0;i<jdq.length;i++){
                 let mh=jdq[i].zxymh
                 let h=ysh[ysh.length-1]+mh
-                ysh.push(h)
                 if(i===sji){
                     let jh=jdq[i].zxyjh
-                    let h=ysh[ysh.length-1]+jh
-                    ysh.push(h)
+                    h=ysh[ysh.length-1]+jh
                 }
+                ysh.push(h)
             }
+        }
+        if(j===4){
+
         }
         let yl=(j===1||j===2)?1:2
         let zsyi=(sji-yl>0)?(sji-yl):0
         dqh[j]=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-        // console.log(dqh[j]);
         dqhmax[j]=(ysh[ysh.length-1]-wbcanvas.height>0)?(ysh[ysh.length-1]-wbcanvas.height):0
         dqh[j]=(dqh[j]<dqhmax[j])?dqh[j]:(dqhmax[j])
-        // console.log(dqh[j]);
+        dqysh[j]=ysh
         ysh=[0]
         // console.log(dqh,dqh[j],dqhmax);
     }
+    this.ysh=dqysh
     this.h=dqh
     this.hmax=dqhmax
 }
