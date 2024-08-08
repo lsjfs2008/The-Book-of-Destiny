@@ -1,8 +1,7 @@
 // import {bians} from './jmsj.js'    //jds应有独立来源。（比如数据库）
 // let canvas = document.createElement('canvas')
 // const ctx = canvas.getContext('2d')
-class Sxjdq{
-    constructor(sr,language){
+function Sxjdq(sr,language){
         //从无序节点群生成时序节点群……可有别的方案，比如从关注列表生成
         this.q=[]
         // console.log(language,!language,!!language);
@@ -56,19 +55,11 @@ class Sxjdq{
             for (let i=0;i<lsxlh.length;i++){
                 this.q[i]=lsjdq[lsxlh[i]]
             }
-            this.qi=0
-            this.qxi=[[],[],[],[],[]]
-            for (let i=0;i<this.q.length;i++){
-                this.qxi[0][i]=0
-                this.qxi[1][i]=1
-                this.qxi[2][i]=2
-                this.qxi[3][i]=0
-            }
-            this.qxi[3][this.qi]=2
         }//从头（关注列表）开始构建。
-    }//构建函数
-//文本绘制的数据预处理//带参数，表示使用qxi中的数据
-bfwbrender(wbcanvas){
+        this.qi=0
+    //构建函数
+//文本绘制的数据预处理
+this.bfwbrender=function(wbcanvas){
     let jdq=this.q    //节点群
     //(当前高)dqh自适应模块：根据qi调整h
     let sji=this.qi
@@ -106,7 +97,7 @@ bfwbrender(wbcanvas){
                 let h=ysh[ysh.length-1]+mh
                 if(i===sji){
                     let jh=jdq[i].zxyjh
-                    h=h+jh
+                    h=ysh[ysh.length-1]+jh
                 }
                 ysh.push(h)
             }
@@ -117,8 +108,6 @@ bfwbrender(wbcanvas){
         let yl=(j===1||j===2)?1:2
         let zsyi=(sji-yl>0)?(sji-yl):0
         dqh[j]=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-        //跳转时控制“前言”体量。
-        if(dqh[j]<ysh[sji]-0.2*wbcanvas.height){dqh[j]=ysh[sji]-0.2*wbcanvas.height}
         dqhmax[j]=(ysh[ysh.length-1]-wbcanvas.height>0)?(ysh[ysh.length-1]-wbcanvas.height):0
         dqh[j]=(dqh[j]<dqhmax[j])?dqh[j]:(dqhmax[j])
         dqysh[j]=ysh
@@ -128,13 +117,11 @@ bfwbrender(wbcanvas){
     this.ysh=dqysh
     this.h=dqh
     this.hmax=dqhmax
-    this.wbrender(wbcanvas)
 }
 //文本绘制
-wbrender(wbcanvas){
-    let sq=wbcanvas.sq
-    let gs=wbcanvas.gs
-    let ttvs=wbcanvas.ttvs
+this.wbrender=function(wbcanvas,sq,gs,ttvs){
+    // console.log(this.qi);
+    // console.log(this.h);
     let wbctx=wbcanvas.getContext('2d')
     //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
     // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
@@ -283,17 +270,9 @@ wbrender(wbcanvas){
         // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
     }
     // console.log(this.hmax);
-    if(ttvs[1]===1||ttvs[1]===2){
-        wbctx.fillStyle="#000000"
-        let xywh=this.xywh
-        let dxy0=0.07*(xywh[2]+xywh[3])
-        wbctx.moveTo(xywh[2],xywh[3]-dxy0);
-        wbctx.lineTo(xywh[2]-dxy0,xywh[3]);
-        wbctx.stroke();
-    }//书签折纸线
 }//文本绘制
 //节点名模块
-wbjdmupdate(sq,gs){
+this.wbjdmupdate=function(sq,gs){
     let jdq=this.q    //时序节点群
     let jj=gs.H3.jj    //文本间距[x,y,首行缩进]
     ctx.font=gs.H3.font
@@ -321,12 +300,12 @@ wbjdmupdate(sq,gs){
         let mzxy=hhzxya(zfc,sjk,fnt,jj)
         // console.log(ms);
         this.q[i].zxym=mzxy
-        this.q[i].zxymh=Math.ceil(mzxy[mzxy.length-1][2]+jj[1]+0.2*mw)
+        this.q[i].zxymh=mzxy[mzxy.length-1][2]+jj[1]+0.2*mw
         // jsd.sxjdq[i].mh=mzxy[mzxy.length-1][2]+mw+jj[1]
     }
 }//节点名模块
 //节点内容模块
-wbjdupdate(sq,gs){
+this.wbjdupdate=function(sq,gs){
     let jdq=this.q    //时序节点群
     let jj=gs.p1.jj    //文本间距[x,y,首行缩进]
     ctx.font=gs.p1.font
@@ -354,18 +333,18 @@ wbjdupdate(sq,gs){
         }
         // console.log(zxys);
         this.q[i].zxyjz=zxys
-        let jdh=Math.ceil(zxy[zxy.length-1][2]+jj[1]+0.2*mw)
+        let jdh=zxy[zxy.length-1][2]+jj[1]+0.2*mw
         this.q[i].zxyjh=jdh
         // this.h=0
     }
 }//节点内容模块
-ichange(k){
+this.ichange=function(k){
     if(k===1){this.qi+=1};
     if(k===0){this.qi-=1};
     if(this.qi<0){this.qi=0}
     if(this.qi>=this.q.length){this.qi=this.q.length-1}
 }
-ijump(k){this.qi=k;}
+this.ijump=function(k){this.qi=k;}
 }//本体
 //比较两个时间ti,tj的先后,如果ti>tj,返回1
 function tidayutj(ti,tj){

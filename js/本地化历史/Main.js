@@ -1,15 +1,24 @@
+// import Sprite from './base/sprite.js'
+// import Sxjdq from './sxjd.js'
+// import {dings,bians,map} from './jmsj.js'    //导入常量
+// import { deepCopy,hhsjmcc } from './tools.js'    //导入工具
+// import { hhimgmapb,hhdtd,hhjwjd,Mapimg } from './map.js'
+//主进程，设置处画面，获取屏幕尺寸，导入json数据
 const screenWidth = window.innerWidth
 const screenHeight = window.innerHeight
 let canvas = document.createElement('canvas')
 let lssize=[]
+canvas.width = lssize[0]
+canvas.height = lssize[1]
 const ctx = canvas.getContext('2d')
 let wbcanvas=document.createElement('canvas')
 let wbctx=wbcanvas.getContext('2d')
-// const xsw=screenWidth/720
-// const xsh=screenHeight/1280
+const xsw=screenWidth/720
+const xsh=screenHeight/1280
 let jsd={}
-class Main{
-    constructor() {
+class cMain{
+    constructor(){
+        lssize=resize()
         // 维护当前requestAnimationFrame的id
         this.aniId = 0
         // let jsd={}
@@ -35,19 +44,15 @@ class Main{
         //鼠标拖动地图,松开鼠标不需集成。
         wbcanvas.addEventListener('wheel',this.wbbindsbevent)
         wbcanvas.addEventListener('mousedown',this.wbbindsbevent)
-        wbcanvas.addEventListener('dblclick',this.wbbindsbevent)
         document.addEventListener('mouseup', () => {
             jsd.mapisDragging = false;
             canvas.style.cursor = 'default';
             canvas.removeEventListener('mousemove',this.bindsbevent)
           });
-    }//构建函数//
-start(){
-    lssize=resize()
-    canvas.width = lssize[0]
-    canvas.height = lssize[1]
-    document.getElementById('zhudiv').appendChild(canvas)
+        }//构建函数//
+this.start()=function(){
     document.getElementById('zhudiv').appendChild(wbcanvas)
+        document.getElementById('zhudiv').appendChild(canvas)
         //1，加载默认数据，如果有本地存储数据，更新为本地存储数据。
         //尝试调用本地存储的配置数据：
         let localStoragegot=0
@@ -77,7 +82,6 @@ start(){
             let wcjdq=JSON.parse(localStorage.getItem('wcjdq'))
             this.sxjdq=new Sxjdq(wcjdq)
         }//从关注列表与完成数据生成一个时序节点群对象。
-        if(1){
             //2,根据布局数据，生成图文线三区域背景图片对象。
             let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
             jsd.map=mapcsxl[1]    //设定当前地图
@@ -94,6 +98,9 @@ start(){
             let xsj3=sctp(dings.wbxsj[3])
             let xsj4=sctp(dings.wbxsj[4])
             jsd.xsj=[xsj0,xsj1,xsj2,xsj3,xsj4]
+            // console.log('bg');
+            // console.log(jsd.bg);
+            // console.log(bg1,bg2);
             //3,根据布局数据，生成按钮图片对象
             //生成地图缩放工具
             jsd.mapbtn=sctp(bians.btns.map.img)
@@ -102,7 +109,7 @@ start(){
             this.bindsbevent=this.sbevent.bind(this)    //绑定this.
             this.wbbindsbevent=this.wbsbevent.bind(this)
             //N,就绪即加载
-            window.onload=()=>{this.update()}
+            window.onload=()=>{this.update();}
             window.onresize=()=>{
             lssize=resize()
             canvas.width = lssize[0]
@@ -110,11 +117,13 @@ start(){
             jsd.cc=hhsjmcc(jsd.buju[jsd.buju.ms],lssize)    //当前界面尺寸
             jsd.siz=lssize
             this.update();
-        }//本地版，监控浏览器尺寸改变。//
-        }//生成对象与监听等
+        }//临时用用，监控浏览器尺寸改变。//
+        // jsd.bg[0].onload=()=>{console.log('jsd.bg[0].onload');}
+        // jsd.bg[1].onload=()=>{console.log('jsd.bg[1].onload');}
+        // jsd.bg[2].onload=()=>{console.log('jsd.bg[2].onload');}
     //  //
     }//start()//
-sbevent(e){
+this.sbevent=function(e){
     // console.log(e);
     let x=e.clientX - canvas.getBoundingClientRect().left;
     let y=e.clientY - canvas.getBoundingClientRect().top;
@@ -187,21 +196,17 @@ sbevent(e){
             if(this.sxjdq.h[i]<0){this.sxjdq.h[i]=0}
             if(this.sxjdq.h[i]>this.sxjdq.hmax[i]){this.sxjdq.h[i]=this.sxjdq.hmax[i]}
             this.wbrender()
-        }//滚轮移动文本
-        //标题左
+        }
         if(inarea(x,y,jsd.tt.xsj[0])){
             if(e.type==="mousedown"){
                 // let lsvs=jsd.buju.wbvs.wbq
                 jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%5
-                if(jsd.buju.wbvs.wbqtt[0]===4&&!this.sxjdq.qxi[4].length){jsd.buju.wbvs.wbqtt[0]=0}
-                // console.log(!this.sxjdq.qxi[4].length);
-                // console.log(!1);
+                if(jsd.buju.wbvs.wbqtt[0]===4&&!this.sxjdq.q4i){jsd.buju.wbvs.wbqtt[0]=0}
                 // console.log(jsd.buju.wbvs.wbqtt[0]);
                 this.wbbtupdate()
                 this.render()
             }
         }//标题左
-        //标题右
         if(inarea(x,y,jsd.tt.xsj[1])){
             if(e.type==="mousedown"){
                 jsd.buju.wbvs.wbqtt[1]=(jsd.buju.wbvs.wbqtt[1]+1)%4
@@ -209,7 +214,6 @@ sbevent(e){
                 this.render()
             }
         }//标题右
-        //标题文本区//标题文本滚动效果。
         if(inarea(x,y,jsd.tt.xsj[4])){
             if(e.type==="mousedown"){
                 let t=jsd.tt.tzxy
@@ -221,24 +225,27 @@ sbevent(e){
             }
         }//标题文本区//标题文本滚动效果。
     }
-    //2区，文本区//    
+    //2区，文本区//
+
+    // console.log(this);
+    
 }//sbevent//
-wbsbevent(e){
+this.wbsbevent=function(e){
    //滚轮移动文本
    if(e.type==='wheel'){
-    // if(jsd.buju.wbvs.wbqtt[0]===3){
-    //     if (e.deltaY>0){this.sxjdq.ichange(1)}else{this.sxjdq.ichange(0)}
-    //     this.wbrender(1)
-    // }else{
+    if(jsd.buju.wbvs.wbqtt[0]===3){
+        if (e.deltaY>0){this.sxjdq.ichange(1)}else{this.sxjdq.ichange(0)}
+        this.wbrender(1)
+    }else{
         let k=20
         let i=jsd.buju.wbvs.wbqtt[0]
         if (e.deltaY>0){this.sxjdq.h[i]=this.sxjdq.h[i]+k}else{this.sxjdq.h[i]=this.sxjdq.h[i]-k}
         if(this.sxjdq.h[i]<0){this.sxjdq.h[i]=0}
         if(this.sxjdq.h[i]>this.sxjdq.hmax[i]){this.sxjdq.h[i]=this.sxjdq.hmax[i]}
         this.wbrender()
-    // }
+    }
     } 
-    //单击：折页/书签功能：//节点点击跳转
+    //折页/书签功能：
     if(e.type==='mousedown'){
         // console.log(e);
         let x=e.clientX - wbcanvas.getBoundingClientRect().left;
@@ -262,31 +269,15 @@ wbsbevent(e){
             let ysh=this.sxjdq.ysh[vi]
             let dqh=this.sxjdq.h[vi]
             let dj=hhdjjd(ysh,dqh,y)
-            // console.log(ysh,dqh,y);
-            // console.log(`第${dj}节点被点击`);
-            this.sxjdq.qi=dj
-            if(vi===4&&!!this.sxjdq.qxi[4].length){this.sxjdq.qxi[4][dj]=(this.sxjdq.qxi[4][dj]+1)/3}
-            this.sxjdq.bfwbrender(wbcanvas)
-        }
-    }//单击
-    //双击，改变显示模式：0节点名，1内容，2两者。
-    if(e.type==='dblclick'){
-        let x=e.clientX - wbcanvas.getBoundingClientRect().left;
-        let y=e.clientY - wbcanvas.getBoundingClientRect().top;
-        let vi=jsd.buju.wbvs.wbqtt[0]
-            let ysh=this.sxjdq.ysh[vi]
-            let dqh=this.sxjdq.h[vi]
-            let dj=hhdjjd(ysh,dqh,y)
             console.log(`第${dj}节点被点击`);
-            this.sxjdq.qi=dj
-            if(!this.sxjdq.qxi[4].length){this.sxjdq.qxi[4]=this.sxjdq.qxi[vi]}
-            let lsvi=(vi===2)?0:2
-            if(this.sxjdq.qxi[vi][dj]===vi){this.sxjdq.qxi[vi][dj]=lsvi}else{this.sxjdq.qxi[vi][dj]=vi}
-            this.sxjdq.qxi[4][dj]=this.sxjdq.qxi[vi][dj]
-    }//双击
+            if(vi===0){
+                if(!this.sxjdq.q4i){this.sxjdq.q4i=hhq4i(vi,ysh.length)}
+            }
+        }
+    }
 }
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
-update(){
+this.update=function(){
     //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
     // let cc=jsd.cc
     // console.log('jsd.vs:',jsd.vs);
@@ -306,7 +297,7 @@ update(){
     this.render()
 }//update()//
 //update模块化，分为地图dtupdate，文本wbupdate，时线sxupdate，三份。（加节点四份？）
-dtupdate(){
+this.dtupdate=function(){
     let sc=jsd.cc[0]
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,sc[0],sc[1],sc[2],sc[3]]
@@ -327,7 +318,7 @@ dtupdate(){
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
 }
-wbupdate(){
+this.wbupdate=function(){
     //文本区
     if(jsd.vs[1]>0){
         this.wbbtupdate()
@@ -336,7 +327,7 @@ wbupdate(){
     }//文本区
 }//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。按钮，第四部分，集成在标题中。
 //标题模块
-wbbtupdate(){
+this.wbbtupdate=function(){
         //文本框元素：背景，左上缩放小三角
         let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
         let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
@@ -361,28 +352,28 @@ wbbtupdate(){
         jsd.tt.th=jj[1]+lsw
 }//标题模块
 //节点名模块
-wbjdmupdate(){
+this.wbjdmupdate=function(){
     let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     this.sxjdq.wbjdmupdate(sq,gs)
 }//节点名模块
 //节点内容模块
-wbjdupdate(){
+this.wbjdupdate=function(){
     let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     this.sxjdq.wbjdupdate(sq,gs)
 }//节点内容模块
 //时线模块
-sxupdate(){
+this.sxupdate=function(){
 
 }//时线模块
 //同步模块：地图点（或线），时间（点或线），文本块，三者同步于jsd.sxjdq[i]:jsd.sxjdqi
-tbupdate(){
+this.tbupdate=function(){
     console.log(jsd.szjdqi);
 }//同步模块
 /**/
 /**////二，根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
-render(){
+this.render=function(){
     //清屏
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     //分区域更新绘图
@@ -454,8 +445,8 @@ render(){
                     ctx.fillText(m[0],xy0[0]+m[1],dy)
                 }//只显示一行。
             }
-        }//2.2.2,标题区文本
-        //2.3,内容区//带参数，表示需要文本数据预处理
+        }
+        //2.3,内容区
         this.wbrender(1)
         //2.2.1,标题区附近的按钮
         if(ttvs[1]===1||ttvs[1]===2){
@@ -503,8 +494,8 @@ render(){
     //1,图
 }//render()//
 /**/
-//render模块化，文本内容区独立出来//带参数，表示需要文本数据预处理
-wbrender(k){
+//render模块化，文本内容区独立出来
+this.wbrender=function(k){
     let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     let ttvs=jsd.buju.wbvs.wbqtt
@@ -512,18 +503,24 @@ wbrender(k){
         sq[1]=sq[1]+jsd.tt.th
         sq[3]=sq[3]-jsd.tt.th
     }
-    wbcanvas.width=Math.ceil(sq[2])
-    wbcanvas.height=Math.ceil(sq[3])
-    wbcanvas.sq=sq
-    wbcanvas.gs=gs
-    wbcanvas.ttvs=ttvs
+    wbcanvas.width=sq[2]
+    wbcanvas.height=sq[3]
     this.sxjdq.xywh=[sq[0],sq[1],sq[2],sq[3]]
     wbcanvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
     wbctx.clearRect(0,0,wbcanvas.width,wbcanvas.height)
-    if(!!k){this.sxjdq.bfwbrender(wbcanvas)}else{this.sxjdq.wbrender(wbcanvas)}
-    
+    if(!!k){this.sxjdq.bfwbrender(wbcanvas)}
+    this.sxjdq.wbrender(wbcanvas,sq,gs,ttvs)
+    if(ttvs[1]===1||ttvs[1]===2){
+        wbctx.fillStyle="#000000"
+        let xywh=this.sxjdq.xywh
+        let dxy0=0.07*(xywh[2]+xywh[3])
+        wbctx.moveTo(xywh[2],xywh[3]-dxy0);
+        wbctx.lineTo(xywh[2]-dxy0,xywh[3]);
+        wbctx.stroke();
+    }//书签折纸线
 }
 }//main//
+
 //判断点xy是否位于s[sx,sy,sw,sh]区域。
 function inarea(x,y,s){
     let re=0
