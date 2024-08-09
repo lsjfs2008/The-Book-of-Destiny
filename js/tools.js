@@ -84,5 +84,21 @@ function hhsjmcc(bj,sz){
 function compareArrays(arr1, arr2) {
   return JSON.stringify(arr1) === JSON.stringify(arr2);
 }
+//画布类/对象
+class huabu{
+  constructor(prid,sq){
+    this.canvas = document.createElement('canvas')
+    this.ctx = this.canvas.getContext('2d')
+    document.getElementById(prid).appendChild(this.canvas)
+    this.canvas.width=sq[2]
+    this.canvas.height=sq[3]
+    this.canvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
+  }
+pst(sq){
+  this.canvas.width=sq[2]
+  this.canvas.height=sq[3]
+  this.canvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
+}
+}
 //导出
 // export {deepCopy,hhsjmcc}

@@ -8,7 +8,7 @@ class Sxjdq{
         // console.log(language,!language,!!language);
         if(!!language){
             this.q=hhsxjdq(sr,language)
-            this.qi=0
+            this.qi=6
             this.zdy=[0,0,0]
             this.jd012=[[],[],[]]
             for (let i=0;i<this.q.length;i++){
@@ -16,9 +16,7 @@ class Sxjdq{
                 this.jd012[1][i]=1
                 this.jd012[2][i]=2
             }
-            // if(!!sr.sx){this.sx=sr.sx}else{this.sx=scsjx(this.q)}
-            this.sx=scsjx(this.q)    //临时用，测试功能。
-            console.log(this.sx);
+            if(!!sr.sx){this.sx=scsjx(this.q,sr.sx)}else{this.sx=scsjx(this.q)}
             this.sxupdate()
             console.log(this.sx);
             // this.jd012[0][this.qi]=2
@@ -31,7 +29,51 @@ sxupdate(){
     this.sx.xd=this.sx.dq-this.sx.qz[0]
     this.sx.sb=[this.sx.xd,this.sx.gt]
     this.sx.jb=[i+1,this.q.length]
-}
+}//sxupdate()//根据当前节点qi更新时间线
+//绘制时间线
+sxrender(ctx){
+    console.log(ctx);
+    //3,时间线
+    if(jsd.vs[2]>0){
+        //显示公元纪年
+        let tc=this.sx.xywh   //时间线区域的[x,y,w,h]
+        console.log(jsd.bg[2]);
+        console.log(tc);
+        tc=[0,0,tc[2],tc[3]]
+        ctx.drawImage(jsd.bg[2],0,0,tc[2],tc[3])
+        // let t=jsd.sjx.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
+        let sq=this.sx.sq    //视区时间段
+        let qz=this.sx.qz   //起止时间
+        let dc=this.sx.dc   //登场时间段
+        let zr=this.sx.zr   //自然生死时间段
+        let dq=this.sx.dq   //当前节点时间（段）
+        let dqsj=this.q[this.qi].t
+        console.log(this.sx);
+        let py=Math.floor(tc[2]/(qz[1]-sq[0]))    //py像素每年
+        console.log(`${tc[2]}像素，${qz[1]-sq[0]}年`);
+        console.log('py:',py,'像素每年');
+        for (let i=0;i*py<tc[2];i++){
+            //设定年标线长，
+            let y=sq[0]+i
+            let l=Math.floor(0.12*tc[3])
+            if (y%5===0){l=l*2}
+            if (y%10===0){
+                l=l*2
+                ctx.font="12px Arial";
+                ctx.fillText(y,i*py,tc[1]+l);
+            }
+            if(y===dq){
+                l=tc[3]
+                ctx.font="12px Arial";
+                ctx.fillText(y,i*py,tc[1]+tc[3]);
+            }
+            ctx.moveTo(i*py,tc[1]);
+            ctx.lineTo(i*py,tc[1]+l);
+            ctx.stroke();
+        //显示干支纪年//待补
+        }
+    }
+}//绘制时间线
 //文本绘制的数据预处理//带参数，表示使用jd012中的数据
 bfwbrender(wbcanvas){
     let jdq=this.q    //节点群
@@ -499,25 +541,46 @@ function hhsxjdq(sr,language){
     return thisq
 }
 //模块，生成时间线数据
-function scsjx(q){
+function scsjx(q,cs){
     console.log('//模块，生成时间线数据');
     let re={}
     // console.log(sr.sx,!sr.sx,!!sr.sx);
     console.log('目前只有人物线，待优化……');
-    let lx='人物线'
+    let lx=''
+    let dc=[]
+    let zr=[]
     let qt=q[0].t[0][0]
     let zt=q[q.length-1].t[0][0]
     if(!!q[q.length-1].t[1]){zt=q[q.length-1].t[1][0]}
     let qz=[qt,zt]
     // console.log(zt+'年',qt,typeof(qt));
-    let sq0=Math.floor((qt-9)*0.1)*10
-    let sq1=Math.ceil((zt+9)*0.1)*10
-    let sq=[sq0,sq1]
     let dq=qt
     let sb=[dq-qt,zt-qt]
     let jb=[1,q.length]
+    let min=0
+    let max=100
+    if(!!cs){
+        if(!!cs.lx){lx=cs.lx}
+        if(!!cs.dc){dc=cs.dc}
+        if(!!cs.zr){zr=cs.zr}
+        min=dc[0]
+        max=dc[1]
+        if(zr[0]<dc[0]){min=zr[0]}
+        if(zr[1]>dc[1]){max=zr[1]}
+    }else{
+        lx='人物线'
+        dc=qz
+        zr=qz
+        min=qt
+        max=zt
+    }
+    let sq0=Math.floor((min-9)*0.1)*10
+    let sq1=Math.ceil((max+9)*0.1)*10
+    let sq=[sq0,sq1]
     re.lx=lx
     re.qz=qz
+    re.dc=dc
+    re.zr=zr
     re.gt=zt-qt
     re.sq=sq
     re.dq=dq

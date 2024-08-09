@@ -5,6 +5,8 @@ let lssize=[]
 const ctx = canvas.getContext('2d')
 let wbcanvas=document.createElement('canvas')
 let wbctx=wbcanvas.getContext('2d')
+let sxcanvas=document.createElement('canvas')
+let sxctx=sxcanvas.getContext('2d')
 // const xsw=screenWidth/720
 // const xsh=screenHeight/1280
 let jsd={}
@@ -48,6 +50,7 @@ start(){
     canvas.height = lssize[1]
     document.getElementById('zhudiv').appendChild(canvas)
     document.getElementById('zhudiv').appendChild(wbcanvas)
+    document.getElementById('zhudiv').appendChild(sxcanvas)
         //1，加载默认数据，如果有本地存储数据，更新为本地存储数据。
         //尝试调用本地存储的配置数据：
         let localStoragegot=0
@@ -471,32 +474,15 @@ render(){
     }
     //3,时间线
     if(jsd.vs[2]>0){
-        ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
+        // ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
         //显示公元纪年
-        let tc=cc[2]   //时间线区域的[x,y,w,h]
-        let t=jsd.sjx.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
-        let py=Math.floor(tc[2]/t[1])    //py像素每年
-        // console.log('py:',py,'像素每年');
-        for (let i=0;i*py<tc[2];i++){
-            //设定年标线长，
-            let y=t[0]+i
-            let l=Math.floor(0.12*tc[3])
-            if (y%5===0){l=l*2}
-            if (y%10===0){
-                l=l*2
-                ctx.font="12px Arial";
-                ctx.fillText(y,i*py,tc[1]+l);
-            }
-            if(y===t[2]){
-                l=tc[3]
-                ctx.font="12px Arial";
-                ctx.fillText(y,i*py,tc[1]+tc[3]);
-            }
-            ctx.moveTo(i*py,tc[1]);
-            ctx.lineTo(i*py,tc[1]+l);
-            ctx.stroke();
-        //显示干支纪年//待补
-        }
+        let sq=cc[2]
+        this.sxjdq.sx.xywh=sq   //时间线区域的[x,y,w,h]
+        sxcanvas.width=Math.ceil(sq[2])
+        sxcanvas.height=Math.ceil(sq[3])
+        sxcanvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
+        console.log(sxcanvas);
+        this.sxjdq.sxrender(sxctx)
     }
     //二，按钮：
     //1,图
