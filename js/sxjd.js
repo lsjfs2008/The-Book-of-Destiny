@@ -5,55 +5,9 @@ class Sxjdq{
     constructor(sr,language){
         //从关注列表生成生成时序节点群……可有别的方案，比如从存储数据中生成
         this.q=[]    //时序节点群本体
+        // console.log(language,!language,!!language);
         if(!!language){
-            let ljds=bians.jd[language]
-            let jds={}
-            for (let ms in sr){
-                if(ms==="gzlb"){
-                    let mvs=sr[ms]
-                    for (let i=0;i<mvs.length;i++){
-                        if(mvs[i][0]==='han'){
-                            let tag=mvs[i][1]
-                            // console.log(tag);
-                            for (let jd in ljds){
-                            let rs=ljds[jd].r
-                            for (let r=0;r<rs.length;r++){
-                                if (tag===rs[r]){
-                                    // console.log(jd);
-                                    let obj={}
-                                    obj[jd]=ljds[jd]
-                                    // console.log(obj);
-                                    jds=Object.assign(jds,obj)
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            }//根据源文本所列模式，从候选节点库中取出匹配的节点，构成无序节点群
-            // console.log(jds);
-            let lsjdq=[]
-            let lsxlh=[]
-            for (let key in jds){
-                let jd=jds[key]
-                lsjdq.push(jd)
-            }
-            for (let i=0;i<lsjdq.length;i++){
-            lsxlh[i]=i
-            }
-            for (let i=0;i<lsjdq.length;i++){
-                for (let j=i+1;j<lsjdq.length;j++){
-                let ti=lsjdq[lsxlh[i]].t
-                let tj=lsjdq[lsxlh[j]].t
-                if(tidayutj(ti,tj)){
-                    lsxlh[i]=j
-                    lsxlh[j]=i
-                }
-                }
-            }
-            for (let i=0;i<lsxlh.length;i++){
-                this.q[i]=lsjdq[lsxlh[i]]
-            }//给无序节点群排序。
+            this.q=hhsxjdq(sr,language)
             this.qi=0
             this.zdy=[0,0,0]
             this.jd012=[[],[],[]]
@@ -62,9 +16,22 @@ class Sxjdq{
                 this.jd012[1][i]=1
                 this.jd012[2][i]=2
             }
+            // if(!!sr.sx){this.sx=sr.sx}else{this.sx=scsjx(this.q)}
+            this.sx=scsjx(this.q)    //临时用，测试功能。
+            console.log(this.sx);
+            this.sxupdate()
+            console.log(this.sx);
             // this.jd012[0][this.qi]=2
         }//从头（关注列表）开始构建。
     }//构建函数
+//根据当前节点qi更新时间线
+sxupdate(){
+    let i=this.qi
+    this.sx.dq=this.q[i].t[0][0]
+    this.sx.xd=this.sx.dq-this.sx.qz[0]
+    this.sx.sb=[this.sx.xd,this.sx.gt]
+    this.sx.jb=[i+1,this.q.length]
+}
 //文本绘制的数据预处理//带参数，表示使用jd012中的数据
 bfwbrender(wbcanvas){
     let jdq=this.q    //节点群
@@ -368,7 +335,7 @@ wbjdmupdate(sq,gs){
             jdm=jdm+`${jd.r[j]},`
             }
             let gy=(jd.t[0][0]>0)?'':'公元前'
-            let n=(!!jd.t[1])?`${jd.t[0][0]}—${jd.t[1][0]}年`:`${jd.t[0][0]}年`
+            let n=(!!jd.t[1])?`${Math.abs(jd.t[0][0])}—${Math.abs(jd.t[1][0])}年`:`${Math.abs(jd.t[0][0])}年`
             jdm=jdm+gy+n
             // console.log(jdm);
             this.q[i].m=jdm    
@@ -476,4 +443,86 @@ function hhzxya(zfc,sjk,fnt,jj){
         }
     }
     return ms
+}
+//模块，生成时序节点群
+function hhsxjdq(sr,language){
+    console.log('//模块，生成时序节点群');
+    let thisq=[]
+    let ljds=bians.jd[language]
+    let jds={}
+    for (let ms in sr){
+        if(ms==="gzlb"){
+            let mvs=sr[ms]
+            for (let i=0;i<mvs.length;i++){
+                if(mvs[i][0]==='han'){
+                    let tag=mvs[i][1]
+                    // console.log(tag);
+                    for (let jd in ljds){
+                    let rs=ljds[jd].r
+                    for (let r=0;r<rs.length;r++){
+                        if (tag===rs[r]){
+                            // console.log(jd);
+                            let obj={}
+                            obj[jd]=ljds[jd]
+                            // console.log(obj);
+                            jds=Object.assign(jds,obj)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    }//根据源文本所列模式，从候选节点库中取出匹配的节点，构成无序节点群
+    // console.log(jds);
+    let lsjdq=[]
+    let lsxlh=[]
+    for (let key in jds){
+        let jd=jds[key]
+        lsjdq.push(jd)
+    }
+    for (let i=0;i<lsjdq.length;i++){
+    lsxlh[i]=i
+    }
+    for (let i=0;i<lsjdq.length;i++){
+        for (let j=i+1;j<lsjdq.length;j++){
+        let ti=lsjdq[lsxlh[i]].t
+        let tj=lsjdq[lsxlh[j]].t
+        if(tidayutj(ti,tj)){
+            lsxlh[i]=j
+            lsxlh[j]=i
+        }
+        }
+    }
+    for (let i=0;i<lsxlh.length;i++){
+        thisq[i]=lsjdq[lsxlh[i]]
+    }//给无序节点群排序。
+    return thisq
+}
+//模块，生成时间线数据
+function scsjx(q){
+    console.log('//模块，生成时间线数据');
+    let re={}
+    // console.log(sr.sx,!sr.sx,!!sr.sx);
+    console.log('目前只有人物线，待优化……');
+    let lx='人物线'
+    let qt=q[0].t[0][0]
+    let zt=q[q.length-1].t[0][0]
+    if(!!q[q.length-1].t[1]){zt=q[q.length-1].t[1][0]}
+    let qz=[qt,zt]
+    // console.log(zt+'年',qt,typeof(qt));
+    let sq0=Math.floor((qt-9)*0.1)*10
+    let sq1=Math.ceil((zt+9)*0.1)*10
+    let sq=[sq0,sq1]
+    let dq=qt
+    let sb=[dq-qt,zt-qt]
+    let jb=[1,q.length]
+    re.lx=lx
+    re.qz=qz
+    re.gt=zt-qt
+    re.sq=sq
+    re.dq=dq
+    re.xd=dq-qt
+    re.sb=sb
+    re.jb=jb
+    return re
 }
