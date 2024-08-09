@@ -3,10 +3,8 @@
 // const ctx = canvas.getContext('2d')
 class Sxjdq{
     constructor(sr,language){
-        //从无序节点群生成时序节点群……可有别的方案，比如从关注列表生成
-        this.q=[]
-        // console.log(language,!language,!!language);
-        let jds={}
+        //从关注列表生成生成时序节点群……可有别的方案，比如从存储数据中生成
+        this.q=[]    //时序节点群本体
         if(!!language){
             let ljds=bians.jd[language]
             let jds={}
@@ -32,7 +30,7 @@ class Sxjdq{
                     }
                 }
             }
-            }
+            }//根据源文本所列模式，从候选节点库中取出匹配的节点，构成无序节点群
             // console.log(jds);
             let lsjdq=[]
             let lsxlh=[]
@@ -55,79 +53,107 @@ class Sxjdq{
             }
             for (let i=0;i<lsxlh.length;i++){
                 this.q[i]=lsjdq[lsxlh[i]]
-            }
+            }//给无序节点群排序。
             this.qi=0
-            this.qxi=[[],[],[],[],[]]
+            this.zdy=[0,0,0]
+            this.jd012=[[],[],[]]
             for (let i=0;i<this.q.length;i++){
-                this.qxi[0][i]=0
-                this.qxi[1][i]=1
-                this.qxi[2][i]=2
-                this.qxi[3][i]=0
+                this.jd012[0][i]=0
+                this.jd012[1][i]=1
+                this.jd012[2][i]=2
             }
-            this.qxi[3][this.qi]=2
+            // this.jd012[0][this.qi]=2
         }//从头（关注列表）开始构建。
     }//构建函数
-//文本绘制的数据预处理//带参数，表示使用qxi中的数据
+//文本绘制的数据预处理//带参数，表示使用jd012中的数据
 bfwbrender(wbcanvas){
     let jdq=this.q    //节点群
     //(当前高)dqh自适应模块：根据qi调整h
     let sji=this.qi
     let lsi=[]
-    let ysh=[0]
-    let dqysh=[]
-    let dqh=[0,0,0,0,0]  //设为数组
-    let dqhmax=[0,0,0,0,0]
-    for (let j=0;j<5;j++){
-        if(j===0){
-            for (let i=0;i<jdq.length;i++){
-                let mh=jdq[i].zxymh
-                let h=ysh[ysh.length-1]+mh
-                ysh.push(h)
+    //默认模式数据
+    if(1){
+        let ysh=[0]
+        let dqysh=[]
+        let dqh=[0,0,0]  //设为数组
+        let dqhmax=[0,0,0]
+        for (let j=0;j<3;j++){
+            if(j===0){
+                for (let i=0;i<jdq.length;i++){
+                    let mh=jdq[i].zxymh
+                    let h=ysh[ysh.length-1]+mh
+                    if(i===sji){
+                        let jh=jdq[i].zxyjh
+                        h=h+jh
+                    }
+                    ysh.push(h)
+                }
             }
+            if(j===1){
+                for (let i=0;i<jdq.length;i++){
+                        let jh=jdq[i].zxyjh
+                        let h=ysh[ysh.length-1]+jh
+                        ysh.push(h)
+                }
+            }
+            if(j===2){
+                for (let i=0;i<jdq.length;i++){
+                    let mh=jdq[i].zxymh
+                    let jh=jdq[i].zxyjh
+                    let h=ysh[ysh.length-1]+jh+mh
+                    ysh.push(h)
+                }
+            }
+            let yl=(j===1||j===2)?1:2
+            let zsyi=(sji-yl>0)?(sji-yl):0
+            dqh[j]=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+            //跳转时控制“前言”体量。
+            if(dqh[j]<ysh[sji]-0.2*wbcanvas.height){dqh[j]=ysh[sji]-0.2*wbcanvas.height}
+            dqhmax[j]=(ysh[ysh.length-1]-wbcanvas.height>0)?(ysh[ysh.length-1]-wbcanvas.height):0
+            dqh[j]=(dqh[j]<dqhmax[j])?dqh[j]:(dqhmax[j])
+            dqysh[j]=ysh
+            ysh=[0]
+            // console.log(dqh,dqh[j],dqhmax);
         }
-        if(j===1){
+        this.ysh=dqysh
+        // console.log(this.ysh);
+        this.h=dqh
+        this.hmax=dqhmax
+    }//默认模式数据//
+    //zdy模式数据
+    if(1){
+        let ysh=[0]
+        let dqysh=[]
+        let dqh=[0,0,0]  //设为数组
+        let dqhmax=[0,0,0]
+        for (let j=0;j<3;j++){
             for (let i=0;i<jdq.length;i++){
                     let jh=jdq[i].zxyjh
-                    let h=ysh[ysh.length-1]+jh
+                    let mh=jdq[i].zxymh
+                    let dh=0
+                    let ls=this.jd012[j][i]
+                    if(ls===0){dh=mh}
+                    if(ls===1){dh=jh}
+                    if(ls===2){dh=mh+jh}
+                    let h=ysh[ysh.length-1]+dh
                     ysh.push(h)
             }
+            let yl=(j===1||j===2)?1:2
+            let zsyi=(sji-yl>0)?(sji-yl):0
+            dqh[j]=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+            //跳转时控制“前言”体量。
+            if(dqh[j]<ysh[sji]-0.2*wbcanvas.height){dqh[j]=ysh[sji]-0.2*wbcanvas.height}
+            dqhmax[j]=(ysh[ysh.length-1]-wbcanvas.height>0)?(ysh[ysh.length-1]-wbcanvas.height):0
+            dqh[j]=(dqh[j]<dqhmax[j])?dqh[j]:(dqhmax[j])
+            dqysh[j]=ysh
+            ysh=[0]
+            // console.log(dqh,dqh[j],dqhmax);
         }
-        if(j===2){
-            for (let i=0;i<jdq.length;i++){
-                let mh=jdq[i].zxymh
-                let jh=jdq[i].zxyjh
-                let h=ysh[ysh.length-1]+jh+mh
-                ysh.push(h)
-            }
-        }
-        if(j===3){
-            for (let i=0;i<jdq.length;i++){
-                let mh=jdq[i].zxymh
-                let h=ysh[ysh.length-1]+mh
-                if(i===sji){
-                    let jh=jdq[i].zxyjh
-                    h=h+jh
-                }
-                ysh.push(h)
-            }
-        }
-        if(j===4){
-
-        }
-        let yl=(j===1||j===2)?1:2
-        let zsyi=(sji-yl>0)?(sji-yl):0
-        dqh[j]=ysh[zsyi]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-        //跳转时控制“前言”体量。
-        if(dqh[j]<ysh[sji]-0.2*wbcanvas.height){dqh[j]=ysh[sji]-0.2*wbcanvas.height}
-        dqhmax[j]=(ysh[ysh.length-1]-wbcanvas.height>0)?(ysh[ysh.length-1]-wbcanvas.height):0
-        dqh[j]=(dqh[j]<dqhmax[j])?dqh[j]:(dqhmax[j])
-        dqysh[j]=ysh
-        ysh=[0]
-        // console.log(dqh,dqh[j],dqhmax);
-    }
-    this.ysh=dqysh
-    this.h=dqh
-    this.hmax=dqhmax
+        this.zdyysh=dqysh
+        // console.log(this.zdyysh);
+        this.zdyh=dqh
+        this.zdyhmax=dqhmax
+    }//zdy模式数据//
     this.wbrender(wbcanvas)
 }
 //文本绘制
@@ -142,130 +168,66 @@ wbrender(wbcanvas){
     let jdq=this.q    //节点群
     // this.bfwbrnd(wbcanvas)
     // console.log(this.hmax);
-    if (ttvs[0]===0){
-        let bjs=0
-        for (let i=0;i<jdq.length;i++){
-            if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
-            let zs=jdq[i].zxym
-            let mh=jdq[i].zxymh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.H3.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.H3.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.H3.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+    if(this.zdy[ttvs[0]]===0){
+        if (ttvs[0]===1){
+            let pbjs=0
+            for (let i=0;i<jdq.length;i++){
+                //加文本（背景）框
+                if(pbjs===0){
+                    pbjs=1
+                    wbctx.fillStyle=gs.p1.bjs[0]
+                }else{
+                    pbjs=0
+                    wbctx.fillStyle=gs.p1.bjs[1]
+                }
+                let zsz=jdq[i].zxyjz
+                let mh=jdq[i].zxyjh
+                let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+                wbctx.font=gs.p1.font
+                let mw=wbctx.measureText('测').width
+                wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
+                if(i===this.qi){wbctx.strokeStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
+                for (let k=0;k<zsz.length;k++){
+                    let zs=zsz[k]
+                    for (let j=0;j<zs.length;j++){
+                        let m=zs[j]
+                        if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                            wbctx.fillStyle=gs.p1.s
+                            wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                        }
                     }
                 }
-            xy0[1]=xy0[1]+mh
-        }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
-    }
-    if (ttvs[0]===1){
-        let pbjs=0
-        for (let i=0;i<jdq.length;i++){
-            //加文本（背景）框
-            if(pbjs===0){
-                pbjs=1
-                wbctx.fillStyle=gs.p1.bjs[0]
-            }else{
-                pbjs=0
-                wbctx.fillStyle=gs.p1.bjs[1]
+                xy0[1]=xy0[1]+mh
             }
-            let zsz=jdq[i].zxyjz
-            let mh=jdq[i].zxyjh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.p1.font
-            let mw=wbctx.measureText('测').width
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
-            for (let k=0;k<zsz.length;k++){
-                let zs=zsz[k]
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.p1.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            }
-            xy0[1]=xy0[1]+mh
+            // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
         }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
-    }
-    if (ttvs[0]===2){
-        let pbjs=0
-        let bjs=0
-        for (let i=0;i<jdq.length;i++){
-            //节点名模块
-            if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
-            let zs=jdq[i].zxym
-            let mh=jdq[i].zxymh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.H3.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.H3.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.H3.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+        if (ttvs[0]===2){
+            let pbjs=0
+            let bjs=0
+            for (let i=0;i<jdq.length;i++){
+                //节点名模块
+                if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
+                let zs=jdq[i].zxym
+                let mh=jdq[i].zxymh
+                let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+                wbctx.font=gs.H3.font
+                wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
+                if(i===this.qi){wbctx.strokeStyle=gs.H3.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
+                    for (let j=0;j<zs.length;j++){
+                        let m=zs[j]
+                        if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                            wbctx.fillStyle=gs.H3.s
+                            wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                        }
                     }
-                }
-            xy0[1]=xy0[1]+mh
-            //节点内容模块
-            if(pbjs===0){pbjs=1;wbctx.fillStyle=gs.p1.bjs[0];}else{pbjs=0;wbctx.fillStyle=gs.p1.bjs[1];}
-            let zsz=jdq[i].zxyjz
-            let jh=jdq[i].zxyjh
-            wbctx.font=gs.p1.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
-            if(i===this.qi){wbctx.fillStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
-            for (let k=0;k<zsz.length;k++){
-                let zs=zsz[k]
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.p1.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            }
-            xy0[1]=xy0[1]+jh
-        }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
-    }
-    if (ttvs[0]===3){
-        let sji=this.qi
-        // console.log(sji);
-        let pbjs=0
-        let bjs=0
-        //绘制文字：
-        for (let i=0;i<jdq.length;i++){
-            //节点名模块
-            if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
-            let zs=jdq[i].zxym
-            let mh=jdq[i].zxymh
-            let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
-            wbctx.font=gs.H3.font
-            wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-                for (let j=0;j<zs.length;j++){
-                    let m=zs[j]
-                    if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
-                        wbctx.fillStyle=gs.H3.s
-                        wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
-                    }
-                }
-            xy0[1]=xy0[1]+mh
-            // console.log(xy0[1]);
-            if(i===sji){
+                xy0[1]=xy0[1]+mh
                 //节点内容模块
                 if(pbjs===0){pbjs=1;wbctx.fillStyle=gs.p1.bjs[0];}else{pbjs=0;wbctx.fillStyle=gs.p1.bjs[1];}
                 let zsz=jdq[i].zxyjz
                 let jh=jdq[i].zxyjh
                 wbctx.font=gs.p1.font
                 wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
+                if(i===this.qi){wbctx.strokeStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
                 for (let k=0;k<zsz.length;k++){
                     let zs=zsz[k]
                     for (let j=0;j<zs.length;j++){
@@ -277,14 +239,111 @@ wbrender(wbcanvas){
                     }
                 }
                 xy0[1]=xy0[1]+jh
-                // console.log(xy0[1]);
             }
+            // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
         }
-        // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
+        if (ttvs[0]===0){
+            let sji=this.qi
+            // console.log(sji);
+            let pbjs=0
+            let bjs=0
+            //绘制文字：
+            for (let i=0;i<jdq.length;i++){
+                //节点名模块
+                if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
+                let zs=jdq[i].zxym
+                let mh=jdq[i].zxymh
+                let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+                wbctx.font=gs.H3.font
+                wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
+                    for (let j=0;j<zs.length;j++){
+                        let m=zs[j]
+                        if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                            wbctx.fillStyle=gs.H3.s
+                            wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                        }
+                    }
+                xy0[1]=xy0[1]+mh
+                // console.log(xy0[1]);
+                if(i===sji){
+                    //节点内容模块
+                    if(pbjs===0){pbjs=1;wbctx.fillStyle=gs.p1.bjs[0];}else{pbjs=0;wbctx.fillStyle=gs.p1.bjs[1];}
+                    let zsz=jdq[i].zxyjz
+                    let jh=jdq[i].zxyjh
+                    wbctx.font=gs.p1.font
+                    wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
+                    for (let k=0;k<zsz.length;k++){
+                        let zs=zsz[k]
+                        for (let j=0;j<zs.length;j++){
+                            let m=zs[j]
+                            if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                                wbctx.fillStyle=gs.p1.s
+                                wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                            }
+                        }
+                    }
+                    xy0[1]=xy0[1]+jh
+                    // console.log(xy0[1]);
+                }
+            }
+            // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
+        }
+    }
+    if(this.zdy[ttvs[0]]===1){
+            let pbjs=0
+            let bjs=0
+            //绘制文字：
+            for (let i=0;i<jdq.length;i++){
+                let ls=this.jd012[ttvs[0]][i]
+                let dqh=this.zdyh[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
+                // console.log('dqh:',dqh);
+                // console.log('ls:',ls);
+                if(ls===0||ls===2){
+                    //节点名模块
+                    if(bjs===0){bjs=1;wbctx.fillStyle=gs.H3.bjs[0];}else{bjs=0;wbctx.fillStyle=gs.H3.bjs[1];}
+                    let zs=jdq[i].zxym
+                    let mh=jdq[i].zxymh
+                    wbctx.font=gs.H3.font
+                    wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
+                    if(i===this.qi){wbctx.strokeStyle=gs.H3.bjs[3];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
+                        for (let j=0;j<zs.length;j++){
+                            let m=zs[j]
+                            if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                                wbctx.fillStyle=gs.H3.s
+                                wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                            }
+                        }
+                    xy0[1]=xy0[1]+mh
+                }
+                // console.log(xy0[1]);
+                if(ls===1||ls===2){
+                    //节点内容模块
+                    if(pbjs===0){pbjs=1;wbctx.fillStyle=gs.p1.bjs[0];}else{pbjs=0;wbctx.fillStyle=gs.p1.bjs[1];}
+                    let zsz=jdq[i].zxyjz
+                    let jh=jdq[i].zxyjh
+                    wbctx.font=gs.p1.font
+                    wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
+                    console.log(gs.p1.bjs[3]);
+                    if(i===this.qi){wbctx.strokeStyle=gs.p1.bjs[3];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
+                    for (let k=0;k<zsz.length;k++){
+                        let zs=zsz[k]
+                        for (let j=0;j<zs.length;j++){
+                            let m=zs[j]
+                            if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
+                                wbctx.fillStyle=gs.p1.s
+                                wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
+                            }
+                        }
+                    }
+                    xy0[1]=xy0[1]+jh
+                    // console.log(xy0[1]);
+                }
+            }//绘制文字//
+            // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
     }
     // console.log(this.hmax);
     if(ttvs[1]===1||ttvs[1]===2){
-        wbctx.fillStyle="#000000"
+        wbctx.strokeStyle="#000000"
         let xywh=this.xywh
         let dxy0=0.07*(xywh[2]+xywh[3])
         wbctx.moveTo(xywh[2],xywh[3]-dxy0);

@@ -181,14 +181,22 @@ sbevent(e){
     if(inarea(x,y,cc[1])){
         //滚轮移动文本
         if(e.type==='wheel'){
-            this.wbyidong(e.deltaY)
+            let k=15
+            let i=jsd.buju.wbvs.wbqtt[0]
+            if (e.deltaY>0){this.sxjdq.h[i]=this.sxjdq.h[i]+k}else{this.sxjdq.h[i]=this.sxjdq.h[i]-k}
+            if(this.sxjdq.h[i]<0){this.sxjdq.h[i]=0}
+            if(this.sxjdq.h[i]>this.sxjdq.hmax[i]){this.sxjdq.h[i]=this.sxjdq.hmax[i]}
             this.wbrender()
         }//滚轮移动文本
         //标题左
         if(inarea(x,y,jsd.tt.xsj[0])){
             if(e.type==="mousedown"){
+                // let lsvs=jsd.buju.wbvs.wbq
                 jsd.buju.wbvs.wbqtt[0]=(jsd.buju.wbvs.wbqtt[0]+1)%3
-                console.log(jsd.buju.wbvs.wbqtt[0]);
+                if(jsd.buju.wbvs.wbqtt[0]===4&&!this.sxjdq.jd012[4].length){jsd.buju.wbvs.wbqtt[0]=0}
+                // console.log(!this.sxjdq.jd012[4].length);
+                // console.log(!1);
+                // console.log(jsd.buju.wbvs.wbqtt[0]);
                 this.wbbtupdate()
                 this.render()
             }
@@ -215,26 +223,21 @@ sbevent(e){
     }
     //2区，文本区//    
 }//sbevent//
-wbyidong(y){
-    let k=20
-    let i=jsd.buju.wbvs.wbqtt[0]
-    // console.log(this.sxjdq.zdy[i]);
-    if(this.sxjdq.zdy[i]===0){
-        if (y>0){this.sxjdq.h[i]=this.sxjdq.h[i]+k}else{this.sxjdq.h[i]=this.sxjdq.h[i]-k}
-        if(this.sxjdq.h[i]<0){this.sxjdq.h[i]=0}
-        if(this.sxjdq.h[i]>this.sxjdq.hmax[i]){this.sxjdq.h[i]=this.sxjdq.hmax[i]}
-    }else{
-        if (y>0){this.sxjdq.zdyh[i]=this.sxjdq.zdyh[i]+k}else{this.sxjdq.zdyh[i]=this.sxjdq.zdyh[i]-k}
-        if(this.sxjdq.zdyh[i]<0){this.sxjdq.zdyh[i]=0}
-        if(this.sxjdq.zdyh[i]>this.sxjdq.zdyhmax[i]){this.sxjdq.zdyh[i]=this.sxjdq.zdyhmax[i]}
-    }
-}
 wbsbevent(e){
    //滚轮移动文本
    if(e.type==='wheel'){
-    this.wbyidong(e.deltaY)
-    this.wbrender()
-}//滚轮移动文本
+    // if(jsd.buju.wbvs.wbqtt[0]===3){
+    //     if (e.deltaY>0){this.sxjdq.ichange(1)}else{this.sxjdq.ichange(0)}
+    //     this.wbrender(1)
+    // }else{
+        let k=20
+        let i=jsd.buju.wbvs.wbqtt[0]
+        if (e.deltaY>0){this.sxjdq.h[i]=this.sxjdq.h[i]+k}else{this.sxjdq.h[i]=this.sxjdq.h[i]-k}
+        if(this.sxjdq.h[i]<0){this.sxjdq.h[i]=0}
+        if(this.sxjdq.h[i]>this.sxjdq.hmax[i]){this.sxjdq.h[i]=this.sxjdq.hmax[i]}
+        this.wbrender()
+    // }
+    } 
     //单击：折页/书签功能：//节点点击跳转
     if(e.type==='mousedown'){
         // console.log(e);
@@ -258,30 +261,28 @@ wbsbevent(e){
             let vi=jsd.buju.wbvs.wbqtt[0]
             let ysh=this.sxjdq.ysh[vi]
             let dqh=this.sxjdq.h[vi]
-            if(this.sxjdq.zdy[vi]===1){
-                ysh=this.sxjdq.zdyysh[vi]
-                dqh=this.sxjdq.zdyh[vi]
-            }
             let dj=hhdjjd(ysh,dqh,y)
             // console.log(ysh,dqh,y);
             // console.log(`第${dj}节点被点击`);
-            if(this.sxjdq.zdy[vi]>0){
-                if(vi===0||vi===1){
-                    if(this.sxjdq.jd012[vi][dj]===vi){this.sxjdq.jd012[vi][dj]=2}else{this.sxjdq.jd012[vi][dj]=vi}
-                }
-                if(vi===2){
-                    this.sxjdq.jd012[vi][dj]=(this.sxjdq.jd012[vi][dj]+1)%3
-                }
-            }
             this.sxjdq.qi=dj
+            if(vi===4&&!!this.sxjdq.jd012[4].length){this.sxjdq.jd012[4][dj]=(this.sxjdq.jd012[4][dj]+1)/3}
             this.sxjdq.bfwbrender(wbcanvas)
         }
     }//单击
-    //双击，当前显示模式在默认与自定义之间切换：
+    //双击，改变显示模式：0节点名，1内容，2两者。
     if(e.type==='dblclick'){
+        let x=e.clientX - wbcanvas.getBoundingClientRect().left;
+        let y=e.clientY - wbcanvas.getBoundingClientRect().top;
         let vi=jsd.buju.wbvs.wbqtt[0]
-        if(this.sxjdq.zdy[vi]>0){this.sxjdq.zdy[vi]=0}else{this.sxjdq.zdy[vi]=1}
-        this.sxjdq.bfwbrender(wbcanvas)
+            let ysh=this.sxjdq.ysh[vi]
+            let dqh=this.sxjdq.h[vi]
+            let dj=hhdjjd(ysh,dqh,y)
+            console.log(`第${dj}节点被点击`);
+            this.sxjdq.qi=dj
+            if(!this.sxjdq.jd012[4].length){this.sxjdq.jd012[4]=this.sxjdq.jd012[vi]}
+            let lsvi=(vi===2)?0:2
+            if(this.sxjdq.jd012[vi][dj]===vi){this.sxjdq.jd012[vi][dj]=lsvi}else{this.sxjdq.jd012[vi][dj]=vi}
+            this.sxjdq.jd012[4][dj]=this.sxjdq.jd012[vi][dj]
     }//双击
 }
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
