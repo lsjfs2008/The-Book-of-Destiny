@@ -29,7 +29,7 @@ class Sxjdq{
         // this.wbbindsbevent=this.wbsbevent.bind(this)
         this.dthuabu=new Huabu('zhudiv',[0,0,0,0])
         this.wbhuabu=new wbHuabu('zhudiv',[0,0,0,0],this)
-        this.sxhuabu=new Huabu('zhudiv',[0,0,0,0])
+        this.sxhuabu=new sxHuabu('zhudiv',[0,0,0,0],this)
         // this.wbhuabu.canvas.addEventListener('wheel',this.wbbindsbevent)
         // this.wbhuabu.canvas.addEventListener('mousedown',this.wbbindsbevent)
         // this.wbhuabu.canvas.addEventListener('dblclick',this.wbbindsbevent)
@@ -459,6 +459,7 @@ wbrender(){
 //三，文本数据更新与显示模块////
 //////四，时线数据更新与显示模块
 sxupdate(){
+    // console.log('时线变量描述参见：',bians.wb.chs.slwb.sxdescr);
     let i=this.qi
     this.sx.dq=this.q[i].t[0][0]
     this.sx.xd=this.sx.dq-this.sx.qz[0]
@@ -486,6 +487,7 @@ sxrender(){
         let dc=this.sx.dc   //登场时间段
         let zr=this.sx.zr   //自然生死时间段
         let dq=this.sx.dq   //当前节点时间（段）
+        console.log(this.qi);
         let dqsj=this.q[this.qi].t
         // console.log(this.sx);
         let py=Math.floor(tc[2]/(qz[1]-sq[0]))    //py像素每年
@@ -541,6 +543,7 @@ sxrender(){
             let s=[x,0.5*tc[3],w,0.3*tc[3]]
             jdsq[i]=s
         }//先算出节点“宽度”
+        this.jdsq=jdsq
         //再依配色画矩形与典框。
         for (let i=0;i<this.q.length;i++){
             let q=this.q[i]
