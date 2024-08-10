@@ -378,6 +378,7 @@ class Mapimg{
         c[3]=c[7]*b
         //范围校正（以免图片“超出”视界），返回数据
         c=this.fwjd(c)
+        // console.log(c);
         return c
     }
     //聚焦效果

@@ -9,12 +9,8 @@ class Main{
         // 维护当前requestAnimationFrame的id
         this.aniId = 0
         this.resize=resize(4)
-        // this.zhuhuabu=new Huabu('zhudiv',[0,0,this.resize[2],this.resize[3]])
-
-        this.wbhuabu=new Huabu('zhudiv',[0,0,0,0])
-        this.sxhuabu=new Huabu('zhudiv',[0,0,0,0])
-        // let jsd={}
         this.start()
+        this.bindsbevent=this.sbevent.bind(this)    //绑定this.
         //this.render()
         //触碰监控
         canvas.addEventListener('touchstart', ((e) => {
@@ -22,10 +18,6 @@ class Main{
             const x = e.touches[0].clientX
             const y = e.touches[0].clientY
             if(this.djwx===0){this.djgn(x,y)}    //点击1无效，0有效。
-            //点击功能设计：1，根据点击update()数据；
-            //2，根据update()的数据判断是否需要render()刷新/重新加载界面；
-            //3，点击特定按钮，进入自动演进时间线的伪动画模式loop()
-            //this.render()
         }
         ))
         //鼠标监控：
@@ -33,15 +25,13 @@ class Main{
         // canvas.addEventListener('mousemove',this.bindsbevent)
         canvas.addEventListener('wheel',this.bindsbevent)
         canvas.addEventListener('dblclick',this.bindsbevent)
-        this.wbhuabu.canvas.addEventListener('wheel',this.wbbindsbevent)
-        this.wbhuabu.canvas.addEventListener('mousedown',this.wbbindsbevent)
-        this.wbhuabu.canvas.addEventListener('dblclick',this.wbbindsbevent)
         //鼠标拖动地图,松开鼠标不需集成。
         document.addEventListener('mouseup', () => {
             jsd.mapisDragging = false;
             canvas.style.cursor = 'default';
             canvas.removeEventListener('mousemove',this.bindsbevent)
           });//鼠标拖动地图,松开鼠标不需集成。
+
     }//构建函数//
 start(){
     lssize=resize()
@@ -99,8 +89,7 @@ start(){
             jsd.mapbtn=sctp(bians.btns.map.img)
             // jsd.mapbtn.addEventListener('click',(e)=>{console.log('地图缩放工具');})
             //4，绑定鼠标事件
-            this.bindsbevent=this.sbevent.bind(this)    //绑定this.
-            this.wbbindsbevent=this.wbsbevent.bind(this)
+            // this.bindsbevent=this.sbevent.bind(this)    //绑定this.
             //N,就绪即加载
             window.onload=()=>{this.update()}
             window.onresize=()=>{
@@ -115,7 +104,6 @@ start(){
     //  //
     }//start()//
 sbevent(e){
-    // console.log(e);
     let x=e.clientX - canvas.getBoundingClientRect().left;
     let y=e.clientY - canvas.getBoundingClientRect().top;
     let cc=jsd.cc
@@ -179,6 +167,7 @@ sbevent(e){
     }//1区，地图区//
     //2区，文本区
     if(inarea(x,y,cc[1])){
+        console.log("主体文本区");
         //滚轮移动文本
         if(e.type==='wheel'){
             this.wbyidong(e.deltaY)
@@ -228,81 +217,16 @@ wbyidong(y){
         if(this.sxjdq.zdyh[i]<0){this.sxjdq.zdyh[i]=0}
         if(this.sxjdq.zdyh[i]>this.sxjdq.zdyhmax[i]){this.sxjdq.zdyh[i]=this.sxjdq.zdyhmax[i]}
     }
-}
-wbsbevent(e){
-   //滚轮移动文本
-   if(e.type==='wheel'){
-    this.wbyidong(e.deltaY)
-    this.wbrender()
-}//滚轮移动文本
-    //单击：折页/书签功能：//节点点击跳转
-    if(e.type==='mousedown'){
-        // console.log(e);
-        let x=e.clientX - this.wbhuabu.canvas.getBoundingClientRect().left;
-        let y=e.clientY - this.wbhuabu.canvas.getBoundingClientRect().top;
-        // console.log(x,y);
-        let xywh=this.sxjdq.xywh
-        // console.log(xywh);
-        let txy=xywh[2]+xywh[3]
-        // let txy=xywh[0]+xywh[2]+xywh[1]+xywh[3]
-        let dxy0=0.07*txy
-        // console.log(dxy0);
-        let dxy=txy-x-y
-        if(dxy<dxy0){
-            if(typeof(Storage)!=="undefined"){
-                console.log('暂且如此。后期不再存储为默认数据，而是保存为自命名书签。');
-                let zmm=jsd.wb[jsd.language].slwb.tt
-                localStorage.setItem(zmm,JSON.stringify(jsd));    //json转为str再保存
-            }
-        }else{
-            let vi=jsd.buju.wbvs.wbqtt[0]
-            let ysh=this.sxjdq.ysh[vi]
-            let dqh=this.sxjdq.h[vi]
-            if(this.sxjdq.zdy[vi]===1){
-                ysh=this.sxjdq.zdyysh[vi]
-                dqh=this.sxjdq.zdyh[vi]
-            }
-            let dj=hhdjjd(ysh,dqh,y)
-            // console.log(ysh,dqh,y);
-            // console.log(`第${dj}节点被点击`);
-            if(this.sxjdq.zdy[vi]>0){
-                if(vi===0||vi===1){
-                    if(this.sxjdq.jd012[vi][dj]===vi){this.sxjdq.jd012[vi][dj]=2}else{this.sxjdq.jd012[vi][dj]=vi}
-                }
-                if(vi===2){
-                    this.sxjdq.jd012[vi][dj]=(this.sxjdq.jd012[vi][dj]+1)%3
-                }
-            }
-            this.sxjdq.qi=dj
-            this.render()
-            // this.sxjdq.bfwbrender(this.wbhuabu.canvas)
-        }//单击选择节点，三相皆变
-    }//单击
-    //双击，当前显示模式在默认与自定义之间切换：
-    if(e.type==='dblclick'){
-        let vi=jsd.buju.wbvs.wbqtt[0]
-        if(this.sxjdq.zdy[vi]>0){this.sxjdq.zdy[vi]=0}else{this.sxjdq.zdy[vi]=1}
-        this.sxjdq.bfwbrender(this.wbhuabu.canvas)
-    }//双击
-}
+}//配件，文本移动
+
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
-    //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
-    // let cc=jsd.cc
-    // console.log('jsd.vs:',jsd.vs);
-    if(jsd.vs[0]>0){
-        this.dtupdate()
-    }//地图区
-    //文本区
-    if(jsd.vs[1]>0){
-        this.wbupdate()
-    }//文本区
-    // console.log(jsd.jds);
-    //默认，自动保存当前数据状态
-    if(typeof(Storage)!=="undefined"){
-        // console.log('默认，自动保存当前数据状态',jsd);
-        localStorage.setItem('jsd',JSON.stringify(jsd));    //json转为str再保存
-    }
+    //地图分两部分：地图本体，地图上的时空节点。地图本体暂时由主体呈现。节点转交对象生成。
+    this.dtupdate()
+    //文本标题与按钮，也暂由本体呈现
+    this.wbupdate()
+    //使每一个时序节点群对象各自update，
+    this.sxjdq.update()
     this.render()
 }//update()//
 //update模块化，分为地图dtupdate，文本wbupdate，时线sxupdate，三份。（加节点四份？）
@@ -331,14 +255,14 @@ wbupdate(){
     //文本区
     if(jsd.vs[1]>0){
         this.wbbtupdate()
-        this.wbjdmupdate()
-        this.wbjdupdate()
+        // this.wbjdmupdate()
+        // this.wbjdupdate()
     }//文本区
 }//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。按钮，第四部分，集成在标题中。
 //标题模块
 wbbtupdate(){
         //文本框元素：背景，左上缩放小三角
-        let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
+        let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
         let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
         let ttvs=jsd.buju.wbvs.wbqtt    //文本显示：文本区wbq,地图区dtq,时间线区sxq是[1,1,1]否显示大标题，小标题/节点名,节点内容。
         let tt=jsd.wb[jsd.language].slwb.tt     //大标题//多时线下大标题如何处理？
@@ -360,18 +284,18 @@ wbbtupdate(){
         jsd.tt.tzxy=tzxy
         jsd.tt.th=jj[1]+lsw
 }//标题模块
-//节点名模块
-wbjdmupdate(){
-    let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
-    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
-    this.sxjdq.wbjdmupdate(sq,gs)
-}//节点名模块
-//节点内容模块
-wbjdupdate(){
-    let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
-    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
-    this.sxjdq.wbjdupdate(sq,gs)
-}//节点内容模块
+// //节点名模块
+// wbjdmupdate(){
+//     let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
+//     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
+//     this.sxjdq.wbjdmupdate(sq,gs)
+// }//节点名模块
+// //节点内容模块
+// wbjdupdate(){
+//     let sq=jsd.cc[1]    //视区[x,y,w,h]//文本显示区
+//     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
+//     this.sxjdq.wbjdupdate(sq,gs)
+// }//节点内容模块
 //时线模块
 sxupdate(){
 
@@ -386,7 +310,7 @@ render(){
     //清屏
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     //分区域更新绘图
-    let cc=jsd.cc
+    let cc=deepCopy(jsd.cc)
     // console.log('jsd.vs:',jsd.vs);
     //一，加载图文线：
     //1，图：
@@ -467,28 +391,28 @@ render(){
             ctx.drawImage(jsd.xsj[ttvs[0]],tbt[3][0],tbt[3][1],tbt[3][2],tbt[3][3])
         }
         // console.log(lsw);
-        let sxjdq=jsd.sxjdq    //时序节点群,其vs模式默认为1：显示节点名及其内容。//0：隐藏节点名，显示内容。2：显示节点名，隐藏内容。
-
-    }
+    }//2，文本
     //3,时间线
     if(jsd.vs[2]>0){
         // ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
         //显示公元纪年
         let sq=cc[2]
+        // console.log(sq);
         this.sxjdq.sx.xywh=sq   //时间线区域的[x,y,w,h]
         sq[2]=Math.ceil(sq[2])
         sq[3]=Math.ceil(sq[3])
-        this.sxhuabu.pst(sq)
-        // console.log(this.sxhuabu.canvas);
-        this.sxjdq.sxrender(this.sxhuabu.canvas)
-    }
-    //二，按钮：
-    //1,图
+        this.sxjdq.pst(2,sq)
+        // this.sxjdq.sxhuabu.pst(sq)
+        // console.log(this.sxjdq.sxhuabu.canvas);
+        // this.sxjdq.sxrender(this.sxjdq.sxhuabu.canvas)
+    }//3,时间线
+    //4，对象
+    this.sxjdq.render()
 }//render()//
 /**/
 //render模块化，文本内容区独立出来//带参数，表示需要文本数据预处理
 wbrender(k){
-    let sq=deepCopy(jsd.cc[1])    //视区[x,y,w,h]//文本显示区
+    let sq=deepCopy(jsd.cc[1])   //视区[x,y,w,h]//文本显示区
     let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
     let ttvs=jsd.buju.wbvs.wbqtt
     if(ttvs[1]===1||ttvs[1]===3){
@@ -497,14 +421,15 @@ wbrender(k){
     }
     sq[2]=Math.ceil(sq[2])
     sq[3]=Math.ceil(sq[3])
-    this.wbhuabu.pst(sq)
-    this.wbhuabu.canvas.sq=sq
-    this.wbhuabu.canvas.gs=gs
-    this.wbhuabu.canvas.ttvs=ttvs
+    this.sxjdq.pst(1,sq)
+    // this.sxjdq.wbhuabu.pst(sq)
+    this.sxjdq.wbhuabu.canvas.sq=sq
+    this.sxjdq.wbhuabu.canvas.gs=gs
+    this.sxjdq.wbhuabu.canvas.ttvs=ttvs
     this.sxjdq.xywh=[sq[0],sq[1],sq[2],sq[3]]
     // this.wbhuabu.canvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
-    this.wbhuabu.ctx.clearRect(0,0,this.wbhuabu.canvas.width,this.wbhuabu.canvas.height)
-    if(!!k){this.sxjdq.bfwbrender(this.wbhuabu.canvas)}else{this.sxjdq.wbrender(this.wbhuabu.canvas)}
+    this.sxjdq.wbhuabu.ctx.clearRect(0,0,this.sxjdq.wbhuabu.canvas.width,this.sxjdq.wbhuabu.canvas.height)
+    if(!!k){this.sxjdq.bfwbrender(this.sxjdq.wbhuabu.canvas)}else{this.sxjdq.wbrender(this.sxjdq.wbhuabu.canvas)}
     
 }
 }//main//

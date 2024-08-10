@@ -1,12 +1,17 @@
 // import {bians} from './jmsj.js'    //jds应有独立来源。（比如数据库）
-// let canvas = document.createElement('canvas')
-// const ctx = canvas.getContext('2d')
 class Sxjdq{
     constructor(sr,language){
         //从关注列表生成生成时序节点群……可有别的方案，比如从存储数据中生成
         this.q=[]    //时序节点群本体
+        this.name='文本名，比如某某传'
+        this.vs=[1,1,1]     //显示模式，临时设为均衡模式。
+        this.cc=deepCopy(jsd.cc)    //三视区尺寸。临时设为本体三视区尺寸。。后续多线叙事时应根据设置修改。
+        this.gs=deepCopy(jsd.wbgs)    //同上
+        this.ttvs=jsd.buju.wbvs.wbqtt   //同上。
+        // console.log(jsd.buju.wbvs.wbqttdesc);
         // console.log(language,!language,!!language);
         if(!!language){
+            this.name=sr.tt
             this.q=hhsxjdq(sr,language)
             this.qi=6
             this.zdy=[0,0,0]
@@ -18,130 +23,227 @@ class Sxjdq{
             }
             if(!!sr.sx){this.sx=scsjx(this.q,sr.sx)}else{this.sx=scsjx(this.q)}
             this.sxupdate()
-            console.log(this.sx);
+            // console.log(this.sx);
             // this.jd012[0][this.qi]=2
         }//从头（关注列表）开始构建。
+        this.wbbindsbevent=this.wbsbevent.bind(this)
+        this.dthuabu=new Huabu('zhudiv',[0,0,0,0])
+        this.wbhuabu=new Huabu('zhudiv',[0,0,0,0])
+        this.sxhuabu=new Huabu('zhudiv',[0,0,0,0])
+        this.wbhuabu.canvas.addEventListener('wheel',this.wbbindsbevent)
+        this.wbhuabu.canvas.addEventListener('mousedown',this.wbbindsbevent)
+        this.wbhuabu.canvas.addEventListener('dblclick',this.wbbindsbevent)
     }//构建函数
-//根据当前节点qi更新时间线
-sxupdate(){
-    let i=this.qi
-    this.sx.dq=this.q[i].t[0][0]
-    this.sx.xd=this.sx.dq-this.sx.qz[0]
-    this.sx.sb=[this.sx.xd,this.sx.gt]
-    this.sx.jb=[i+1,this.q.length]
-}//sxupdate()//根据当前节点qi更新时间线
-//绘制时间线
-sxrender(canvas){
-    let ctx = canvas.getContext('2d')
-    // console.log(ctx);
-    //3,时间线
-    if(jsd.vs[2]>0){
-        //显示公元纪年
-        let tc=this.sx.xywh   //时间线区域的[x,y,w,h]
-        // console.log(jsd.bg[2]);
-        // console.log(tc);
-        tc=[0,0,tc[2],tc[3]]
-        ctx.drawImage(jsd.bg[2],0,0,tc[2],tc[3])
-        // let t=jsd.sjx.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
-        let sq=this.sx.sq    //视区时间段
-        let qz=this.sx.qz   //起止时间
-        let dc=this.sx.dc   //登场时间段
-        let zr=this.sx.zr   //自然生死时间段
-        let dq=this.sx.dq   //当前节点时间（段）
-        let dqsj=this.q[this.qi].t
-        // console.log(this.sx);
-        let py=Math.floor(tc[2]/(qz[1]-sq[0]))    //py像素每年
-        // console.log(`${tc[2]}像素，${qz[1]-sq[0]}年`);
-        // console.log('py:',py,'像素每年');
-        //绘制视区（公元）时间与当前时间
-        for (let i=0;i*py<tc[2];i++){
-            //设定年标线长，
-            let y=sq[0]+i
-            let l=Math.floor(0.12*tc[3])
-            if (y%5===0){l=l*2}
-            if (y%10===0){
-                l=l*2
-                ctx.font="12px Arial";
-                ctx.fillText(y,i*py,tc[1]+l);
+//////一，监听系列模块：
+////1,文本画布监听
+wbsbevent(e){
+    // console.log(e);
+    //滚轮移动文本
+    if(e.type==='wheel'){
+        console.log(e.deltaY);
+     this.wbyidong(e.deltaY)
+     this.wbrender()
+ }//滚轮移动文本
+     //单击：折页/书签功能：//节点点击跳转
+     if(e.type==='mousedown'){
+         // console.log(e);
+         let x=e.clientX - this.wbhuabu.canvas.getBoundingClientRect().left;
+         let y=e.clientY - this.wbhuabu.canvas.getBoundingClientRect().top;
+         // console.log(x,y);
+         let xywh=this.cc[1]
+         // console.log(xywh);
+         let txy=xywh[2]+xywh[3]
+         // let txy=xywh[0]+xywh[2]+xywh[1]+xywh[3]
+         let dxy0=0.07*txy
+         // console.log(dxy0);
+         let dxy=txy-x-y
+         if(dxy<dxy0){
+             if(typeof(Storage)!=="undefined"){
+                 console.log('暂且如此。后期不再存储为默认数据，而是保存为自命名书签。');
+                 let zmm=jsd.wb[jsd.language].slwb.tt
+                 localStorage.setItem(zmm,JSON.stringify(jsd));    //json转为str再保存
+             }
+         }else{
+             let vi=jsd.buju.wbvs.wbqtt[0]
+             let ysh=this.ysh[vi]
+             let dqh=this.h[vi]
+             if(this.zdy[vi]===1){
+                 ysh=this.zdyysh[vi]
+                 dqh=this.zdyh[vi]
+             }
+             let dj=hhdjjd(ysh,dqh,y)
+             // console.log(ysh,dqh,y);
+             // console.log(`第${dj}节点被点击`);
+             if(this.zdy[vi]>0){
+                 if(vi===0||vi===1){
+                     if(this.jd012[vi][dj]===vi){this.jd012[vi][dj]=2}else{this.jd012[vi][dj]=vi}
+                 }
+                 if(vi===2){
+                     this.jd012[vi][dj]=(this.jd012[vi][dj]+1)%3
+                 }
+             }
+             this.qi=dj
+             this.render()
+             // this.bfwbrender(this.wbhuabu.canvas)
+         }//单击选择节点，三相皆变
+     }//单击
+     //双击，当前显示模式在默认与自定义之间切换：
+     if(e.type==='dblclick'){
+         let vi=jsd.buju.wbvs.wbqtt[0]
+         if(this.zdy[vi]>0){this.zdy[vi]=0}else{this.zdy[vi]=1}
+         this.bfwbrender(this.wbhuabu.canvas)
+     }//双击
+ }//1,文本画布监听//
+////1.1,配件，文本移动
+wbyidong(y){
+    let k=20
+    let i=jsd.buju.wbvs.wbqtt[0]
+    // console.log(this.zdy[i]);
+    if(this.zdy[i]===0){
+        if (y>0){this.h[i]=this.h[i]+k}else{this.h[i]=this.h[i]-k}
+        if(this.h[i]<0){this.h[i]=0}
+        if(this.h[i]>this.hmax[i]){this.h[i]=this.hmax[i]}
+    }else{
+        if (y>0){this.zdyh[i]=this.zdyh[i]+k}else{this.zdyh[i]=this.zdyh[i]-k}
+        if(this.zdyh[i]<0){this.zdyh[i]=0}
+        if(this.zdyh[i]>this.zdyhmax[i]){this.zdyh[i]=this.zdyhmax[i]}
+    }
+}//1.1,配件，文本移动//
+//一，监听系列模块.////
+//////二，整体数据更新与显示模块
+update(){
+    //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。
+    // let cc=jsd.cc
+    // console.log('jsd.vs:',jsd.vs);
+    if(this.vs[0]>0){
+        this.dtupdate()
+    }//地图区
+    //文本区
+    if(this.vs[1]>0){
+        this.wbupdate()
+    }//文本区
+    // console.log(jsd.jds);
+    //默认，自动保存当前数据状态
+    if(typeof(Storage)!=="undefined"){
+        // console.log('默认，自动保存当前数据状态',tosave);
+        let tosave={}
+        tosave.q=this.q
+        tosave.vs=this.vs
+        tosave.qi=this.qi
+        tosave.zdy=this.zdy
+        tosave.jd012=this.jd012
+        tosave.sx=this.sx
+        // console.log(tosave);
+        localStorage.setItem(this.name,JSON.stringify(tosave));    //json转为str再保存
+    }
+    this.render()
+}//数据更新
+//给第k号社区更新xywh。k:0地图，1文本，2时线
+pst(k,sq){
+    this.cc[k]=sq
+    if(k===0){this.dthuabu.pst(sq)}
+    if(k===1){this.wbhuabu.pst(sq)}
+    if(k===2){this.sxhuabu.pst(sq)}
+}
+render(){
+    // console.log('this.sxjdq.render()');
+    this.bfwbrender()
+    this.sxrender()
+}//显示
+//配件
+ichange(k){
+    if(k===1){this.qi+=1};
+    if(k===0){this.qi-=1};
+    if(this.qi<0){this.qi=0}
+    if(this.qi>=this.q.length){this.qi=this.q.length-1}
+}
+ijump(k){this.qi=k;}
+//二，整体数据更新与显示模块////
+//////三，文本数据更新与显示模块
+wbupdate(){
+    //文本区
+    if(jsd.vs[1]>0){
+        // this.wbbtupdate()
+        this.wbjdmupdate()
+        this.wbjdupdate()
+    }//文本区
+}//wbupdate进一步模块化，分为：标题，节点名，节点内容三部分。按钮，第四部分，集成在标题中。标题暂由本体呈现。
+//配件，节点名模块
+wbjdmupdate(){
+    let sq=deepCopy(this.cc[1])    //视区[x,y,w,h]//文本显示区
+    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
+    let jdq=this.q    //时序节点群
+    let jj=gs.H3.jj    //文本间距[x,y,首行缩进]
+    ctx.font=gs.H3.font
+    // console.log(ctx.font);
+    let mw=ctx.measureText('测').width
+    //所有节点名的['字'，x,h]值，数据结构相当于jds中的节点内容（文本）的每个单字用['字'，x,h]取代。其中x是相对于文本视界左侧的dx，h是行数。
+    //其内容添加进jds中相应条目中。
+    for (let i=0;i<jdq.length;i++){
+        let jd=jdq[i]
+        let jdm=''
+        if(!!jd.m){jdm=jd.m}else{
+            for (let j=0;j<jd.r.length;j++){
+            jdm=jdm+`${jd.r[j]},`
             }
-            if(y===dq){
-                l=tc[3]
-                ctx.font="12px Arial";
-                ctx.fillText(y,i*py,tc[1]+tc[3]);
-            }
-            ctx.moveTo(i*py,tc[1]);
-            ctx.lineTo(i*py,tc[1]+l);
-            ctx.stroke();
-        //显示干支纪年//待补
-        }//绘制视区（公元）时间与当前时间
-        //（根据其时间段）绘制所有时间节点//根据不同事类采用不同颜色——配色方案。事类未定，方案暂缺。//配色方案中应包含时间点（约）等于，介于，处于的/等情况。
-        //默认只显示主要事类颜色，当前节点区显示细节颜色。细节颜色比例：照各小节字符占比算。另，典故额外加方框：其配色：dg.fk。
-        //时间重合时的区间分配方案：相续方案。重叠方案……延后处理，暂不考虑
-        let jdsq=[]
-        for (let i=0;i<this.q.length;i++){
-            let q=this.q[i]
-            let t=q.t
-            let qt=t[0][0]
-            let qx=(qt-sq[0])*py
-            let zt=(!!t[1])?t[1][0]:t[0][0]
-            let zx=(zt-sq[0])*py
-            let dx=0
-            //相续方案
-            if(!!t[0][1]){dx=dx+py*(t[0][1]-1)/12}else{
-                let qdx=this.hhtjds(qt,i)    //[本节点在第几个(0起步)，共几节点位于此时间]
-                if(qdx[1]>1){dx=py*qdx[0]/qdx[1]}
-            }
-            let zdx=this.hhtjds(zt,i)
-            let dzx=0
-            if(zdx[1]>0){dzx=py*((zdx[0]+1)/zdx[1])}
-            //相续方案
-            // if(!!t[0][2]){dx=dx+pd*(t[0][2]-1)}//时间细分至此，“时间分辨率”使用pd(像素每天较好)//后面也应有相应“时间分辨率”的比值
-            //后续暂略。
-            zx=zx+dzx
-            let x=qx+dx
-            let w=zx-x
-            let s=[x,0.5*tc[3],w,0.3*tc[3]]
-            jdsq[i]=s
-        }//先算出节点“宽度”
-        //再依配色画矩形与典框。
-        for (let i=0;i<this.q.length;i++){
-            let q=this.q[i]
-            let sq=jdsq[i]
-            // console.log(sq);
-            let sl=q.tag
-            let zl=hhzl(sl)   //返回主要事类,以及是否有典
-            let psfa=dings.sjx.ps
-            let ps=(!!psfa[zl[0]])?psfa[zl[0]].mr:psfa.mr
-            // console.log('配色：',ps);
-            ctx.fillStyle=ps
-            if(i===this.qi){sq[1]=0.5*sq[1]}    //当前节点上提
-            ctx.fillRect(sq[0],sq[1],sq[2],sq[3]);
-            if(zl[1]>0){
-                let ks=psfa.dg.fk
-                ctx.strokeStyle=ks;
-                ctx.strokeRect(sq[0],sq[1],sq[2]-1,sq[3]-1)
-            }//有典加框
+            let gy=(jd.t[0][0]>0)?'':'公元前'
+            let n=(!!jd.t[1])?`${Math.abs(jd.t[0][0])}—${Math.abs(jd.t[1][0])}年`:`${Math.abs(jd.t[0][0])}年`
+            jdm=jdm+gy+n
+            // console.log(jdm);
+            this.q[i].m=jdm    
+        }//保存节点名纯文本。//以此生成每个字符的mxh
+        let zfc=jdm
+        let sjk=sq[2]
+        let fnt=gs.H3.font
+        //输入：字符串zfc，视界宽度sjk，字体格式font.返回：[['字',x,y]……]
+        let mzxy=hhzxya(zfc,sjk,fnt,jj)
+        // console.log(ms);
+        this.q[i].zxym=mzxy
+        this.q[i].zxymh=Math.ceil(mzxy[mzxy.length-1][2]+jj[1]+0.2*mw)
+        // jsd.sxjdq[i].mh=mzxy[mzxy.length-1][2]+mw+jj[1]
+    }
+}//配件，节点名模块
+//配件，节点内容模块
+wbjdupdate(){
+    let sq=this.cc[1]    //视区[x,y,w,h]//文本显示区
+    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
+    let jdq=this.q    //时序节点群
+    let jj=gs.p1.jj    //文本间距[x,y,首行缩进]
+    ctx.font=gs.p1.font
+    let mw=ctx.measureText('测').width
+    for (let i=0;i<jdq.length;i++){
+        let jd=jdq[i]
+        let zz=jd.s
+        let zfc=''
+        for (let j=0;j<zz.length;j++){
+            zfc=zfc+zz[j]
         }
+        let sjk=sq[2]
+        let fnt=gs.p1.font
+        // console.log(zfc);
+        //输入：字符串zfc，视界宽度sjk，字体格式font.返回：[['字',x,y]……]
+        let zxy=hhzxya(zfc,sjk,fnt,jj)    
+        //分出子节点。
+        let zj=0
+        let zxys=[]
+        for (let j=0;j<zz.length;j++){
+            let zl=zz[j].length
+            let zs=zxy.slice(zj,zj+zl)
+            zj=zj+zl
+            zxys.push(zs)
+        }
+        // console.log(zxys);
+        this.q[i].zxyjz=zxys
+        let jdh=Math.ceil(zxy[zxy.length-1][2]+jj[1]+0.2*mw)
+        this.q[i].zxyjh=jdh
+        // this.h=0
     }
-}//绘制时间线
-//时间线模块：返回[本节点在第几个，共几节点位于此时间]
-hhtjds(bt,bi){
-    let re=[]
-    let xu=0
-    let z=1
-    for (let i=0;i<this.q.length;i++){
-        let q=this.q[i]
-        let t=q.t
-        let qt=t[0][0]
-        let zt=(!!t[1])?t[1][0]:t[0][0]
-        if(i<bi&&zt===bt){xu=xu+1;z=z+1}
-        if(i>bi&&qt===bt){z=z+1}
-    }
-    re=[xu,z]
-    return re
-}//[本节点在第几个，共几节点位于此时间]
-//文本绘制的数据预处理//带参数，表示使用jd012中的数据
-bfwbrender(wbcanvas){
+}//配件，节点内容模块
+//以上，数据更新////以下，显示//
+////文本绘制的数据预处理//带参数，表示使用jd012中的数据
+bfwbrender(){
+    let wbcanvas=this.wbhuabu.canvas
+    // console.log(wbcanvas);
     let jdq=this.q    //节点群
     //(当前高)dqh自适应模块：根据qi调整h
     let sji=this.qi
@@ -230,12 +332,13 @@ bfwbrender(wbcanvas){
         this.zdyhmax=dqhmax
     }//zdy模式数据//
     this.wbrender(wbcanvas)
-}
-//文本绘制
-wbrender(wbcanvas){
-    let sq=wbcanvas.sq
-    let gs=wbcanvas.gs
-    let ttvs=wbcanvas.ttvs
+}//文本绘制的数据预处理//带参数，表示使用jd012中的数据//
+////文本绘制
+wbrender(){
+    let wbcanvas=this.wbhuabu.canvas
+    let sq=this.cc[1]
+    let gs=this.gs
+    let ttvs=this.ttvs
     let wbctx=wbcanvas.getContext('2d')
     //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
     // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
@@ -398,7 +501,7 @@ wbrender(wbcanvas){
                     let jh=jdq[i].zxyjh
                     wbctx.font=gs.p1.font
                     wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
-                    console.log(gs.p1.bjs[3]);
+                    // console.log(gs.p1.bjs[3]);
                     if(i===this.qi){wbctx.strokeStyle=gs.p1.bjs[3];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
                     for (let k=0;k<zsz.length;k++){
                         let zs=zsz[k]
@@ -419,88 +522,141 @@ wbrender(wbcanvas){
     // console.log(this.hmax);
     if(ttvs[1]===1||ttvs[1]===2){
         wbctx.strokeStyle="#000000"
-        let xywh=this.xywh
+        let xywh=this.cc[0]
         let dxy0=0.07*(xywh[2]+xywh[3])
         wbctx.moveTo(xywh[2],xywh[3]-dxy0);
         wbctx.lineTo(xywh[2]-dxy0,xywh[3]);
         wbctx.stroke();
     }//书签折纸线
-}//文本绘制
-//节点名模块
-wbjdmupdate(sq,gs){
-    let jdq=this.q    //时序节点群
-    let jj=gs.H3.jj    //文本间距[x,y,首行缩进]
-    ctx.font=gs.H3.font
-    // console.log(ctx.font);
-    let mw=ctx.measureText('测').width
-    //所有节点名的['字'，x,h]值，数据结构相当于jds中的节点内容（文本）的每个单字用['字'，x,h]取代。其中x是相对于文本视界左侧的dx，h是行数。
-    //其内容添加进jds中相应条目中。
-    for (let i=0;i<jdq.length;i++){
-        let jd=jdq[i]
-        let jdm=''
-        if(!!jd.m){jdm=jd.m}else{
-            for (let j=0;j<jd.r.length;j++){
-            jdm=jdm+`${jd.r[j]},`
+}//文本绘制//
+//三，文本数据更新与显示模块////
+//////四，时线数据更新与显示模块
+sxupdate(){
+    let i=this.qi
+    this.sx.dq=this.q[i].t[0][0]
+    this.sx.xd=this.sx.dq-this.sx.qz[0]
+    this.sx.sb=[this.sx.xd,this.sx.gt]
+    this.sx.jb=[i+1,this.q.length]
+}//sxupdate()//根据当前节点qi更新时间线//
+////绘制时间线
+sxrender(){
+    let canvas=this.sxhuabu.canvas
+    let ctx = canvas.getContext('2d')
+    ctx.fillStyle='#000'
+    ctx.strokeStyle="#000000"
+    // console.log(ctx);
+    //3,时间线
+    if(jsd.vs[2]>0){
+        //显示公元纪年
+        let tc=this.cc[2]   //时间线区域的[x,y,w,h]
+        // console.log(jsd.bg[2]);
+        // console.log(tc);
+        tc=[0,0,tc[2],tc[3]]
+        ctx.drawImage(jsd.bg[2],0,0,tc[2],tc[3])
+        // let t=jsd.sjx.tim    //[起始（年），时长（年），当前时间（年）]//时长：年月日世纪元会……缩放功能
+        let sq=this.sx.sq    //视区时间段
+        let qz=this.sx.qz   //起止时间
+        let dc=this.sx.dc   //登场时间段
+        let zr=this.sx.zr   //自然生死时间段
+        let dq=this.sx.dq   //当前节点时间（段）
+        let dqsj=this.q[this.qi].t
+        // console.log(this.sx);
+        let py=Math.floor(tc[2]/(qz[1]-sq[0]))    //py像素每年
+        // console.log(`${tc[2]}像素，${qz[1]-sq[0]}年`);
+        // console.log('py:',py,'像素每年');
+        //绘制视区（公元）时间与当前时间
+        for (let i=0;i*py<tc[2];i++){
+            //设定年标线长，
+            let y=sq[0]+i
+            let l=Math.floor(0.12*tc[3])
+            if (y%5===0){l=l*2}
+            if (y%10===0){
+                l=l*2
+                ctx.font="12px Arial";
+                ctx.fillText(y,i*py,tc[1]+l);
             }
-            let gy=(jd.t[0][0]>0)?'':'公元前'
-            let n=(!!jd.t[1])?`${Math.abs(jd.t[0][0])}—${Math.abs(jd.t[1][0])}年`:`${Math.abs(jd.t[0][0])}年`
-            jdm=jdm+gy+n
-            // console.log(jdm);
-            this.q[i].m=jdm    
-        }//保存节点名纯文本。//以此生成每个字符的mxh
-        let zfc=jdm
-        let sjk=sq[2]
-        let fnt=gs.H3.font
-        //输入：字符串zfc，视界宽度sjk，字体格式font.返回：[['字',x,y]……]
-        let mzxy=hhzxya(zfc,sjk,fnt,jj)
-        // console.log(ms);
-        this.q[i].zxym=mzxy
-        this.q[i].zxymh=Math.ceil(mzxy[mzxy.length-1][2]+jj[1]+0.2*mw)
-        // jsd.sxjdq[i].mh=mzxy[mzxy.length-1][2]+mw+jj[1]
-    }
-}//节点名模块
-//节点内容模块
-wbjdupdate(sq,gs){
-    let jdq=this.q    //时序节点群
-    let jj=gs.p1.jj    //文本间距[x,y,首行缩进]
-    ctx.font=gs.p1.font
-    let mw=ctx.measureText('测').width
-    for (let i=0;i<jdq.length;i++){
-        let jd=jdq[i]
-        let zz=jd.s
-        let zfc=''
-        for (let j=0;j<zz.length;j++){
-            zfc=zfc+zz[j]
+            if(y===dq){
+                l=tc[3]
+                ctx.font="12px Arial";
+                ctx.fillText(y,i*py,tc[1]+tc[3]);
+            }
+            ctx.moveTo(i*py,tc[1]);
+            ctx.lineTo(i*py,tc[1]+l);
+            ctx.stroke();
+        //显示干支纪年//待补
+        }//绘制视区（公元）时间与当前时间
+        //（根据其时间段）绘制所有时间节点//根据不同事类采用不同颜色——配色方案。事类未定，方案暂缺。//配色方案中应包含时间点（约）等于，介于，处于的/等情况。
+        //默认只显示主要事类颜色，当前节点区显示细节颜色。细节颜色比例：照各小节字符占比算。另，典故额外加方框：其配色：dg.fk。
+        //时间重合时的区间分配方案：相续方案。重叠方案……延后处理，暂不考虑
+        let jdsq=[]
+        for (let i=0;i<this.q.length;i++){
+            let q=this.q[i]
+            let t=q.t
+            let qt=t[0][0]
+            let qx=(qt-sq[0])*py
+            let zt=(!!t[1])?t[1][0]:t[0][0]
+            let zx=(zt-sq[0])*py
+            let dx=0
+            //相续方案
+            if(!!t[0][1]){dx=dx+py*(t[0][1]-1)/12}else{
+                let qdx=this.hhtjds(qt,i)    //[本节点在第几个(0起步)，共几节点位于此时间]
+                if(qdx[1]>1){dx=py*qdx[0]/qdx[1]}
+            }
+            let zdx=this.hhtjds(zt,i)
+            let dzx=0
+            if(zdx[1]>0){dzx=py*((zdx[0]+1)/zdx[1])}
+            //相续方案
+            // if(!!t[0][2]){dx=dx+pd*(t[0][2]-1)}//时间细分至此，“时间分辨率”使用pd(像素每天较好)//后面也应有相应“时间分辨率”的比值
+            //后续暂略。
+            zx=zx+dzx
+            let x=qx+dx
+            let w=zx-x
+            let s=[x,0.5*tc[3],w,0.3*tc[3]]
+            jdsq[i]=s
+        }//先算出节点“宽度”
+        //再依配色画矩形与典框。
+        for (let i=0;i<this.q.length;i++){
+            let q=this.q[i]
+            let sq=jdsq[i]
+            // console.log(sq);
+            let sl=q.tag
+            let zl=hhzl(sl)   //返回主要事类,以及是否有典
+            let psfa=dings.sjx.ps
+            let ps=(!!psfa[zl[0]])?psfa[zl[0]].mr:psfa.mr
+            // console.log('配色：',ps);
+            ctx.fillStyle=ps
+            if(i===this.qi){sq[1]=0.5*sq[1]}    //当前节点上提
+            ctx.fillRect(sq[0],sq[1],sq[2],sq[3]);
+            if(zl[1]>0){
+                let ks=psfa.dg.fk
+                ctx.strokeStyle=ks;
+                ctx.strokeRect(sq[0],sq[1],sq[2]-1,sq[3]-1)
+            }//有典加框
         }
-        let sjk=sq[2]
-        let fnt=gs.p1.font
-        // console.log(zfc);
-        //输入：字符串zfc，视界宽度sjk，字体格式font.返回：[['字',x,y]……]
-        let zxy=hhzxya(zfc,sjk,fnt,jj)    
-        //分出子节点。
-        let zj=0
-        let zxys=[]
-        for (let j=0;j<zz.length;j++){
-            let zl=zz[j].length
-            let zs=zxy.slice(zj,zj+zl)
-            zj=zj+zl
-            zxys.push(zs)
-        }
-        // console.log(zxys);
-        this.q[i].zxyjz=zxys
-        let jdh=Math.ceil(zxy[zxy.length-1][2]+jj[1]+0.2*mw)
-        this.q[i].zxyjh=jdh
-        // this.h=0
     }
-}//节点内容模块
-ichange(k){
-    if(k===1){this.qi+=1};
-    if(k===0){this.qi-=1};
-    if(this.qi<0){this.qi=0}
-    if(this.qi>=this.q.length){this.qi=this.q.length-1}
-}
-ijump(k){this.qi=k;}
-}//本体
+}//绘制时间线//
+////配件，时间线模块：返回[本节点在第几个，共几节点位于此时间]
+hhtjds(bt,bi){
+    let re=[]
+    let xu=0
+    let z=1
+    for (let i=0;i<this.q.length;i++){
+        let q=this.q[i]
+        let t=q.t
+        let qt=t[0][0]
+        let zt=(!!t[1])?t[1][0]:t[0][0]
+        if(i<bi&&zt===bt){xu=xu+1;z=z+1}
+        if(i>bi&&qt===bt){z=z+1}
+    }
+    re=[xu,z]
+    return re
+}//配件，[本节点在第几个，共几节点位于此时间]//
+//四，时线数据更新与显示模块////
+//////五，地图数据更新与显示模块
+dtupdate(){}
+//五，地图数据更新与显示模块////
+//根据当前节点qi更新时间线
+}//本体////////////////////////////////
 //比较两个时间ti,tj的先后,如果ti>tj,返回1
 function tidayutj(ti,tj){
     // let re=0
