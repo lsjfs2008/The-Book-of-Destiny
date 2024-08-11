@@ -85,26 +85,46 @@ function compareArrays(arr1, arr2) {
   return JSON.stringify(arr1) === JSON.stringify(arr2);
 }
 //测试类，做一些测试
-function cesi(){
-  let self=this
-  this.sj="测试数据"
-  this.f=function(){
-    console.log("测试：",self.sj);
+class cesi {
+  constructor() {
+    this.sj = "cesi数据"
+    this.k=6
+    this.bindcs = new bindcesi(3,this)
+    this.start()
   }
-  this.bindcs=new bindcesi(self)
+  start() {
+    console.log("cesi开始")
+    this.f(5)
+  };
+  f(x) {
+    console.log("cesi：",`第${x}次测试`,  'this.sj:',this.sj,"this.k:",this.k)
+  }
 }
-function bindcesi(that){
-  let self=this
-  this.sj="绑定/引用测试数据"
-  this.f=function(){
-    console.log("测试：",self.sj);
+class pare{
+  constructor(k) {
+    this.k=k*9
   }
-  this.start=function(){
-    console.log("start");
-    this.f()
-    that.f()
+}
+class bindcesi extends pare{
+  constructor(k,that) {
+    super(k)
+    this.sj = "绑定测试数据0"
+    this.f=this.bf.bind(that)
+    this.f(1)
+    // Object.assign(this, that)
+    this.f(2)
+    this.sj = "新绑定数据"
+    this.f(3)
+    this.start()
   }
-this.start()
+  bf(x) {
+    this.k=this.k+10
+    console.log(`第${x}次测试`, 'this.sj:',this.sj,"this.k:",this.k)
+  };
+  start() {
+    console.log("bindstart")
+    this.f(4);
+  };
 }
 new cesi()
 //导出

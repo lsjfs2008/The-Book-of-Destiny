@@ -26,11 +26,25 @@ class Sxjdq{
             // console.log(this.sx);
             // this.jd012[0][this.qi]=2
         }//从头（关注列表）开始构建。
+        // this.wbbindsbevent=this.wbsbevent.bind(this)
+        this.css="时序节点群数据01"
         this.dthuabu=new dtHuabu('zhudiv',[0,0,0,0],this)
         this.wbhuabu=new wbHuabu('zhudiv',[0,0,0,0],this)
         this.sxhuabu=new sxHuabu('zhudiv',[0,0,0,0],this)
+        // this.wbhuabu.canvas.addEventListener('wheel',this.wbbindsbevent)
+        // this.wbhuabu.canvas.addEventListener('mousedown',this.wbbindsbevent)
+        // this.wbhuabu.canvas.addEventListener('dblclick',this.wbbindsbevent)
+        this.css="时序节点群数据02"
     }//构建函数
 ////一，监听系列模块：集成到了画布中
+xcs(k){
+    this.dthuabu.xcs(k*9)
+}
+cs(k){
+    console.log("测试this的跨对象引用，这里是时序节点群类：",`第${k}次测试`,this.css);
+    this.css="时序节点群数据1"
+    console.log("测试this的跨对象引用，这里是时序节点群类：",`第${k}次测试`,this.css);
+}
 ////二，整体数据更新与显示模块
 update(){
     //1,根据屏幕（三视区）尺寸，生成地图图片相关数据。

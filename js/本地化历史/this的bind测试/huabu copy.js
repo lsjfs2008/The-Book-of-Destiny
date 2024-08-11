@@ -21,7 +21,6 @@ class wbHuabu extends Huabu{
         this.j=that
         // console.log(that);
         this.wbbindsbevent=this.wbsbevent.bind(this)
-        // this.wbbindsbevent=this.wbsbevent
         this.canvas.addEventListener('wheel',this.wbbindsbevent)
         this.canvas.addEventListener('mousedown',this.wbbindsbevent)
         this.canvas.addEventListener('dblclick',this.wbbindsbevent)
@@ -31,8 +30,7 @@ wbsbevent(e){
     // console.log(e);
     //滚轮移动文本
     if(e.type==='wheel'){
-        // console.log(e.deltaY);
-        // console.log(this.j);
+        console.log(e.deltaY);
      this.wbyidong(e.deltaY)
      this.j.wbrender()
  }//滚轮移动文本
@@ -126,8 +124,6 @@ sbevent(e){
             if(this.j.sx.lx==='人物线'){
                 //两种移动模式：默认跳转到下一个节点。自定义留待多线对比时再做。
                 if(e.deltaY>0){this.j.qi+=1}else{this.j.qi-=1}
-                if(this.j.qi<0){this.j.qi=0}
-                if(this.j.qi>this.j.q.length-1){this.j.qi=this.j.q.length-1}
             }
         this.j.render()
     }//滚轮移动文本
@@ -159,14 +155,21 @@ hhsxdj(x){
 }//三，地图画布类/对象////
 //////三，时线画布类/对象
 class dtHuabu extends Huabu{
-    constructor(prid,sq,that){
+    constructor(prid,sq,that0){
+        var that=that0
         super(prid,sq)
-        this.j=that     //留待缩减传参量…………
-        // this.bindsbevent=this.sbevent.bind(that)     //这种方法固然方便，但也妨碍了使用本体的this数据。。虽然这里并没有。
+        // this.j=that     //留待缩减传参量…………
+        this.css="地图画布数据01"
+        this.cs(1)
+        // this.bindsbevent=this.sbevent.bind(that)
         this.bindsbevent=this.sbevent.bind(this)
-        // this.canvas.addEventListener('wheel',this.bindsbevent)
-        // this.canvas.addEventListener('mousedown',this.bindsbevent)
-        // this.canvas.addEventListener('dblclick',this.bindsbevent)
+        this.canvas.addEventListener('wheel',this.bindsbevent)
+        this.canvas.addEventListener('mousedown',this.bindsbevent)
+        this.canvas.addEventListener('dblclick',this.bindsbevent)
+        this.cs(2)
+        this.css="地图画布数据02"
+        console.log("测试this的跨对象引用，这里是地图画布类：",this.css);
+        this.cs(3)
     }
 ////1,时线画布监听
 sbevent(e){
@@ -180,6 +183,8 @@ sbevent(e){
         //         if(e.deltaY>0){this.j.qi+=1}else{this.j.qi-=1}
         //     }
         // this.j.render()
+        that.cs(4)
+        this.cs(4)
     }//滚轮移动文本
         //节点点击跳转
         if(e.type==='mousedown'){
@@ -205,5 +210,10 @@ hhsxdj(x){
     for (let i=1;i<jdsq.length;i++){
         if(x<jdsq[i][0]-sqx){re=i-1;return re}
     }
+}
+cs(k){
+    console.log("测试this的跨对象引用，这里是地图画布类：",`第${k}次测试`,this.css);
+    this.css="地图画布数据1"
+    console.log("测试this的跨对象引用，这里是地图画布类：",`第${k}次测试`,this.css);
 }
 }//三，地图画布类/对象////

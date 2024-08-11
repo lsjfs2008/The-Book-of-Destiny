@@ -34,6 +34,7 @@ class Main{
 
     }//构建函数//
 start(){
+    // this.ces=new cesi()    //临时使用，方便做一些测试。
     lssize=resize()
     canvas.width = lssize[0]
     canvas.height = lssize[1]
@@ -104,6 +105,7 @@ start(){
     //  //
     }//start()//
 sbevent(e){
+    // this.ces.bindcs.start()    //临时使用，方便做一些测试。
     let x=e.clientX - canvas.getBoundingClientRect().left;
     let y=e.clientY - canvas.getBoundingClientRect().top;
     let cc=jsd.cc
@@ -221,6 +223,7 @@ wbyidong(y){
 
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
+    // let cesi=new cesi()    //临时使用，方便做一些测试。
     //地图分两部分：地图本体，地图上的时空节点。地图本体暂时由主体呈现。节点转交对象生成。
     this.dtupdate()
     //文本标题与按钮，也暂由本体呈现
@@ -315,6 +318,12 @@ render(){
     //一，加载图文线：
     //1，图：
     if(jsd.vs[0]>0){
+        let sq=cc[0]
+        // console.log(sq);
+        // this.sxjdq.dt.xywh=sq   //时间线区域的[x,y,w,h]
+        sq[2]=Math.ceil(sq[2])
+        sq[3]=Math.ceil(sq[3])
+        this.sxjdq.pst(0,sq)
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=jsd.c
         // ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
