@@ -326,12 +326,24 @@ function hhjwjd(tgb,dqmap){
 }
 //地图图片类化
 class Mapimg{
-    constructor(m){
+    constructor(map){
+        this.map=map
     this.img = new Image()
-    this.img.src = m.src
-    this.width = m.siz[0]
-    this.height = m.siz[0]
+    this.img.src = map.img.src
+    this.width = map.img.siz[0]
+    this.height = map.img.siz[1]
     this.visible = true
+    // this.tgb=m.tgb
+    }
+    //更新：
+    update(map){
+        this.map=map
+        this.img.src = map.img.src
+        this.width = map.img.siz[0]
+        this.height = map.img.siz[1]
+        // this.tgb=m.tgb
+        console.log(map);
+        console.log(this);
     }
     //显示
     drawToCanvas(ctx,c) {

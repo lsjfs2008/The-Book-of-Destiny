@@ -2,6 +2,8 @@
 class Sxjdq{
     constructor(sr,language){
         //从关注列表生成生成时序节点群……可有别的方案，比如从存储数据中生成
+        this.sr=sr
+        this.language=language
         this.q=[]    //时序节点群本体
         this.name='文本名，比如某某传'
         this.vs=[1,1,1]     //显示模式，临时设为均衡模式。
@@ -25,10 +27,18 @@ class Sxjdq{
             this.sxupdate()
             // console.log(this.sx);
             // this.jd012[0][this.qi]=2
+            //初始择取地图：选出指定地图，或匹配备选地图们。并给所有地图配上tgb。
+            this.csxzdt()
         }//从头（关注列表）开始构建。
         this.dthuabu=new dtHuabu('zhudiv',[0,0,0,0],this)
         this.wbhuabu=new wbHuabu('zhudiv',[0,0,0,0],this)
         this.sxhuabu=new sxHuabu('zhudiv',[0,0,0,0],this)
+        //如果当前qi指定了地图，择取指定地图，不然，从备选maps中生成/择取当前qi地图，不然，从地图库中匹配当前地图
+        this.dt=new Mapimg(dings.csdt)
+        this.zqdt()
+        this.dtupdate()
+        //初始化一个地图img
+        // this.mapslx=0    //地图指定类型：0未指定。1节点指定。2文本指定系列，3文本指定基本地图，4，文本指定地域
     }//构建函数
 ////一，监听系列模块：集成到了画布中
 ////二，整体数据更新与显示模块
@@ -59,7 +69,7 @@ update(){
     }
     this.render()
 }//数据更新
-//给第k号社区更新xywh。k:0地图，1文本，2时线
+//给第k号视区更新xywh。k:0地图，1文本，2时线
 pst(k,sq){
     this.cc[k]=sq
     if(k===0){this.dthuabu.pst(sq)}
@@ -70,6 +80,7 @@ render(){
     // console.log('this.sxjdq.render()');
     this.bfwbrender()
     this.sxrender()
+    this.dtrender()
 }//显示…………显示模式貌似也可集成到各自画布中…………延后
 //配件
 ichange(k){
@@ -80,6 +91,170 @@ ichange(k){
 }
 ijump(k){this.qi=k;}
 //二，整体数据更新与显示模块//
+////五，地图数据更新与显示模块
+//初始生成备选maps
+csxzdt(){
+    //选择地图//根据节点选择地图，或根据时间选择地图。人物传(人物线)用节点，编年史（世界线）用时间。
+    let q=this.q
+    let i=this.qi
+    let jd=q[i]
+    let t=this.t
+    let dy=this.language    //默认地域为所用语言（区域）
+    if(!!this.sr.dy){dy=this.sr.dy}    //如果源文本指定了，用它的
+    let zddt=0
+    // let maps=this.maps   //候选地图群
+    let map={}
+    let maps=[]
+    let bxmap=mapku[dy]  //1,将指定地域地图们作为备选
+    if(zddt===0){
+        if(!!this.sr.maps){
+            console.log("2.2,尝试使用源文本指定地图s");
+            let m=this.sr.maps
+            for (let i=0;i<m.length;i++){
+                if(!!bxmap[m[i]]){
+                    map=bxmap[m[i]];
+                    map.tgb=hhimgmapb(map)
+                    maps.push(map)
+                    // console.log(maps);
+                    zddt=1}
+            }
+            
+        }
+    }
+    if(zddt===0){
+        console.log("如果没找到指定的地图（系列），则从地图库中的地图中,取出合乎sx起止时间的地图存入maps中作为备选,暂略");
+        console.log("从maps中根据当前时间或节点，选出合适的map,暂略");
+    }
+    this.maps=maps
+}
+//择取地图：如果当前qi指定了地图，择取指定地图，不然，从备选maps中生成/择取当前qi地图，不然，从地图库中匹配当前地图
+zqdt(){
+    let jd=this.q[this.qi]
+    let dy=this.language    //默认地域为所用语言（区域）
+    let t=jd.t
+    if(!!this.sr.dy){dy=this.sr.dy}    //如果源文本指定了，用它的
+    //1,如果当前节点有指定地图，优先使用。
+    let zddt=this.jdzddt(jd,dy)
+    //2,不然，从备选maps中生成/择取当前qi地图，
+    if(zddt===0){
+        for (let i=0;i<this.maps.length;i++){
+            let m=this.maps[i]
+            let year=m.year
+            if(t[0][0]>year[0]&&t[0][0]<year[1]){
+            if(!!m.tz){
+                    let mi=this.hhmi(m.tz,t[0])    //目前只能处理系列地图时间递增的情况。其它无序情况暂略。
+                    if(mi>=0){
+                        let src=m.img.src[0]+m.tz[mi].src+m.img.src[1]
+                        m.img.src=src
+                    }
+                }
+                this.map=m
+                zddt=1
+                //若指定了多个地图，其中有多个地图符合要求，如何选取最合适的？暂略。
+            }
+        }
+    }
+    //3,不然，从地图库中匹配当前地图
+    if(zddt===0){}
+    //4,不然，使用图库中的默认地图
+    if(zddt===0){
+        let m=mapku[dy].mr
+        m.tgb=hhimgmapb(m)
+        this.map=m
+        // this.dt.update(m)
+    }
+    console.log(this.map);
+    this.dt.update(this.map)
+}
+//更新数据
+dtupdate(){
+    let sc=this.cc[0]
+        //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
+        let c=[0,0,this.dt.width,this.dt.height,sc[0],sc[1],sc[2],sc[3]]
+        this.c=this.dt.zoom(c,0.5*c[6],0.5*c[7],3)
+        // console.log(c);
+        jsd.mapp=dings.cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
+        //生成地图缩放工具的位置
+        let btn=bians.btns.map
+        let p=btn.p
+        let s=p.s
+        s[0]=sc[2]*p.l[0]/p.l[1]
+        s[2]=sc[2]*p.w[0]/p.w[1]
+        s[3]=sc[3]*p.h[0]/p.h[1]
+        if(s[3]<4*s[2]){s[3]=4*s[2]}else{s[2]=0.25*s[3]}
+        if(s[3]<p.hm[0]){s[3]=p.hm[0]}
+        if(s[3]>p.hm[1]){s[3]=p.hm[1]}
+        s[2]=0.25*s[3]
+        s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
+        p.s=s
+    //调用render
+}
+//绘制
+dtrender(){
+    let canvas=this.dthuabu.canvas
+    let ctx = canvas.getContext('2d')
+    if(jsd.vs[0]>0){
+        //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
+        let c=this.c
+        // ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
+        this.dt.drawToCanvas(ctx,c)
+        let lsmapp=jsd.mapp
+        //1.2，描绘预设地点
+        for (let i in lsmapp){
+        let p=lsmapp[i];    //测试用地理点，经纬数据。
+        //1.2.2,输入所需定位的点p(的度数制经纬数据),图高比btg，以及当前所用地图数据，返回对应点的图xy.
+        // let mp=hhdtd(p,jsd.tgb,jsd.map)
+        let mp=hhdtd(p,this.map.tgb,this.map)
+        // console.log(c);
+        // let c=cc[0]
+        // console.log(c);
+        // console.log(i);
+        // console.log(mp)
+        //1.2.3,根据图xy绘图
+        let xmp=[(mp[0]-c[0])*c[6]/c[2],(mp[1]-c[1])*c[7]/c[3]]
+        ctx.beginPath();
+        ctx.arc(xmp[0],xmp[1],5,0,2*Math.PI);
+        ctx.stroke();
+        ctx.font="12px Arial";
+        ctx.fillText(p[0],xmp[0],xmp[1]);
+        }
+        //1.3,加载悬浮按钮……地图缩放工具
+        let mbp=bians.btns.map.p.s
+        ctx.drawImage(jsd.mapbtn,mbp[0],mbp[1],mbp[2],mbp[3])
+        //  //
+    }
+}
+//配件，节点指定地图：
+jdzddt(jd,dy){
+    let re=0
+    if(!!jd.map){
+        if(!!mapku[dy][jd.map]){
+            let jdmap=mapku[dy][jd.map]
+            jdmap.tgb=hhimgmapb(jdmap)
+            console.log(jdmap);
+            this.map=jdmap
+            // this.dt.update(jdmap)
+            this.dtzdlx=1
+            re=1
+        }
+    }
+    return re
+}
+//配件，返回图组中合适的图的序号
+hhmi(z,t){
+    if(t[0]>z[0].t[0]){
+    for (let i=1;i<z.length;i++){
+        let zt=z[i].t
+        if(zt[0]>t[0]){return i-1}
+        if(zt[0]===t[0]){
+            if(!!zt[1]&&!t[1]){return i-1}
+            if(!!zt[1]&&!!t[1]){if(zt[1]>t[1]){return i-1}}
+            return i}
+    }
+    }
+    return -1
+}
+//五，地图数据更新与显示模块//
 ////三，文本数据更新与显示模块
 wbupdate(){
     //文本区
@@ -576,9 +751,7 @@ hhtjds(bt,bi){
     return re
 }//配件，[本节点在第几个，共几节点位于此时间]
 //四，时线数据更新与显示模块//
-////五，地图数据更新与显示模块
-dtupdate(){}
-//五，地图数据更新与显示模块//
+
 //根据当前节点qi更新时间线
 }//本体////////////////////////////////
 //比较两个时间ti,tj的先后,如果ti>tj,返回1

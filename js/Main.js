@@ -70,14 +70,14 @@ start(){
         }//从关注列表与完成数据生成一个时序节点群对象。
         if(1){
             //2,根据布局数据，生成图文线三区域背景图片对象。
-            let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
-            jsd.map=mapcsxl[1]    //设定当前地图
-            jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
+            // let mapcsxl=[map.sg[1],map.sg[1],map.cs]    //临时，测试地图组。
+            // jsd.map=mapcsxl[1]    //设定当前地图
+            // jsd.tgb=hhimgmapb(jsd.map)     //输入当前所用地图信息（包括定位点等。）返回图片xy与高斯xy/地图xy的比。btg:txy/gxy:[tx,gx,ty,gy]。
             // let bg0 = sctp(jsd.map.img) //生成背景图片obj//地图
-            let bg0=new Mapimg(jsd.map.img)
+            // let bg0=new Mapimg(jsd.map.img)
             let bg1 = sctp(dings.bgimg[0]) //背景图片//文本
             let bg2 = sctp(dings.bgimg[1]) //背景图片//时间线
-            jsd.bg=[bg0,bg1,bg2]    //图文线三区域背景图片。
+            jsd.bg=[bg1,bg1,bg2]    //图文线三区域背景图片。
             //文本（收放）小三角：
             let xsj0=sctp(dings.wbxsj[0])
             let xsj1=sctp(dings.wbxsj[1])
@@ -234,25 +234,7 @@ update(){
 }//update()//
 //update模块化，分为地图dtupdate，文本wbupdate，时线sxupdate，三份。（加节点四份？）
 dtupdate(){
-    let sc=jsd.cc[0]
-        //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
-        let c=[0,0,jsd.bg[0].width,jsd.bg[0].height,sc[0],sc[1],sc[2],sc[3]]
-        jsd.c=jsd.bg[0].zoom(c,0.5*c[6],0.5*c[7],3)
-        // console.log(c);
-        jsd.mapp=dings.cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
-        //生成地图缩放工具的位置
-        let btn=bians.btns.map
-        let p=btn.p
-        let s=p.s
-        s[0]=sc[2]*p.l[0]/p.l[1]
-        s[2]=sc[2]*p.w[0]/p.w[1]
-        s[3]=sc[3]*p.h[0]/p.h[1]
-        if(s[3]<4*s[2]){s[3]=4*s[2]}else{s[2]=0.25*s[3]}
-        if(s[3]<p.hm[0]){s[3]=p.hm[0]}
-        if(s[3]>p.hm[1]){s[3]=p.hm[1]}
-        s[2]=0.25*s[3]
-        s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
-        p.s=s
+    
 }
 wbupdate(){
     //文本区
@@ -324,33 +306,6 @@ render(){
         sq[2]=Math.ceil(sq[2])
         sq[3]=Math.ceil(sq[3])
         this.sxjdq.pst(0,sq)
-        //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
-        let c=jsd.c
-        // ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
-        jsd.bg[0].drawToCanvas(ctx,c)
-        let lsmapp=jsd.mapp
-        //1.2，描绘预设地点
-        for (let i in lsmapp){
-        let p=lsmapp[i];    //测试用地理点，经纬数据。
-        //1.2.2,输入所需定位的点p(的度数制经纬数据),图高比btg，以及当前所用地图数据，返回对应点的图xy.
-        let mp=hhdtd(p,jsd.tgb,jsd.map)
-        // console.log(c);
-        // let c=cc[0]
-        // console.log(c);
-        // console.log(i);
-        // console.log(mp)
-        //1.2.3,根据图xy绘图
-        let xmp=[(mp[0]-c[0])*c[6]/c[2],(mp[1]-c[1])*c[7]/c[3]]
-        ctx.beginPath();
-        ctx.arc(xmp[0],xmp[1],5,0,2*Math.PI);
-        ctx.stroke();
-        ctx.font="12px Arial";
-        ctx.fillText(p[0],xmp[0],xmp[1]);
-        }
-        //1.3,加载悬浮按钮……地图缩放工具
-        let mbp=bians.btns.map.p.s
-        ctx.drawImage(jsd.mapbtn,mbp[0],mbp[1],mbp[2],mbp[3])
-        //  //
     }
     //2，文本
     if(jsd.vs[1]>0){
