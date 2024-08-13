@@ -29,6 +29,8 @@ class Sxjdq{
             // this.jd012[0][this.qi]=2
             //初始择取地图：选出指定地图，或匹配备选地图们。并给所有地图配上tgb。
             this.csxzdt()
+            //初始化节点地点的pxy或pjw
+            this.csjdp()
         }//从头（关注列表）开始构建。
         this.dthuabu=new dtHuabu('zhudiv',[0,0,0,0],this)
         this.wbhuabu=new wbHuabu('zhudiv',[0,0,0,0],this)
@@ -39,6 +41,7 @@ class Sxjdq{
         this.dtupdate()
         //初始化一个地图img
         // this.mapslx=0    //地图指定类型：0未指定。1节点指定。2文本指定系列，3文本指定基本地图，4，文本指定地域
+        console.log(this);
     }//构建函数
 ////一，监听系列模块：集成到了画布中
 ////二，整体数据更新与显示模块
@@ -80,7 +83,9 @@ render(){
     // console.log('this.sxjdq.render()');
     this.bfwbrender()
     this.sxrender()
-    this.dtrender()
+    this.zqdt()
+    this.dt.img.onload=()=>{this.dtrender()}
+    
 }//显示…………显示模式貌似也可集成到各自画布中…………延后
 //配件
 ichange(k){
@@ -127,6 +132,86 @@ csxzdt(){
     }
     this.maps=maps
 }
+//初始化节点地点的pxy或pjw,pp[x/j,y/w,0xy值，1jw值]
+csjdp(){
+    //获取所有节点中的p在地图上的pxy值或pjw值，并并入其中。
+    let q=this.q
+    let qi=this.qi
+    for (let i=0;i<q.length;i++){
+        let jd=q[i]
+        let jdp=jd.p
+        let t=jd.t[0]
+        //1,初始化pp
+        if(!jd.pp){jd.pp=[];
+            for (let j=0;j<jdp.length;j++){let p=[];jd.pp.push(p)}}
+        //2，使用地图附带定位点。数据结构待归整。暂略。
+        for (let j=0;j<jdp.length;j++){
+            if(!jd.pp[j].length){
+                let d=jdp[j]
+                let dxy=this.hhdxy(d,t)
+                if(dxy[0]!==-1){jd.pp[j]=dxy}
+            }
+        }
+        // console.log(jd.pp,jdp);
+    }
+}
+//配件，返回地名对应的xy值，如果有
+hhdxy(d,t){
+    let re=[-1,-1,0]
+    // console.log(d);
+    //3,使用对应（系列）地图xydd
+    if(!!this.sr.maps){
+        for(let mp in this.sr.maps){
+            if(this.sr.maps[mp] in xydd){
+                let ds=xydd[this.sr.maps[mp]]
+                for (let di=0;di<ds.length;di++){
+                    let dsi=ds[di]
+                    let dt=dsi.t
+                    let dds=dsi.d
+                    for (let ddi=0;ddi<dds.length;ddi++){
+                        let ddsi=dds[ddi]
+                        let dm=ddsi[0]
+                        // console.log(d,dm);
+                        if(this.bjtime(t,dt)){
+                            // if(d==='成都'){console.log(d,dm,t,d===dm);}
+                            if(d===dm){re=[ddsi[1],ddsi[2],0]}
+                        }else{
+                            if (re[0]>=0){return re}
+                            if(d===dm){re=[ddsi[1],ddsi[2],0]}
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if (re[0]>=0){return re}
+    //4,如果上面无结果，则使用对应历史时期的jwdd
+    re=[-1,-1,1]    //re[2]=1,jw
+    for(let sd in jwdd){
+        if(!!jwdd[sd].t){
+            let dt=jwdd[sd].t
+            if(t[0]>=dt[0]&&t[0]<=dt[1]){
+                let ds=jwdd[sd].d
+                for (let i=0;i<ds.length;i++){
+                    let dd=ds[i]
+                    // console.log(d,dd,t);
+                    if(d===dd[0]){re=[dd[1],dd[2],1];return re}
+                }
+            }
+        }
+    }
+    // 5,使用地名的历史时期沿革表（数组），匹配其它时期的数据…………沿革表待做。
+    return re
+}//配件，返回地名对应的xy值，如果有
+//配件，比较两个时间数组，如果大于等于，返回1
+bjtime(t,dt){
+    for (let i=0;i<dt.length;i++){
+        if(!t[i]){return 0}
+        if(t[i]>dt[i]){return 1}
+        if(t[i]<dt[i]){return 0}
+    }
+    return 1
+}
 //择取地图：如果当前qi指定了地图，择取指定地图，不然，从备选maps中生成/择取当前qi地图，不然，从地图库中匹配当前地图
 zqdt(){
     let jd=this.q[this.qi]
@@ -138,7 +223,7 @@ zqdt(){
     //2,不然，从备选maps中生成/择取当前qi地图，
     if(zddt===0){
         for (let i=0;i<this.maps.length;i++){
-            let m=this.maps[i]
+            let m=deepCopy(this.maps[i])
             let year=m.year
             if(t[0][0]>year[0]&&t[0][0]<year[1]){
             if(!!m.tz){
@@ -163,7 +248,7 @@ zqdt(){
         this.map=m
         // this.dt.update(m)
     }
-    console.log(this.map);
+    // console.log(this.map);
     this.dt.update(this.map)
 }
 //更新数据
@@ -173,7 +258,7 @@ dtupdate(){
         let c=[0,0,this.dt.width,this.dt.height,sc[0],sc[1],sc[2],sc[3]]
         this.c=this.dt.zoom(c,0.5*c[6],0.5*c[7],3)
         // console.log(c);
-        jsd.mapp=dings.cydd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
+        // jsd.mapp=jwdd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
         //生成地图缩放工具的位置
         let btn=bians.btns.map
         let p=btn.p
@@ -193,13 +278,40 @@ dtupdate(){
 dtrender(){
     let canvas=this.dthuabu.canvas
     let ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
     if(jsd.vs[0]>0){
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
         let c=this.c
         // ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
         this.dt.drawToCanvas(ctx,c)
-        let lsmapp=jsd.mapp
+        //获取所有节点中的p在地图上的pxy值或pjw值，一一绘制。
+    let q=this.q
+    let qi=this.qi
+    for (let i=0;i<q.length;i++){
+        let jd=q[i]
+        let jdp=jd.p
+        // for (let j=0;j<jdp.length;j++){
+        //     let d=jdp[j]
+        //     //1,先看节点中是否有自定义地点位置：pxy,pjw。暂略。
+        //     //2，使用地图附带定位点。数据结构待归整。暂略。
+        //     //3,使用对应（系列）地图xydd
+        //     if(!!this.sr.maps){
+        //         if(this.sr.maps in xydd){
+        //             console.log(xydd[this.sr.maps]);
+        //         }
+        //     }
+        //     //4,使用对应历史时期的jwdd
+        //     // 5,使用地名的历史时期沿革表（数组），匹配其它时期的数据…………沿革表待做。
+
+
+        // }
+
+        if (qi===i||qi===(q.length-1)) {
+            
+        }
+    }
         //1.2，描绘预设地点
+        let lsmapp=jsd.mapp
         for (let i in lsmapp){
         let p=lsmapp[i];    //测试用地理点，经纬数据。
         //1.2.2,输入所需定位的点p(的度数制经纬数据),图高比btg，以及当前所用地图数据，返回对应点的图xy.
@@ -432,10 +544,11 @@ bfwbrender(){
 //文本绘制
 wbrender(){
     let wbcanvas=this.wbhuabu.canvas
+    let wbctx=wbcanvas.getContext('2d')
+    wbctx.clearRect(0, 0, wbcanvas.width, wbcanvas.height)
     let sq=this.cc[1]
     let gs=this.gs
     let ttvs=this.ttvs
-    let wbctx=wbcanvas.getContext('2d')
     //ttvs[0]:所有节点只显示节点名0，只显示内容1，同时显示节点名与内容2，只显示“当前时间节点”的内容3，
     // 默认：自定义显示4，这时将展开收起的选择权下放，所有节点左上加小三角。
     let xy0=[0,0]
@@ -639,6 +752,7 @@ sxupdate(){
 sxrender(){
     let canvas=this.sxhuabu.canvas
     let ctx = canvas.getContext('2d')
+    ctx.clearRect(0, 0, canvas.width, canvas.height)
     ctx.fillStyle='#000'
     ctx.strokeStyle="#000000"
     // console.log(ctx);

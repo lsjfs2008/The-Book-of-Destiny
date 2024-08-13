@@ -1,6 +1,6 @@
 // import { dings } from "./jmsj.js"
 //取得常用定位点的常用gxy值
-let cydw=dings.cydd.xd
+let cydw=jwdd.xd
 let cydwg={}
 // console.log(cydwg);
 
@@ -342,8 +342,8 @@ class Mapimg{
         this.width = map.img.siz[0]
         this.height = map.img.siz[1]
         // this.tgb=m.tgb
-        console.log(map);
-        console.log(this);
+        // console.log(map);
+        // console.log(this);
     }
     //显示
     drawToCanvas(ctx,c) {

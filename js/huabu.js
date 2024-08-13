@@ -157,7 +157,7 @@ hhsxdj(x){
     }
 }
 }//三，地图画布类/对象////
-//////三，时线画布类/对象
+//////三，地图画布类/对象
 class dtHuabu extends Huabu{
     constructor(prid,sq,that){
         super(prid,sq)
