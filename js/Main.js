@@ -34,7 +34,6 @@ class Main{
 
     }//构建函数//
 start(){
-    // this.ces=new cesi()    //临时使用，方便做一些测试。
     lssize=resize()
     canvas.width = lssize[0]
     canvas.height = lssize[1]
@@ -105,68 +104,67 @@ start(){
     //  //
     }//start()//
 sbevent(e){
-    // this.ces.bindcs.start()    //临时使用，方便做一些测试。
     let x=e.clientX - canvas.getBoundingClientRect().left;
     let y=e.clientY - canvas.getBoundingClientRect().top;
     let cc=jsd.cc
-    let c=jsd.c
-    let vs=jsd.vs
-    let ms=jsd.map.img.siz
-    //鼠标拖动地图。
-    if(e.type==="mousemove"){
-        if (jsd.mapisDragging) {
-            let x= e.clientX - canvas.getBoundingClientRect().left;
-            let y= e.clientY - canvas.getBoundingClientRect().top;
-            let dx=x-jsd.offsetX
-            let dy=y-jsd.offsetY
-            jsd.offsetX=x
-            jsd.offsetY=y
-            jsd.c=jsd.bg[0].move(c,dx,dy)
-            // console.log(x,y,dx,dy);
-            this.render()
-        }
-    }
-    //1区，地图区：
-    // if(vs[0]>0){
-    if(inarea(x,y,cc[0])){
-        //地图缩放按钮：
-    if(inarea(x,y,bians.btns.map.p.s)){
-        if(e.type==="mousedown"){
-            let s=bians.btns.map.p.s
-            // console.log(x,y,s);
-            let h=s[3]
-            let dy=y-s[1]
-            let k=1
-            let dh=4/h
-            k=Math.floor(dy*dh)
-            jsd.c=jsd.bg[0].zoom(c,x,y,k)
-            this.render()
-        }
-    }else{
-        //鼠标拖动地图,
-        if(e.type==="mousedown"){
-            jsd.mapisDragging = true;
-            jsd.offsetX = x
-            jsd.offsetY = y
-            canvas.style.cursor = 'grabbing';
-        canvas.addEventListener('mousemove',this.bindsbevent)
-        }
-        //滚轮缩放地图
-        if(e.type==='wheel'){
-            let k=0
-            if (e.deltaY<0){k=2}
-            jsd.c=jsd.bg[0].zoom(c,x,y,k)
-            this.render()
-        }
-        //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
-        if(e.type==='dblclick'){
-            // console.log('db');
-            jsd.c=jsd.bg[0].focus(c,x,y)
-            this.render()
-        }
-    }
+    // let c=jsd.c
+    // let vs=jsd.vs
+    // let ms=jsd.map.img.siz
+    // //鼠标拖动地图。
+    // if(e.type==="mousemove"){
+    //     if (jsd.mapisDragging) {
+    //         let x= e.clientX - canvas.getBoundingClientRect().left;
+    //         let y= e.clientY - canvas.getBoundingClientRect().top;
+    //         let dx=x-jsd.offsetX
+    //         let dy=y-jsd.offsetY
+    //         jsd.offsetX=x
+    //         jsd.offsetY=y
+    //         jsd.c=jsd.bg[0].move(c,dx,dy)
+    //         // console.log(x,y,dx,dy);
+    //         this.render()
+    //     }
     // }
-    }//1区，地图区//
+    // //1区，地图区：
+    // // if(vs[0]>0){
+    // if(inarea(x,y,cc[0])){
+    //     //地图缩放按钮：
+    // if(inarea(x,y,bians.btns.map.p.s)){
+    //     if(e.type==="mousedown"){
+    //         let s=bians.btns.map.p.s
+    //         // console.log(x,y,s);
+    //         let h=s[3]
+    //         let dy=y-s[1]
+    //         let k=1
+    //         let dh=4/h
+    //         k=Math.floor(dy*dh)
+    //         jsd.c=jsd.bg[0].zoom(c,x,y,k)
+    //         this.render()
+    //     }
+    // }else{
+    //     //鼠标拖动地图,
+    //     if(e.type==="mousedown"){
+    //         jsd.mapisDragging = true;
+    //         jsd.offsetX = x
+    //         jsd.offsetY = y
+    //         canvas.style.cursor = 'grabbing';
+    //     canvas.addEventListener('mousemove',this.bindsbevent)
+    //     }
+    //     //滚轮缩放地图
+    //     if(e.type==='wheel'){
+    //         let k=0
+    //         if (e.deltaY<0){k=2}
+    //         jsd.c=jsd.bg[0].zoom(c,x,y,k)
+    //         this.render()
+    //     }
+    //     //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
+    //     if(e.type==='dblclick'){
+    //         // console.log('db');
+    //         jsd.c=jsd.bg[0].focus(c,x,y)
+    //         this.render()
+    //     }
+    // }
+    // // }
+    // }//1区，地图区//
     //2区，文本区
     if(inarea(x,y,cc[1])){
         console.log("主体文本区");
@@ -224,22 +222,46 @@ wbyidong(y){
 /**////三，更新数据。以便render()根据当前数据，刷新/（重新）加载屏幕………………数据与绘图分离…………
 update(){
     // let cesi=new cesi()    //临时使用，方便做一些测试。
+    //体现浏览器尺寸的改变的内容。暂时也集成在这里。
     //地图分两部分：地图本体，地图上的时空节点。地图本体暂时由主体呈现。节点转交对象生成。
     this.dtupdate()
     //文本标题与按钮，也暂由本体呈现
     this.wbupdate()
+    this.sxupdate()    //视界（比如浏览器视界）改变时带动三画布尺寸改变。
     //使每一个时序节点群对象各自update，
     this.sxjdq.update()
     this.render()
 }//update()//
 //update模块化，分为地图dtupdate，文本wbupdate，时线sxupdate，三份。（加节点四份？）
 dtupdate(){
-    
+    //分区域更新绘图
+    // let cc=deepCopy(jsd.cc)
+    // console.log('jsd.vs:',jsd.vs);
+    //一，加载图文线：
+    //1，图：
+    if(jsd.vs[0]>0){
+        let sq=jsd.cc[0]
+        // console.log(sq);
+        // this.sxjdq.dt.xywh=sq   //时间线区域的[x,y,w,h]
+        sq[2]=Math.ceil(sq[2])
+        sq[3]=Math.ceil(sq[3])
+        this.sxjdq.pst(0,sq)
+    }
 }
 wbupdate(){
     //文本区
     if(jsd.vs[1]>0){
         this.wbbtupdate()
+        let sq=deepCopy(jsd.cc[1])   //视区[x,y,w,h]//文本显示区
+    let gs=jsd.wbgs    //文本格式：字体，字号，加粗等
+    let ttvs=jsd.buju.wbvs.wbqtt
+    if(ttvs[1]===1||ttvs[1]===3){
+        sq[1]=sq[1]+jsd.tt.th
+        sq[3]=sq[3]-jsd.tt.th
+    }
+    sq[2]=Math.ceil(sq[2])
+    sq[3]=Math.ceil(sq[3])
+    this.sxjdq.pst(1,sq)
         // this.wbjdmupdate()
         // this.wbjdupdate()
     }//文本区
@@ -283,7 +305,20 @@ wbbtupdate(){
 // }//节点内容模块
 //时线模块
 sxupdate(){
-
+    //3,时间线
+    if(jsd.vs[2]>0){
+        // ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
+        //显示公元纪年
+        let sq=jsd.cc[2]
+        // console.log(sq);
+        this.sxjdq.sx.xywh=sq   //时间线区域的[x,y,w,h]
+        sq[2]=Math.ceil(sq[2])
+        sq[3]=Math.ceil(sq[3])
+        this.sxjdq.pst(2,sq)
+        // this.sxjdq.sxhuabu.pst(sq)
+        // console.log(this.sxjdq.sxhuabu.canvas);
+        // this.sxjdq.sxrender(this.sxjdq.sxhuabu.canvas)
+    }//3,时间线
 }//时线模块
 //同步模块：地图点（或线），时间（点或线），文本块，三者同步于jsd.sxjdq[i]:jsd.sxjdqi
 tbupdate(){
@@ -294,19 +329,7 @@ tbupdate(){
 render(){
     //清屏
     ctx.clearRect(0, 0, canvas.width, canvas.height)
-    //分区域更新绘图
     let cc=deepCopy(jsd.cc)
-    // console.log('jsd.vs:',jsd.vs);
-    //一，加载图文线：
-    //1，图：
-    if(jsd.vs[0]>0){
-        let sq=cc[0]
-        // console.log(sq);
-        // this.sxjdq.dt.xywh=sq   //时间线区域的[x,y,w,h]
-        sq[2]=Math.ceil(sq[2])
-        sq[3]=Math.ceil(sq[3])
-        this.sxjdq.pst(0,sq)
-    }
     //2，文本
     if(jsd.vs[1]>0){
         let sq=cc[1]    //视区[x,y,w,h]//文本显示区
@@ -344,7 +367,7 @@ render(){
             }
         }//2.2.2,标题区文本
         //2.3,内容区//带参数，表示需要文本数据预处理
-        this.wbrender(1)
+        // this.wbrender(1)
         //2.2.1,标题区附近的按钮
         if(ttvs[1]===1||ttvs[1]===2){
             //jsd.tt.xsj:[0]：大标题左侧小三角：控制ttvs[0],文本与节点名显示模式。1：大标题右侧小三角：控制ttvs[1],隐藏显示大标题与附近按钮图标。2：右三角靠左：打开关注列表。3：右三角靠下：文本到顶。]
@@ -356,20 +379,7 @@ render(){
         }
         // console.log(lsw);
     }//2，文本
-    //3,时间线
-    if(jsd.vs[2]>0){
-        // ctx.drawImage(jsd.bg[2],cc[2][0],cc[2][1],cc[2][2],cc[2][3])
-        //显示公元纪年
-        let sq=cc[2]
-        // console.log(sq);
-        this.sxjdq.sx.xywh=sq   //时间线区域的[x,y,w,h]
-        sq[2]=Math.ceil(sq[2])
-        sq[3]=Math.ceil(sq[3])
-        this.sxjdq.pst(2,sq)
-        // this.sxjdq.sxhuabu.pst(sq)
-        // console.log(this.sxjdq.sxhuabu.canvas);
-        // this.sxjdq.sxrender(this.sxjdq.sxhuabu.canvas)
-    }//3,时间线
+    
     //4，对象
     this.sxjdq.render()
 }//render()//
@@ -394,7 +404,6 @@ wbrender(k){
     // this.wbhuabu.canvas.style=`position:absolute;left:${sq[0]}px;top:${sq[1]}px;`
     this.sxjdq.wbhuabu.ctx.clearRect(0,0,this.sxjdq.wbhuabu.canvas.width,this.sxjdq.wbhuabu.canvas.height)
     if(!!k){this.sxjdq.bfwbrender(this.sxjdq.wbhuabu.canvas)}else{this.sxjdq.wbrender(this.sxjdq.wbhuabu.canvas)}
-    
 }
 }//main//
 //判断点xy是否位于s[sx,sy,sw,sh]区域。

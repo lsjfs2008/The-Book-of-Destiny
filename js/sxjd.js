@@ -36,7 +36,7 @@ class Sxjdq{
         this.wbhuabu=new wbHuabu('zhudiv',[0,0,0,0],this)
         this.sxhuabu=new sxHuabu('zhudiv',[0,0,0,0],this)
         //如果当前qi指定了地图，择取指定地图，不然，从备选maps中生成/择取当前qi地图，不然，从地图库中匹配当前地图
-        this.dt=new Mapimg(dings.csdt)
+        this.dt=new Mapimg(dings.csdt,this.cc[0])
         this.zqdt()
         this.dtupdate()
         //初始化一个地图img
@@ -79,12 +79,15 @@ pst(k,sq){
     if(k===1){this.wbhuabu.pst(sq)}
     if(k===2){this.sxhuabu.pst(sq)}
 }
-render(){
-    // console.log('this.sxjdq.render()');
+render(k){
+    // console.log('有k表示换地图了');
     this.bfwbrender()
     this.sxrender()
-    this.zqdt()
-    this.dt.img.onload=()=>{this.dtrender()}
+    if(!!k){
+        console.log(this.c,this.dt.c);
+        this.zqdt()
+        this.dt.img.onload=()=>{this.dtrender()}
+    }else{this.dtrender()}
     
 }//显示…………显示模式貌似也可集成到各自画布中…………延后
 //配件
@@ -132,7 +135,7 @@ csxzdt(){
     }
     this.maps=maps
 }
-//初始化节点地点的pxy或pjw,pp[x/j,y/w,0xy值，1jw值]
+//初始化节点地点的pxy与pjw与由jw生成的xy值jwxy……并且加入jd.p中……改变节点p的数据结构为p:[[地点，[pxy],[pjw],[jwxy]],……]
 csjdp(){
     //获取所有节点中的p在地图上的pxy值或pjw值，并并入其中。
     let q=this.q
@@ -248,8 +251,9 @@ zqdt(){
         this.map=m
         // this.dt.update(m)
     }
-    // console.log(this.map);
-    this.dt.update(this.map)
+    console.log(this.map);
+    this.dt.update(this.map,this.cc[0])
+    this.c=this.dt.c
 }
 //更新数据
 dtupdate(){
@@ -260,7 +264,8 @@ dtupdate(){
         // console.log(c);
         // jsd.mapp=jwdd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
         //生成地图缩放工具的位置
-        let btn=bians.btns.map
+        this.dt.btn=deepCopy(bians.btns.map)
+        let btn=this.dt.btn
         let p=btn.p
         let s=p.s
         s[0]=sc[2]*p.l[0]/p.l[1]
@@ -273,6 +278,7 @@ dtupdate(){
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
     //调用render
+    this.dt.img.onload=()=>{this.dtrender()}
 }
 //绘制
 dtrender(){
@@ -281,6 +287,9 @@ dtrender(){
     ctx.clearRect(0, 0, canvas.width, canvas.height)
     if(jsd.vs[0]>0){
         //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
+        // let sc=this.cc[0]
+        // let c0=[0,0,this.dt.width,this.dt.height,sc[0],sc[1],sc[2],sc[3]]
+        // this.c=this.dt.zoom(c0,0.5*c0[6],0.5*c0[7],3)
         let c=this.c
         // ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
         this.dt.drawToCanvas(ctx,c)
@@ -331,7 +340,7 @@ dtrender(){
         ctx.fillText(p[0],xmp[0],xmp[1]);
         }
         //1.3,加载悬浮按钮……地图缩放工具
-        let mbp=bians.btns.map.p.s
+        let mbp=this.dt.btn.p.s
         ctx.drawImage(jsd.mapbtn,mbp[0],mbp[1],mbp[2],mbp[3])
         //  //
     }

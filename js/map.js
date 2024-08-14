@@ -326,22 +326,28 @@ function hhjwjd(tgb,dqmap){
 }
 //地图图片类化
 class Mapimg{
-    constructor(map){
+    constructor(map,cc){
         this.map=map
     this.img = new Image()
     this.img.src = map.img.src
     this.width = map.img.siz[0]
     this.height = map.img.siz[1]
     this.visible = true
+    this.c=this.zoom([0,0,this.width,this.height,cc[0],cc[1],cc[2],cc[3]],0.5*this.width,0.5*this.height,3)
     // this.tgb=m.tgb
     }
     //更新：
-    update(map){
+    update(map,cc){
         this.map=map
         this.img.src = map.img.src
         this.width = map.img.siz[0]
         this.height = map.img.siz[1]
-        // this.tgb=m.tgb
+        //tgb,c两处，也可能需要同步更新
+        this.tgb=map.tgb
+        //临时，应替换为当前节点的x,y
+        // console.log(d);
+        console.log('临时，应替换为当前节点的x,y');
+        this.c=this.zoom([0,0,this.width,this.height,cc[0],cc[1],cc[2],cc[3]],0.5*this.width,0.5*this.height,3)
         // console.log(map);
         // console.log(this);
     }

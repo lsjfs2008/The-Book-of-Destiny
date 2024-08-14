@@ -75,7 +75,7 @@ wbsbevent(e){
                  }
              }
              this.j.qi=dj
-             this.j.render()
+             this.j.render(1)
              // this.bfwbrender(this.wbhuabu.canvas)
          }//单击选择节点，三相皆变
      }//单击
@@ -129,16 +129,17 @@ sbevent(e){
                 if(this.j.qi<0){this.j.qi=0}
                 if(this.j.qi>this.j.q.length-1){this.j.qi=this.j.q.length-1}
             }
-        this.j.render()
+        this.j.render(1)
     }//滚轮移动文本
         //节点点击跳转
         if(e.type==='mousedown'){
+            // console.log(e);
             let x=e.clientX - this.canvas.getBoundingClientRect().left;
             // let y=e.clientY - this.canvas.getBoundingClientRect().top;
             let dj=this.hhsxdj(x)
             this.j.qi=dj
             console.log(this.j.qi);
-            this.j.render()
+            this.j.render(1)
         }//单击
         //  //双击，当前移动模式在默认与自定义之间切换：两种移动模式：默认跳转到下一个节点。自定义留待多线对比时再做。
         //  if(e.type==='dblclick'){
@@ -164,39 +165,93 @@ class dtHuabu extends Huabu{
         this.j=that     //留待缩减传参量…………
         // this.bindsbevent=this.sbevent.bind(that)     //这种方法固然方便，但也妨碍了使用本体的this数据。。虽然这里并没有。
         this.bindsbevent=this.sbevent.bind(this)
-        // this.canvas.addEventListener('wheel',this.bindsbevent)
-        // this.canvas.addEventListener('mousedown',this.bindsbevent)
-        // this.canvas.addEventListener('dblclick',this.bindsbevent)
+        this.canvas.addEventListener('wheel',this.bindsbevent)
+        this.canvas.addEventListener('mousedown',this.bindsbevent)
+        this.canvas.addEventListener('dblclick',this.bindsbevent)
     }
-////1,时线画布监听
+////1,画布监听
 sbevent(e){
-        // console.log(this);
-        // console.log(e);
-        //滚轮移动时线//两种模式：人物传记时，固定时区，移动当前时间游标。编年史时，时间游标居中，移动时区。sx.lx:人物线，世界线
-        //
-        if(e.type==='wheel'){
-        //     if(this.j.sx.lx==='人物线'){
-        //         //两种移动模式：默认跳转到下一个节点。自定义留待多线对比时再做。
-        //         if(e.deltaY>0){this.j.qi+=1}else{this.j.qi-=1}
-        //     }
-        // this.j.render()
-    }//滚轮移动文本
-        //节点点击跳转
-        if(e.type==='mousedown'){
-            let x=e.clientX - this.canvas.getBoundingClientRect().left;
-            // let y=e.clientY - this.canvas.getBoundingClientRect().top;
-            let dj=this.hhsxdj(x)
-            this.j.qi=dj
-            console.log(this.j.qi);
+    let x=e.clientX - this.canvas.getBoundingClientRect().left;
+    let y=e.clientY - this.canvas.getBoundingClientRect().top;
+    let cc=this.j.cc
+    let c=this.j.c
+    let vs=this.j.vs
+    let ms=this.j.map.img.siz
+    //鼠标拖动地图。
+    if(e.type==="mousemove"){
+        if (jsd.mapisDragging) {
+            let x= e.clientX - canvas.getBoundingClientRect().left;
+            let y= e.clientY - canvas.getBoundingClientRect().top;
+            let dx=x-jsd.offsetX
+            let dy=y-jsd.offsetY
+            jsd.offsetX=x
+            jsd.offsetY=y
+            jsd.c=this.j.dt.move(c,dx,dy)
+            // console.log(x,y,dx,dy);
             this.j.render()
-        }//单击
+        }
+    }
+    //1区，地图区：
+    // if(vs[0]>0){
+    if(inarea(x,y,cc[0])){
+        //地图缩放按钮：
+    if(inarea(x,y,this.j.dt.btn.p.s)){
+        if(e.type==="mousedown"){
+            let s=this.j.dt.btn.p.s
+            // console.log(x,y,s);
+            let h=s[3]
+            let dy=y-s[1]
+            let k=1
+            let dh=4/h
+            k=Math.floor(dy*dh)
+            jsd.c=this.j.dt.zoom(c,x,y,k)
+            this.j.render()
+        }
+    }else{
+        //鼠标拖动地图,
+        if(e.type==="mousedown"){
+            jsd.mapisDragging = true;   //保留jsd.mapisDragging作为全局变量，以便全局监听松开鼠标的动作。
+            jsd.offsetX = x
+            jsd.offsetY = y
+            canvas.style.cursor = 'grabbing';
+        canvas.addEventListener('mousemove',this.bindsbevent)
+        }
+        //滚轮缩放地图
+        if(e.type==='wheel'){
+            let k=0
+            if (e.deltaY>0){k=2}
+            jsd.c=this.j.dt.zoom(c,x,y,k)
+            this.j.render()
+        }
+        //双击地图自动聚焦目标地点（为地图中心或尽量靠近中心）
+        if(e.type==='dblclick'){
+            // console.log('db');
+            jsd.c=this.j.dt.focus(c,x,y)
+            this.j.render()
+        }
+    }
+    // }
+    }//1区，地图区//
+    // if(e.type==="mousemove"){
+    //     if (jsd.mapisDragging) {
+    //         let x= e.clientX - canvas.getBoundingClientRect().left;
+    //         let y= e.clientY - canvas.getBoundingClientRect().top;
+    //         let dx=x-jsd.offsetX
+    //         let dy=y-jsd.offsetY
+    //         jsd.offsetX=x
+    //         jsd.offsetY=y
+    //         jsd.c=jsd.bg[0].move(c,dx,dy)
+    //         // console.log(x,y,dx,dy);
+    //         this.render()
+    //     }
+    // }
         //  //双击，当前移动模式在默认与自定义之间切换：两种移动模式：默认跳转到下一个节点。自定义留待多线对比时再做。
         //  if(e.type==='dblclick'){
         //      let vi=jsd.buju.wbvs.wbqtt[0]
         //      if(this.j.zdy[vi]>0){this.j.zdy[vi]=0}else{this.j.zdy[vi]=1}
         //      this.sxrender(this.wbhuabu.canvas)
         //  }//双击
-    }//1,时线画布监听//
+    }//1,画布监听//
 hhsxdj(x){
     let sqx=this.j.cc[2][0]
     let jdsq=this.j.jdsq
