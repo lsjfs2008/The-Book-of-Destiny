@@ -31,6 +31,8 @@ class Sxjdq{
             this.csxzdt()
             //初始化节点地点的pxy或pjw
             this.csjdp()
+            //初始化stpr：根据文本自动生成节点对应的stpr。前置需要各时空域的人群，事群，以及从文本中提取人物事物的ai?文本分析程序。
+            //暂略。
         }//从头（关注列表）开始构建。
         this.dthuabu=new dtHuabu('zhudiv',[0,0,0,0],this)
         this.wbhuabu=new wbHuabu('zhudiv',[0,0,0,0],this)
@@ -251,7 +253,7 @@ zqdt(){
         this.map=m
         // this.dt.update(m)
     }
-    console.log(this.map);
+    // console.log(this.map);
     this.dt.update(this.map,this.cc[0])
     this.c=this.dt.c
 }
