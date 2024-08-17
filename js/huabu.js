@@ -75,7 +75,8 @@ wbsbevent(e){
                  }
              }
              this.j.qi=dj
-             this.j.render(1)
+             this.j.ijump(dj)
+            //  this.j.render(1)
              // this.bfwbrender(this.wbhuabu.canvas)
          }//单击选择节点，三相皆变
      }//单击
@@ -125,11 +126,12 @@ sbevent(e){
         if(e.type==='wheel'){
             if(this.j.sx.lx==='人物线'){
                 //两种移动模式：默认跳转到下一个节点。自定义留待多线对比时再做。
-                if(e.deltaY>0){this.j.qi+=1}else{this.j.qi-=1}
-                if(this.j.qi<0){this.j.qi=0}
-                if(this.j.qi>this.j.q.length-1){this.j.qi=this.j.q.length-1}
+                if(e.deltaY>0){this.j.ichange(1)}else{this.j.ichange(0)}
+                // if(e.deltaY>0){this.j.qi+=1}else{this.j.qi-=1}
+                // if(this.j.qi<0){this.j.qi=0}
+                // if(this.j.qi>this.j.q.length-1){this.j.qi=this.j.q.length-1}
             }
-        this.j.render(1)
+        // this.j.render(1)
     }//滚轮移动文本
         //节点点击跳转
         if(e.type==='mousedown'){
@@ -137,9 +139,10 @@ sbevent(e){
             let x=e.clientX - this.canvas.getBoundingClientRect().left;
             // let y=e.clientY - this.canvas.getBoundingClientRect().top;
             let dj=this.hhsxdj(x)
-            this.j.qi=dj
-            console.log(this.j.qi);
-            this.j.render(1)
+            this.j.ijump(dj)
+            // this.j.qi=dj
+            // console.log(this.j.qi);
+            // this.j.render(1)
         }//单击
         //  //双击，当前移动模式在默认与自定义之间切换：两种移动模式：默认跳转到下一个节点。自定义留待多线对比时再做。
         //  if(e.type==='dblclick'){

@@ -4,11 +4,13 @@ let cydw=jwdd.xd
 let cydwg={}
 // console.log(cydwg);
 
-/**/////一，3,输入高斯xy数据gxy,图高比btg，以及当前所用地图数据，返回对应点的图xy.
+/**/////一，3,输入高斯xy数据gxy,图高比btg，以及当前所用地图数据，返回对应点的图xy…………tgb也集成在map数据体中
 // function hhdtd(p,m){
-function hhdtd(p,tgb,map){
-    // console.log(m);
+function hhdtd(p,map,str){
+    // console.log(p);
+    let tgb=map.tgb
     let si=[p[1],p[2]]
+    if(str==='xy'){si=[p[0],p[1]]}
     let ty=map.touyin
     let gxy=hhmapxy(si,ty)
     let d=map.dw;

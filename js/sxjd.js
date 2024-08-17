@@ -15,7 +15,7 @@ class Sxjdq{
         if(!!language){
             this.name=sr.tt
             this.q=hhsxjdq(sr,language)
-            this.qi=6
+            this.qi=[6,0]    //第6节点的第0子节点
             this.zdy=[0,0,0]
             this.jd012=[[],[],[]]
             for (let i=0;i<this.q.length;i++){
@@ -65,7 +65,7 @@ update(){
         let tosave={}
         tosave.q=this.q
         tosave.vs=this.vs
-        tosave.qi=this.qi
+        tosave.qi=this.qi[0]
         tosave.zdy=this.zdy
         tosave.jd012=this.jd012
         tosave.sx=this.sx
@@ -86,27 +86,42 @@ render(k){
     this.bfwbrender()
     this.sxrender()
     if(!!k){
-        console.log(this.c,this.dt.c);
+        // console.log(this.c,this.dt.c);
         this.zqdt()
-        this.dt.img.onload=()=>{this.dtrender()}
+        this.dt.img.onload=()=>{
+            // console.log('临时，给三国系列地图的d数据配一份jwxy,以便程序中取用。');
+            // this.lsjwxy();
+            this.dtrender();}
+        //临时，给三国系列地图的d数据配一份jwxy,以便程序中取用。
+    // this.dt.img.onload=()=>{}
     }else{this.dtrender()}
     
 }//显示…………显示模式貌似也可集成到各自画布中…………延后
 //配件
 ichange(k){
-    if(k===1){this.qi+=1};
-    if(k===0){this.qi-=1};
-    if(this.qi<0){this.qi=0}
-    if(this.qi>=this.q.length){this.qi=this.q.length-1}
+    if(k===1){this.qi[1]+=1};
+    if(k===0){this.qi[1]-=1};
+    if(this.qi[1]>=this.q[this.qi[0]].s.length){this.qi[0]+=1,this.qi[1]=0}
+    if(this.qi[1]<0){this.qi[0]-=1
+        if(this.qi[0]<0){this.qi=[0,0]}else{this.qi[1]=this.q[this.qi[0]].s.length-1}
+        }
+    if(this.qi[0]<0){this.qi=[0,0]}
+    if(this.qi[0]>=this.q.length){this.qi[0]=this.q.length-1}
+    this.ijump()
 }
-ijump(k){this.qi=k;}
+ijump(k){
+    if(!!k){this.qi=[k,0]}
+    console.log("ijump");
+    this.render(1)
+    
+}
 //二，整体数据更新与显示模块//
 ////五，地图数据更新与显示模块
 //初始生成备选maps
 csxzdt(){
     //选择地图//根据节点选择地图，或根据时间选择地图。人物传(人物线)用节点，编年史（世界线）用时间。
     let q=this.q
-    let i=this.qi
+    let i=this.qi[0]
     let jd=q[i]
     let t=this.t
     let dy=this.language    //默认地域为所用语言（区域）
@@ -139,9 +154,13 @@ csxzdt(){
 }
 //初始化节点地点的pxy与pjw与由jw生成的xy值jwxy……并且加入jd.p中……改变节点p的数据结构为p:[[地点，[pxy],[pjw],[jwxy]],……]
 csjdp(){
-    //获取所有节点中的p在地图上的pxy值或pjw值，并并入其中。
+    //获取所有节点中的p在地图上的pxy值与pjw值，并并入其中。暂且合并一处。后期应分为两个独立数据体……已达成。
+    //根据当前所用地图，也可生成jwxy。这个数据与所用地图有关。
+    //如果是任意地图，宜于到时直接算。
+    //如果是常用地图，比如系列地图，宜于算好后另存一份数据于本地。而后程序中根据地名再从本地存储数据中取用。
+    
     let q=this.q
-    let qi=this.qi
+    let qi=this.qi[0]
     for (let i=0;i<q.length;i++){
         let jd=q[i]
         let jdp=jd.p
@@ -154,15 +173,33 @@ csjdp(){
             if(!jd.pp[j].length){
                 let d=jdp[j]
                 let dxy=this.hhdxy(d,t)
-                if(dxy[0]!==-1){jd.pp[j]=dxy}
+                let djw=this.hhdjw(d,t)
+                jd.pp[j]=[dxy,djw]
             }
         }
         // console.log(jd.pp,jdp);
     }
 }
+//临时，给三国系列地图的d数据配一份jwxy,以便程序中取用。
+lsjwxy(){
+    // console.log('临时，给三国系列地图的d数据配一份jwxy,以便程序中取用。');
+    let d=jwdd.sg.d
+    let m=this.map
+    // console.log(m);
+    let jwxy=[]
+    for (let j=0;j<d.length;j++){let p=[];jwxy.push(p)}
+    for (let i=0;i<d.length;i++){
+        let p=d[i]
+        let re=hhdtd(p,m)
+        re[0]=Math.round(re[0])
+        re[1]=Math.round(re[1])
+        jwxy[i]=[d[i][0],re[0],re[1]]
+    }
+console.log(jwxy);
+}
 //配件，返回地名对应的xy值，如果有
 hhdxy(d,t){
-    let re=[-1,-1,0]
+    let re=[-1,-1,0]   //以re[2]为0为无结果，1为有结果。
     // console.log(d);
     //3,使用对应（系列）地图xydd
     if(!!this.sr.maps){
@@ -179,19 +216,23 @@ hhdxy(d,t){
                         // console.log(d,dm);
                         if(this.bjtime(t,dt)){
                             // if(d==='成都'){console.log(d,dm,t,d===dm);}
-                            if(d===dm){re=[ddsi[1],ddsi[2],0]}
+                            if(d===dm){re=[ddsi[1],ddsi[2],1]}
                         }else{
                             if (re[0]>=0){return re}
-                            if(d===dm){re=[ddsi[1],ddsi[2],0]}
+                            if(d===dm){re=[ddsi[1],ddsi[2],1]}
                         }
                     }
                 }
             }
         }
     }
-    if (re[0]>=0){return re}
+    // if (re[0]>=0){return re}
+    return re
+}//配件，返回地名对应的xy值，如果有
+//配件，返回地名对应的jw值，如果有
+hhdjw(d,t){
     //4,如果上面无结果，则使用对应历史时期的jwdd
-    re=[-1,-1,1]    //re[2]=1,jw
+    let re=[-1,-1,0]    //以re[2]为0为无结果，1为有结果。
     for(let sd in jwdd){
         if(!!jwdd[sd].t){
             let dt=jwdd[sd].t
@@ -207,7 +248,7 @@ hhdxy(d,t){
     }
     // 5,使用地名的历史时期沿革表（数组），匹配其它时期的数据…………沿革表待做。
     return re
-}//配件，返回地名对应的xy值，如果有
+}//配件，返回地名对应的jw值，如果有
 //配件，比较两个时间数组，如果大于等于，返回1
 bjtime(t,dt){
     for (let i=0;i<dt.length;i++){
@@ -219,7 +260,7 @@ bjtime(t,dt){
 }
 //择取地图：如果当前qi指定了地图，择取指定地图，不然，从备选maps中生成/择取当前qi地图，不然，从地图库中匹配当前地图
 zqdt(){
-    let jd=this.q[this.qi]
+    let jd=this.q[this.qi[0]]
     let dy=this.language    //默认地域为所用语言（区域）
     let t=jd.t
     if(!!this.sr.dy){dy=this.sr.dy}    //如果源文本指定了，用它的
@@ -295,12 +336,6 @@ dtrender(){
         let c=this.c
         // ctx.drawImage(jsd.bg[0],c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
         this.dt.drawToCanvas(ctx,c)
-        //获取所有节点中的p在地图上的pxy值或pjw值，一一绘制。
-    let q=this.q
-    let qi=this.qi
-    for (let i=0;i<q.length;i++){
-        let jd=q[i]
-        let jdp=jd.p
         // for (let j=0;j<jdp.length;j++){
         //     let d=jdp[j]
         //     //1,先看节点中是否有自定义地点位置：pxy,pjw。暂略。
@@ -316,11 +351,62 @@ dtrender(){
 
 
         // }
+    //子节点“动画”
+    //获取所有子节点中的p在地图上的pxy值或pjw值，一一绘制。
+    
+    let q=this.q
+    let qi=this.qi
+    for (let i=0;i<q.length;i++){
+        let jd=q[i]
+        let jdp=jd.p
+        // console.log(jd.p,jd.pp);
+        for (let j=0;j<jd.stpr.length;j++){
+            let sj=jd.stpr[j]
+            let sp=[]
+            if(!!sj.p){
+                let p=sj.p
+                for (let k=0;k<p.length;k++){
+                    let spk=jdp[p[k]]
+                    let ppk=jd.pp[p[k]]
+                    let mp=[]
+                    // console.log(i,j,k,spk,ppk[0])
+                    if(this.sr.mrmapm===this.map.ming){
+                        this.mrmap=this.map    //临时，用于等比例拟合……
+                        if(ppk[0][2]>0){mp=ppk[0]}else{mp=hhdtd(ppk[1],this.map,'xy')}
+                    }else{
+                        if(ppk[1][2]>0){mp=hhdtd(ppk[1],this.map,'xy')}else{
+                            mp=this.hhnhxy(ppk[0],this.mrmap,this.map)//临时，此处等比例拟合……
+                        }
+                    }
+                    let c=this.c
+                    let xmp=[(mp[0]-c[0])*c[6]/c[2],(mp[1]-c[1])*c[7]/c[3]]
+                    xmp[0]=Math.round(xmp[0])
+                    xmp[1]=Math.round(xmp[1])
+                    // console.log(xmp);
+                    let canvas=this.dthuabu.canvas
+                    let ctx = canvas.getContext('2d')
+                    // ctx.globalAlpha=jsd.buju.globalAlpha.pp
+                    ctx.globalAlpha=1
+                    ctx.beginPath();
+                    ctx.arc(xmp[0],xmp[1],5,0,2*Math.PI);
+                    ctx.stroke();
+                    if(qi[0]===(q.length-1)||(qi[0]===i&&qi[1]===j)){
+                        console.log(j,k,spk,xmp);
+                        ctx.font="12px Arial";
+                        ctx.fillText(spk,xmp[0],xmp[1]);
+                    }
+                    sp.push(spk)
+                }
+            }else{sp=jdp}
+            // console.log(sp);
+            //绘制当前（原）子节点所有的p
 
-        if (qi===i||qi===(q.length-1)) {
+        }
+        if (qi[0]===i||qi[0]===(q.length-1)) {
             
         }
     }
+       
         //1.2，描绘预设地点
         let lsmapp=jsd.mapp
         for (let i in lsmapp){
@@ -347,6 +433,10 @@ dtrender(){
         //  //
     }
 }
+//临时配件，输入原xy0，原mrmap,新map,拟合一个新地图上的xy并返回。
+hhnhxy(xy0,mrmap,map){
+    //1,获取参考点。
+}//临时，此处等比例拟合……
 //配件，节点指定地图：
 jdzddt(jd,dy){
     let re=0
@@ -465,7 +555,7 @@ bfwbrender(){
     // console.log(wbcanvas);
     let jdq=this.q    //节点群
     //(当前高)dqh自适应模块：根据qi调整h
-    let sji=this.qi
+    let sji=this.qi[0]
     let lsi=[]
     //默认模式数据
     if(1){
@@ -584,13 +674,15 @@ wbrender(){
                 wbctx.font=gs.p1.font
                 let mw=wbctx.measureText('测').width
                 wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-                if(i===this.qi){wbctx.strokeStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
+                if(i===this.qi[0]){wbctx.strokeStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
                 for (let k=0;k<zsz.length;k++){
                     let zs=zsz[k]
+                    // console.log(zs,k);
                     for (let j=0;j<zs.length;j++){
                         let m=zs[j]
                         if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
                             wbctx.fillStyle=gs.p1.s
+                            if(k===this.qi[1]&&i===this.qi[0]){wbctx.fillStyle=gs.p1.s1}
                             wbctx.fillText(m[0],xy0[0]+m[1],xy0[1]+m[2]-dqh)
                         }
                     }
@@ -610,7 +702,7 @@ wbrender(){
                 let dqh=this.h[ttvs[0]]   //控制文本上下移动的变量，取值于当前时间（节）点。临时设为0。
                 wbctx.font=gs.H3.font
                 wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-                if(i===this.qi){wbctx.strokeStyle=gs.H3.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
+                if(i===this.qi[0]){wbctx.strokeStyle=gs.H3.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
                     for (let j=0;j<zs.length;j++){
                         let m=zs[j]
                         if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
@@ -625,7 +717,7 @@ wbrender(){
                 let jh=jdq[i].zxyjh
                 wbctx.font=gs.p1.font
                 wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
-                if(i===this.qi){wbctx.strokeStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
+                if(i===this.qi[0]){wbctx.strokeStyle=gs.p1.bjs[2];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
                 for (let k=0;k<zsz.length;k++){
                     let zs=zsz[k]
                     for (let j=0;j<zs.length;j++){
@@ -641,7 +733,7 @@ wbrender(){
             // this.hmax=(xy0[1]-wbcanvas.height>0)?(xy0[1]-wbcanvas.height):0
         }
         if (ttvs[0]===0){
-            let sji=this.qi
+            let sji=this.qi[0]
             // console.log(sji);
             let pbjs=0
             let bjs=0
@@ -703,7 +795,7 @@ wbrender(){
                     let mh=jdq[i].zxymh
                     wbctx.font=gs.H3.font
                     wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],mh+1);
-                    if(i===this.qi){wbctx.strokeStyle=gs.H3.bjs[3];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
+                    if(i===this.qi[0]){wbctx.strokeStyle=gs.H3.bjs[3];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,mh)}
                         for (let j=0;j<zs.length;j++){
                             let m=zs[j]
                             if(xy0[1]-dqh<wbcanvas.height&&xy0[1]+m[2]-dqh>0){
@@ -722,7 +814,7 @@ wbrender(){
                     wbctx.font=gs.p1.font
                     wbctx.fillRect(xy0[0],xy0[1]-dqh,sq[2],jh+1);
                     // console.log(gs.p1.bjs[3]);
-                    if(i===this.qi){wbctx.strokeStyle=gs.p1.bjs[3];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
+                    if(i===this.qi[0]){wbctx.strokeStyle=gs.p1.bjs[3];wbctx.strokeRect(xy0[0],xy0[1]-dqh,sq[2]-1,jh)}
                     for (let k=0;k<zsz.length;k++){
                         let zs=zsz[k]
                         for (let j=0;j<zs.length;j++){
@@ -753,7 +845,7 @@ wbrender(){
 ////四，时线数据更新与显示模块
 sxupdate(){
     // console.log('时线变量描述参见：',bians.wb.chs.slwb.sxdescr);
-    let i=this.qi
+    let i=this.qi[0]
     this.sx.dq=this.q[i].t[0][0]
     this.sx.xd=this.sx.dq-this.sx.qz[0]
     this.sx.sb=[this.sx.xd,this.sx.gt]
@@ -781,8 +873,8 @@ sxrender(){
         let dc=this.sx.dc   //登场时间段
         let zr=this.sx.zr   //自然生死时间段
         let dq=this.sx.dq   //当前节点时间（段）
-        console.log(this.qi);
-        let dqsj=this.q[this.qi].t
+        // console.log(this.qi);
+        let dqsj=this.q[this.qi[0]].t
         // console.log(this.sx);
         let py=Math.floor(tc[2]/(qz[1]-sq[0]))    //py像素每年
         // console.log(`${tc[2]}像素，${qz[1]-sq[0]}年`);
@@ -849,7 +941,7 @@ sxrender(){
             let ps=(!!psfa[zl[0]])?psfa[zl[0]].mr:psfa.mr
             // console.log('配色：',ps);
             ctx.fillStyle=ps
-            if(i===this.qi){sq[1]=0.5*sq[1]}    //当前节点上提
+            if(i===this.qi[0]){sq[1]=0.5*sq[1]}    //当前节点上提
             ctx.fillRect(sq[0],sq[1],sq[2],sq[3]);
             if(zl[1]>0){
                 let ks=psfa.dg.fk
