@@ -15,7 +15,7 @@ class Sxjdq{
         if(!!language){
             this.name=sr.tt
             this.q=hhsxjdq(sr,language)
-            this.qi=[6,0]    //第6节点的第0子节点
+            this.qi=[6,0,0]    //第6节点的第0子节点
             this.zdy=[0,0,0]
             this.jd012=[[],[],[]]
             for (let i=0;i<this.q.length;i++){
@@ -65,7 +65,7 @@ update(){
         let tosave={}
         tosave.q=this.q
         tosave.vs=this.vs
-        tosave.qi=this.qi[0]
+        tosave.qi=this.qi
         tosave.zdy=this.zdy
         tosave.jd012=this.jd012
         tosave.sx=this.sx
@@ -88,10 +88,12 @@ render(k){
     if(!!k){
         // console.log(this.c,this.dt.c);
         this.zqdt()
+        if(k==='dt'){this.dtupdate('dt')}else{this.dtupdate()}
         this.dt.img.onload=()=>{
             // console.log('临时，给三国系列地图的d数据配一份jwxy,以便程序中取用。');
             // this.lsjwxy();
-            this.dtrender();}
+            this.dtrender();
+        }
         //临时，给三国系列地图的d数据配一份jwxy,以便程序中取用。
     // this.dt.img.onload=()=>{}
     }else{this.dtrender()}
@@ -103,16 +105,23 @@ ichange(k){
     if(k===0){this.qi[1]-=1};
     if(this.qi[1]>=this.q[this.qi[0]].s.length){this.qi[0]+=1,this.qi[1]=0}
     if(this.qi[1]<0){this.qi[0]-=1
-        if(this.qi[0]<0){this.qi=[0,0]}else{this.qi[1]=this.q[this.qi[0]].s.length-1}
+        if(this.qi[0]<0){this.qi[0]=0;this.qi[1]=0}else{this.qi[1]=this.q[this.qi[0]].s.length-1}
         }
-    if(this.qi[0]<0){this.qi=[0,0]}
+    if(this.qi[0]<0){this.qi[0]=0;this.qi[1]=0}
     if(this.qi[0]>=this.q.length){this.qi[0]=this.q.length-1}
     this.ijump()
 }
-ijump(k){
-    if(!!k){this.qi=[k,0]}
-    console.log("ijump");
-    this.render(1)
+ijump(k,x){
+    // console.log(k,!k,!!k,typeof(k));
+    if(typeof(k)==='number'){
+        // console.log(this.qi);
+        this.qi[0]=k;this.qi[1]=0}
+    if(!!x){
+        if(x==='dt'){
+            // console.log('来自地图的跳转');
+            this.render('dt')
+        }
+    }else{this.render(1)}
     
 }
 //二，整体数据更新与显示模块//
@@ -226,6 +235,22 @@ hhdxy(d,t){
             }
         }
     }
+    //3,未果，则使用对应历史时期的jwdd中的jwxy
+    for(let sd in jwdd){
+        if(!!jwdd[sd].t){
+            let dt=jwdd[sd].t
+            if(t[0]>=dt[0]&&t[0]<=dt[1]){
+                let ds=jwdd[sd].jwxy.xy
+                for (let i=0;i<ds.length;i++){
+                    let dd=ds[i]
+                    // console.log(d,dd,t);
+                    if(d===dd[0]){re=[dd[1],dd[2],1];
+                        console.log(d,re);
+                        return re}
+                }
+            }
+        }
+    }
     // if (re[0]>=0){return re}
     return re
 }//配件，返回地名对应的xy值，如果有
@@ -262,6 +287,9 @@ bjtime(t,dt){
 zqdt(){
     let jd=this.q[this.qi[0]]
     let dy=this.language    //默认地域为所用语言（区域）
+    // console.log(this.q);
+    // console.log(this.qi);
+    // console.log(jd);
     let t=jd.t
     if(!!this.sr.dy){dy=this.sr.dy}    //如果源文本指定了，用它的
     //1,如果当前节点有指定地图，优先使用。
@@ -296,17 +324,38 @@ zqdt(){
     }
     // console.log(this.map);
     this.dt.update(this.map,this.cc[0])
-    this.c=this.dt.c
+    // this.c=this.dt.c
 }
 //更新数据
-dtupdate(){
+dtupdate(k){
+    this.scmapp()
     let sc=this.cc[0]
-        //1.1.1等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
-        let c=[0,0,this.dt.width,this.dt.height,sc[0],sc[1],sc[2],sc[3]]
+    let c=[]
+    if(!!k){
+        if(k==='dt'){
+            console.log(this.c);
+            c=deepCopy(this.c)
+            let mxy=this.dqmapp[this.qi[2]][3]
+            // console.log(this.qi,mxy);
+            let re=this.dt.zoom(c,this.exy[0],this.exy[1],4,mxy[0],mxy[1])
+            this.c=deepCopy(re)
+            console.log(this.c);
+    // console.log(this.cbf);
+            // this.c=deepCopy(this.cbf)
+        }
+    }else{
+        c=[0,0,this.dt.width,this.dt.height,sc[0],sc[1],sc[2],sc[3]]
         this.c=this.dt.zoom(c,0.5*c[6],0.5*c[7],3)
-        // console.log(c);
-        // jsd.mapp=jwdd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
-        //生成地图缩放工具的位置
+        console.log(this.c);
+    }
+    // console.log(this.c);
+    // console.log(this.cbf);
+    //1.等比例缩放图片以匹配显示区域，多余的裁剪。中心定位。
+    
+    // console.log(c);
+    // jsd.mapp=jwdd.xd    //临时（系列）地理点：{key:[地点名，地理上的经度,纬度]} 
+    //2.生成地图缩放工具的位置
+    if(1){
         this.dt.btn=deepCopy(bians.btns.map)
         let btn=this.dt.btn
         let p=btn.p
@@ -320,8 +369,84 @@ dtupdate(){
         s[2]=0.25*s[3]
         s[1]=sc[3]*(p.b[1]-p.b[0])/p.b[1]-s[3]
         p.s=s
-    //调用render
+    }
+    
+    // 调用render
+    // this.dtrender()
     this.dt.img.onload=()=>{this.dtrender()}
+}
+//配件，生成当前所用地图点dqmapp
+scmapp(){
+//3.生成所有节点地名在地图上的位置，地点去重复：this.dqmapp。数据结构：[[地名，[(地点)x,y],[(地名)x,y],[[涉及qi],……]],……]。地名字符去重叠。
+    //3.1,初步生成所有节点地点，地名在地图上的位置
+    let q=this.q
+    let qi=this.qi
+    //3.1.1获取所有去重复地点，构成临时lsp数据：[去重复地名p，对应的pp,[涉及的qi]]
+    let lsp=[]
+    for (let i=0;i<q.length;i++){
+        let jd=q[i]
+        let jdp=jd.p
+        let jdpp=jd.pp
+        for (let j=0;j<jdp.length;j++){
+            let pn=jdp[j]
+            let cf=0
+            let cfd=-1
+            for (let k=0;k<lsp.length;k++){
+                if(pn===lsp[k][0]){cf=1,cfd=k}
+            }
+            if(cf===0){
+                let ls=[pn,jdpp[j],[i]]
+                lsp.push(ls)
+            }else{lsp[cfd][2].push(i)}
+        }
+    }
+    // console.log(lsp);
+    //3.1.2从临时lsp数据生成当前地图的地点位置
+    for (let i=0;i<lsp.length;i++){
+        let mp=[]
+        let yp=lsp[i][1]
+    //    if(lsp[i][0]==='当阳'){console.log(yp);}
+        if(this.sr.mrmapm===this.map.ming){
+            if(yp[0][2]>0){mp=yp[0]}else{mp=hhdtd(yp[1],this.map,'xy')}
+        }else{
+            // console.log('从临时lsp数据生成当前地图的地点位置');
+            if(yp[1][2]>0){mp=hhdtd(yp[1],this.map,'xy')}else{
+                // console.log(lsp[i][0],yp);
+                if(yp[0][2]>0){
+                    mp=this.hhnhxy(yp[0],this.map)//临时，此处等比例拟合……
+            // console.log(spk,mp);
+                }else{
+                    let ls=hhdtd(yp[1],this.map,'xy');mp=this.hhnhxy(ls,this.map)}
+                }
+            }
+        lsp[i].push(mp)
+        let lsmp=deepCopy(mp)
+        lsp[i].push(lsmp)
+    }
+    //3.1.3,地名去重叠
+    for (let i=0;i<lsp.length;i++){
+        let gs=this.gs.dtp
+        ctx.font=gs.font
+        let w=ctx.measureText(lsp[i][0]).width
+        let h=ctx.measureText('测').width
+        // console.log(lsp[i],w);
+        let wbi=lsp[i][4]
+        let cd=0
+        for (let j=0;j<lsp.length;j++){
+            let wbj=lsp[j][4]
+            if(i!==j){
+                let dx=wbj[0]-wbi[0]
+                let dy=Math.abs(wbj[1]-wbi[1])
+                if(dx>=0&&dx<w&&dy<h){
+                    cd=1
+                }
+
+            }
+        }
+        if(cd>0){lsp[i][4][0]=lsp[i][4][0]-w}
+    }
+    this.dqmapp=lsp
+    // console.log(this.dqmapp);
 }
 //绘制
 dtrender(){
@@ -332,64 +457,93 @@ dtrender(){
         let c=this.c
         this.dt.drawToCanvas(ctx,c)
     //子节点“动画”
-    //获取所有子节点中的p在地图上的pxy值或pjw值，一一绘制。
+    //绘制所有this.dqmapp中的点。
     let q=this.q
     let qi=this.qi
-    for (let i=0;i<q.length;i++){
-        let jd=q[i]
-        let jdp=jd.p
-        // console.log(jd.p,jd.pp);
-        for (let j=0;j<jd.stpr.length;j++){
-            let sj=jd.stpr[j]
-            let sp=[]
-            if(!!sj.p){
-                let p=sj.p
-                for (let k=0;k<p.length;k++){
-                    let spk=jdp[p[k]]
-                    let ppk=jd.pp[p[k]]
-                    let mp=[]
-                    // console.log(i,j,k,spk,ppk[0])
-                    if(this.sr.mrmapm===this.map.ming){
-                        if(ppk[0][2]>0){mp=ppk[0]}else{mp=hhdtd(ppk[1],this.map,'xy')}
-                    }else{
-                        if(ppk[1][2]>0){mp=hhdtd(ppk[1],this.map,'xy')}else{
-                            console.log(spk,ppk);
-                            if(ppk[0][2]>0){
-                                mp=this.hhnhxy(ppk[0],this.map)//临时，此处等比例拟合……
-                        console.log(spk,mp);
-                            }else{
-                                let ls=hhdtd(ppk[1],this.map,'xy');mp=this.hhnhxy(ls,this.map)}
-                            }
-                        }
-                    let c=this.c
-                    let xmp=[(mp[0]-c[0])*c[6]/c[2],(mp[1]-c[1])*c[7]/c[3]]
-                    xmp[0]=Math.round(xmp[0])
-                    xmp[1]=Math.round(xmp[1])
-                    console.log(spk,xmp);
-                    let canvas=this.dthuabu.canvas
-                    let ctx = canvas.getContext('2d')
-                    // ctx.globalAlpha=jsd.buju.globalAlpha.pp
-                    ctx.globalAlpha=1
-                    ctx.beginPath();
-                    ctx.arc(xmp[0],xmp[1],5,0,2*Math.PI);
-                    ctx.stroke();
-                    if(qi[0]===(q.length-1)||(qi[0]===i&&qi[1]===j)){
-                        // console.log(j,k,spk,xmp);
-                        ctx.font="12px Arial";
-                        ctx.fillText(spk,xmp[0],xmp[1]);
-                        //此时宜用动效……暂略
+    let mpp=this.dqmapp
+    for (let i=0;i<mpp.length;i++){
+        let mp=mpp[i][3]
+        let c=this.c
+        let xmp=[(mp[0]-c[0])*c[6]/c[2],(mp[1]-c[1])*c[7]/c[3]]
+        xmp[0]=Math.round(xmp[0])
+        xmp[1]=Math.round(xmp[1])
+        // console.log(spk,xmp);
+        let canvas=this.dthuabu.canvas
+        let ctx = canvas.getContext('2d')
+        // ctx.globalAlpha=jsd.buju.globalAlpha.pp
+        ctx.globalAlpha=1
+        ctx.beginPath();
+        ctx.arc(xmp[0],xmp[1],5,0,2*Math.PI);
+        ctx.stroke();
+        for (let j=0;j<mpp[i][2].length;j++){
+            if(qi[0]===mpp[i][2][j]){
+                let wb=mpp[i][0]
+                let wbp=mpp[i][4]
+                let xwbp=[(wbp[0]-c[0])*c[6]/c[2],(wbp[1]-c[1])*c[7]/c[3]]
+                xwbp[0]=Math.round(xwbp[0])
+                xwbp[1]=Math.round(xwbp[1])
+                ctx.font=this.gs.dtp.font
+                ctx.fillStyle=this.gs.dtp.s
+                let zjd=q[qi[0]].stpr[qi[1]]
+                if(!!zjd.p){
+                    for (let k=0;k<zjd.p.length;k++){
+                        // console.log(wb,q[qi[0]].p[zjd.p[k]]);
+                        // console.log(wb===q[qi[0]].p[zjd.p[k]]);
+                        if(wb===q[qi[0]].p[zjd.p[k]]){ctx.fillStyle=this.gs.dtp.s1}
                     }
-                    sp.push(spk)
                 }
-            }else{sp=jdp}
-            // console.log(sp);
-            //绘制当前（原）子节点所有的p
+                // console.log(wb,xwbp[0],xwbp[1]);
+                ctx.fillText(wb,xwbp[0],xwbp[1]);
+                ctx.fillStyle=this.gs.dtp.s
+            }
+        }
 
-        }
-        if (qi[0]===i||qi[0]===(q.length-1)) {
-            
-        }
     }
+//     for (let i=0;i<q.length;i++){
+//         let jd=q[i]
+//     let jdp=jd.p
+//     let jdpp=jd.pp
+//     // console.log(jd.p,jd.pp);
+//     for (let j=0;j<jd.stpr.length;j++){
+//         let sj=jd.stpr[j]
+//         let sp=[]
+//         if(!!sj.p){
+//             let p=sj.p
+//             for (let k=0;k<p.length;k++){
+//                 let spk=jdp[p[k]]
+//                 let ppk=jd.pp[p[k]]
+//                 let mp=[]
+//                 // console.log(i,j,k,spk,ppk[0])
+//                 if(this.sr.mrmapm===this.map.ming){
+//                     if(ppk[0][2]>0){mp=ppk[0]}else{mp=hhdtd(ppk[1],this.map,'xy')}
+//                 }else{
+//                     if(ppk[1][2]>0){mp=hhdtd(ppk[1],this.map,'xy')}else{
+//                         console.log(spk,ppk);
+//                         if(ppk[0][2]>0){
+//                             mp=this.hhnhxy(ppk[0],this.map)//临时，此处等比例拟合……
+//                     console.log(spk,mp);
+//                         }else{
+//                             let ls=hhdtd(ppk[1],this.map,'xy');mp=this.hhnhxy(ls,this.map)}
+//                         }
+//                     }
+                
+//                 if(qi[0]===(q.length-1)||(qi[0]===i&&qi[1]===j)){
+//                     // console.log(j,k,spk,xmp);
+//                     ctx.font="12px Arial";
+//                     ctx.fillText(spk,xmp[0],xmp[1]);
+//                     //此时宜用动效……暂略
+//                 }
+//                 sp.push(spk)
+//             }
+//         }else{sp=jdp}
+//         // console.log(sp);
+//         //绘制当前（原）子节点所有的p
+
+//     }
+//     if (qi[0]===i||qi[0]===(q.length-1)) {
+        
+//     }
+// }
         //1.3,加载悬浮按钮……地图缩放工具
         let mbp=this.dt.btn.p.s
         ctx.drawImage(jsd.mapbtn,mbp[0],mbp[1],mbp[2],mbp[3])
@@ -916,7 +1070,7 @@ sxrender(){
         let zr=this.sx.zr   //自然生死时间段
         let dq=this.sx.dq   //当前节点时间（段）
         // console.log(this.qi);
-        let dqsj=this.q[this.qi[0]].t
+        // let dqsj=this.q[this.qi[0]].t
         // console.log(this.sx);
         let py=Math.floor(tc[2]/(qz[1]-sq[0]))    //py像素每年
         // console.log(`${tc[2]}像素，${qz[1]-sq[0]}年`);

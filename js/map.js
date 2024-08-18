@@ -336,6 +336,8 @@ class Mapimg{
     this.height = map.img.siz[1]
     this.visible = true
     this.c=this.zoom([0,0,this.width,this.height,cc[0],cc[1],cc[2],cc[3]],0.5*this.width,0.5*this.height,3)
+    this.sfb=1
+    this.cbf=[]
     // this.tgb=m.tgb
     }
     //更新：
@@ -348,8 +350,8 @@ class Mapimg{
         this.tgb=map.tgb
         //临时，应替换为当前节点的x,y
         // console.log(d);
-        console.log('临时，应替换为当前节点的x,y');
-        this.c=this.zoom([0,0,this.width,this.height,cc[0],cc[1],cc[2],cc[3]],0.5*this.width,0.5*this.height,3)
+        // console.log('临时，应替换为当前节点的x,y');
+        // this.c=this.zoom([0,0,this.width,this.height,cc[0],cc[1],cc[2],cc[3]],0.5*this.width,0.5*this.height,3)
         // console.log(map);
         // console.log(this);
     }
@@ -366,6 +368,17 @@ class Mapimg{
         if(c[1]+c[3]>this.height){c[1]=this.height-c[3]}
         return c
     }
+    //点击地图点时的换图时的范围校正。地图缩放比尽量不变。调整地图偏移量，使得节点视界位置不变。
+    fwjz(c,x,y,mx,my){
+        if(c[0]<0||c[0]+c[2]>this.width||c[1]<0||c[1]+c[3]>this.height){
+            let b=Math.min(mx/x,my/y,(this.width-mx)/(c[6]-x),(this.height-my)/(c[7]-y))
+            c[0]=mx-x*b
+            c[1]=my-y*b
+            c[2]=c[6]*b
+            c[3]=c[7]*b
+        }
+        return c
+    }
     //拖动效果
     move(c,dx,dy) {
         // console.log("地图图片拖动中");
@@ -376,10 +389,10 @@ class Mapimg{
         return c
     }
     //缩放效果
-    zoom(c,x,y,k) {
+    zoom(c,x,y,k,mx,my) {
+        // let c=deepCopy(cr)
         let ms=[this.width,this.height]
         if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
-        console.log("地图图片缩放中");
         let bmax=Math.min(ms[0]/c[6],ms[1]/c[7])
         let bmin=0.1*bmax
         let b0=c[2]/c[6]
@@ -387,18 +400,32 @@ class Mapimg{
         //以x,y为中心点缩放：
         let db=0.1*b0
         let b=1
-        if(k===0){b=b0-db}
-        if(k===2){b=b0+db}
-        if(k===3){b=bmax}
-        if(b>bmax){b=bmax}
-        if(b<bmin){b=bmin}
-        c[0]=c[0]+x*(b0-b)
-        c[1]=c[1]+y*(b0-b)
-        c[2]=c[6]*b
-        c[3]=c[7]*b
+        if(k===4){
+            console.log(x,y,mx,my);
+            b=this.sfb
+            c[0]=mx-x*b
+            c[1]=my-y*b
+            c[2]=c[6]*b
+            c[3]=c[7]*b
+            c=this.fwjz(c,x,y,mx,my)
+        }else{
+            if(k===0){b=b0-db}
+            if(k===2){b=b0+db}
+            if(k===3){b=bmax}
+            if(b>bmax){b=bmax}
+            if(b<bmin){b=bmin}
+            c[0]=c[0]+x*(b0-b)
+            c[1]=c[1]+y*(b0-b)
+            c[2]=c[6]*b
+            c[3]=c[7]*b
+            c=this.fwjd(c)
+        }
         //范围校正（以免图片“超出”视界），返回数据
-        c=this.fwjd(c)
         // console.log(c);
+        if(k!==4){this.sfb=b,this.cbf=c}
+        // console.log(k,this.sfb);
+        // console.log(c);
+        console.log("地图图片缩放中",x,y,c,b);
         return c
     }
     //聚焦效果

@@ -29,7 +29,7 @@ class Main{
         document.addEventListener('mouseup', () => {
             jsd.mapisDragging = false;
             canvas.style.cursor = 'default';
-            canvas.removeEventListener('mousemove',this.bindsbevent)
+            canvas.removeEventListener('mousemove',this.sxjdq.dthuabu.bindsbevent)
           });//鼠标拖动地图,松开鼠标不需集成。
 
     }//构建函数//
