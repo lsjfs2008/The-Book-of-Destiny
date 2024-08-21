@@ -360,7 +360,7 @@ class Mapimg{
         if (!this.visible) return    //不可见则直接隐藏，可见则路过这里执行后面。
         ctx.drawImage(this.img,c[0],c[1],c[2],c[3],c[4],c[5],c[6],c[7])
     }
-    //范围校正（以免图片“超出”视界）
+    //范围校对（以免图片“超出”视界）
     fwjd(c){
         if(c[0]<0){c[0]=0}
         if(c[0]+c[2]>this.width){c[0]=this.width-c[2]}
