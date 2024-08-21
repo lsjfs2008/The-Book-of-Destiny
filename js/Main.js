@@ -26,11 +26,11 @@ class Main{
         canvas.addEventListener('wheel',this.bindsbevent)
         canvas.addEventListener('dblclick',this.bindsbevent)
         //鼠标拖动地图,松开鼠标不需集成。
-        document.addEventListener('mouseup', () => {
-            jsd.mapisDragging = false;
-            canvas.style.cursor = 'default';
-            canvas.removeEventListener('mousemove',this.sxjdq.dthuabu.bindsbevent)
-          });//鼠标拖动地图,松开鼠标不需集成。
+        // document.addEventListener('mouseup', () => {
+        //     jsd.mapisDragging = false;
+        //     canvas.style.cursor = 'default';
+        //     canvas.removeEventListener('mousemove',this.sxjdq.dthuabu.bindsbevent)
+        //   });//鼠标拖动地图,松开鼠标不需集成。
 
     }//构建函数//
 start(){
