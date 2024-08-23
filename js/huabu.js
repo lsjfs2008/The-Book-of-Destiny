@@ -166,7 +166,7 @@ hhsxdj(x){
 class dtHuabu extends Huabu{
     constructor(prid,sq,that){
         super(prid,sq)
-        this.j=that     //留待缩减传参量…………
+        // this.j=that     //留待缩减传参量…………
         this.q=that.q
         this.qi=that.qi
         this.gs=that.gs
@@ -180,7 +180,11 @@ class dtHuabu extends Huabu{
         this.dt=new Mapimg(dings.csdt,this.cc[0])
         this.zqdt()
         this.update()
-        // this.ijump=that.ijump()
+        this.ijump=that.ijump.bind(that)
+        // console.log(typeof(this.ijump));
+        // console.log(that.bindijump);    //log得undefined
+        // console.log(that.ijump);    //log得函数。
+        // console.log(typeof(that.ijump));
         // this.bindsbevent=this.sbevent.bind(that)     //这种方法固然方便，但也妨碍了使用本体的this数据。。虽然这里并没有。
         this.bindsbevent=this.sbevent.bind(this)
         this.canvas.addEventListener('wheel',this.bindsbevent)
@@ -581,7 +585,8 @@ sbevent(e){
         if(e.type==='wheel'){if (e.deltaY>0){ls=this.ddjump(bxqi,0)}else{ls=this.ddjump(bxqi,1)}}
         if(e.type==="mousedown"){ls=this.ddjump(bxqi,1)}
         this.exy=[x,y]
-        this.j.ijump(ls,'dt')    //1,来自地图节点的跳转。
+        console.log('this.ijump(ls,dt)');
+        this.ijump(ls,'dt')    //1,来自地图节点的跳转。
     }else{
         //鼠标拖动地图,
         if(e.type==="mousedown"){

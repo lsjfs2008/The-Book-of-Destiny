@@ -187,3 +187,14 @@ new cesi()
 //使用Object.assign(this, that)相当于把对象that并入了this。1,同名数据被顶替。方法没顶替。2，这边对数据的改变并不影响原对象。
 /**/
 ////
+/*///7,bind(that)
+this.bindijump=this.ijump.bind(this)     
+console.log(that.bindijump);    //log得undefined
+console.log(that.ijump);    //log得函数。
+……ijump与bindjump在其它函数中似乎只有ijump能够被引用。若想绑定原函数的this,需
+this.ijump=that.ijump.bind(that)
+/**/
+////
+/*///
+/**/
+////

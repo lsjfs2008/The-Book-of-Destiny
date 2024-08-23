@@ -37,6 +37,9 @@ class Sxjdq{
         this.dt=new dtHuabu('zhudiv',[0,0,0,0],this)
         this.wbhuabu=new wbHuabu('zhudiv',[0,0,0,0],this)
         this.sxhuabu=new sxHuabu('zhudiv',[0,0,0,0],this)
+        this.bindijump=this.ijump.bind(this)     //传递对象时不能直接“传递”函数。
+        // console.log(this.bindijump);
+        // console.log(typeof(this.bindijump));
         //初始化一个地图img
         // this.mapslx=0    //地图指定类型：0未指定。1节点指定。2文本指定系列，3文本指定基本地图，4，文本指定地域
         console.log(this);
@@ -241,7 +244,7 @@ hhdxy(d,t){
                     let dd=ds[i]
                     // console.log(d,dd,t);
                     if(d===dd[0]){re=[dd[1],dd[2],1];
-                        console.log(d,re);
+                        // console.log(d,re);
                         return re}
                 }
             }
